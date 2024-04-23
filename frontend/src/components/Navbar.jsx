@@ -18,9 +18,6 @@ import Search from "./Search";
 import testProfileImg from "../assets/test/phuc-lai-test.jpg";
 
 function Navbar() {
-  const [searchIsOpen, setSearchIsOpen] = useState(false);
-  const [sidebar, setSidebar] = useState("");
-
   const navigate = useNavigate();
   return (
     <>
@@ -64,8 +61,12 @@ function Navbar() {
         </div>
         <img src={listLogo} alt="List Logo" className="nav-logo mb-8" />
       </div>
-      {sidebar === "search" ? <Search isOpen={searchIsOpen} /> : <></>}
-    </>
+      <img
+        src={listLogo}
+        alt="List Logo"
+        className="mb-8 h-[32px] w-[32px] cursor-pointer"
+      />
+    </div>
   );
 }
 

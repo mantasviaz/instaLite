@@ -11,7 +11,7 @@ import TextPostPage from "./pages/TextPostPage";
 
 function App() {
   return (
-    <div className="relative flex h-screen w-screen">
+    <div className="flex h-screen w-screen">
       <BrowserRouter>
         <Navbar />
         <Routes>
