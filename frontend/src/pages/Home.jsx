@@ -1,8 +1,11 @@
 import React from "react";
+import Navbar from "../components/Navbar";
 
 function Home() {
   return (
-    <h1 className=" bg-red-300 text-3xl font-bold underline">Home Page</h1>
+    <div className="flex h-screen w-screen justify-center">
+      <h1 className=" bg-red-300 text-3xl font-bold underline">Home Page</h1>
+    </div>
   );
 }
 
