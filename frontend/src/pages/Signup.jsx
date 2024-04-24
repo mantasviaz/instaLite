@@ -81,8 +81,34 @@ function SignupForm() {
   //review
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Submit form data to backend API
-    console.log(formData); // Example: Log form data to console
+    try {
+      const formDataWithPhoto = new FormData();
+      formDataWithPhoto.append("profilePhoto", formData.profilePhoto);
+      formDataWithPhoto.append("username", formData.username);
+      formDataWithPhoto.append("password", formData.password);
+      // Add other form data fields as needed
+
+      const response = await fetch("/api/register", {
+        method: "POST",
+        body: formDataWithPhoto,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Profile photo uploaded successfully");
+        console.log("Image URL:", data.imageUrl); // Assuming backend returns image URL
+        // Store the image URL in form data state
+        setFormData({
+          ...formData,
+          profilePhoto: data.imageUrl,
+        });
+      } else {
+        console.error("Failed to upload profile photo");
+      }
+    } catch (error) {
+      console.error("Error uploading profile photo:", error);
+    }
+  };
     /*e.preventDefault();
     try {
       // Upload profile photo to server (You need to implement this part in the backend)
@@ -132,7 +158,6 @@ function SignupForm() {
       console.error("Error registering user:", error);
     }
     */
-  };
 
   return (
     <div className="signup-page flex justify-center items-center min-h-screen w-full bg-gray-100">
