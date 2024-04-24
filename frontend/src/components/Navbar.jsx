@@ -25,20 +25,20 @@ function Navbar() {
         <img
           src={instagramLogo}
           alt="Instagram Logo"
-          className="mt-8 h-[32px] w-[32px] cursor-pointer"
+          className="nav-logo mt-8"
           onClick={() => navigate("/home")}
         />
         <div className="flex h-96 cursor-pointer flex-col justify-between">
           <img
             src={homeLogo}
             alt="Home Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
+            className="nav-logo"
             onClick={() => navigate("/home")}
           />
           <img
             src={searchLogo}
             alt="Search Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
+            className="nav-logo"
             onClick={() => {
               setSearchIsOpen(!searchIsOpen);
               setSidebar("search");
@@ -49,32 +49,16 @@ function Navbar() {
             alt="Compass Logo"
             className="h-[32px] w-[32px]"
           />
-          <img
-            src={reelsLogo}
-            alt="Reels Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
-          />
-          <img
-            src={messageLogo}
-            alt="Message Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
-          />
+          <img src={reelsLogo} alt="Reels Logo" className="nav-logo" />
+          <img src={messageLogo} alt="Message Logo" className="nav-logo" />
           <img
             src={notifcationsLogo}
             alt="Notifications Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
+            className="nav-logo"
           />
-          <img
-            src={addLogo}
-            alt="Add Logo"
-            className="h-[32px] w-[32px] cursor-pointer"
-          />
+          <img src={addLogo} alt="Add Logo" className="nav-logo" />
         </div>
-        <img
-          src={listLogo}
-          alt="List Logo"
-          className="mb-8 h-[32px] w-[32px] cursor-pointer"
-        />
+        <img src={listLogo} alt="List Logo" className="nav-logo mb-8" />
       </div>
       {sidebar === "search" ? <Search isOpen={searchIsOpen} /> : <></>}
     </>
