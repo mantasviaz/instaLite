@@ -44,11 +44,7 @@ function Navbar() {
               setSidebar("search");
             }}
           />
-          <img
-            src={compassLogo}
-            alt="Compass Logo"
-            className="h-[32px] w-[32px]"
-          />
+          <img src={compassLogo} alt="Compass Logo" className="nav-logo" />
           <img src={reelsLogo} alt="Reels Logo" className="nav-logo" />
           <img src={messageLogo} alt="Message Logo" className="nav-logo" />
           <img
