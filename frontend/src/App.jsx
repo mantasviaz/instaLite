@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
+
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <div className="flex h-screen w-screen">
+    <div className="relative flex h-screen w-screen">
       <BrowserRouter>
         <Navbar />
         <Routes>
