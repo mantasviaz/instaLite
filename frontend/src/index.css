@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-    .nav-logo {
-        height: 32px;
-        width: 32px;
-        cursor: pointer;
-    }
+.nav-logo {
+    @apply h-[32px] w-[32px] cursor-pointer;
 }
