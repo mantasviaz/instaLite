@@ -8,7 +8,6 @@ import ImagePost from "../components/ImagePost";
 import CreatePost from "../components/CreatePost";
 import TextPost from "../components/TextPost";
 
-import Navbar from "../components/Navbar";
 
 function Home() {
   useEffect(() => {
