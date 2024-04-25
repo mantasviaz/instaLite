@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Logos
-import instagramLogo from "../assets/instagram.svg";
-import homeLogo from "../assets/home.svg";
-import searchLogo from "../assets/search.svg";
-import compassLogo from "../assets/compass.svg";
-import reelsLogo from "../assets/reels.svg";
-import messageLogo from "../assets/message.svg";
-import notifcationsLogo from "../assets/heart.svg";
-import addLogo from "../assets/plus-square.svg";
-import listLogo from "../assets/list.svg";
+import instagramLogo from "../assets/logos/instagram.svg";
+import homeLogo from "../assets/logos/home.svg";
+import searchLogo from "../assets/logos/search.svg";
+import compassLogo from "../assets/logos/compass.svg";
+import reelsLogo from "../assets/logos/reels.svg";
+import messageLogo from "../assets/logos/message.svg";
+import notifcationsLogo from "../assets/logos/heart.svg";
+import addLogo from "../assets/logos/plus-square.svg";
+import listLogo from "../assets/logos/list.svg";
 
 import Search from "./Search";
 
