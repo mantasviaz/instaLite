@@ -5,3 +5,11 @@
 .nav-logo {
     @apply h-[32px] w-[32px] cursor-pointer;
 }
+
+.flex-center {
+    @apply flex justify-center items-center;
+}
+
+.flex-between {
+    @apply flex justify-between items-center
+}
