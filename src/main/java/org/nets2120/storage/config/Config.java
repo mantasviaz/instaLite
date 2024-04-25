@@ -1,3 +1,5 @@
+package org.nets2120.storage.config;
+
 public class Config {
     public static final String CHROMA_CLIENT_PORT = "8000";
     public static final String CHROMA_DB_FOLDER_NAME = "chroma_db";
