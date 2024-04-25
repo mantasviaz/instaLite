@@ -21,14 +21,14 @@ function Navbar() {
   const navigate = useNavigate();
   return (
     <>
-      <div className="flex w-24 flex-col items-center justify-between border-r-2 px-2">
+      <div className="flex-between w-24 flex-col border-r-2 px-2">
         <img
           src={instagramLogo}
           alt="Instagram Logo"
           className="nav-logo mt-8"
           onClick={() => navigate("/home")}
         />
-        <div className="flex h-96 cursor-pointer flex-col justify-between">
+        <div className="flex-between h-96 cursor-pointer flex-col">
           <img
             src={homeLogo}
             alt="Home Logo"
