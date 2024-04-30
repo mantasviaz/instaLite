@@ -1,22 +1,111 @@
 const request = require('supertest');
-// Use only one of these depending on your project structure.
-const app = require('../app'); // Typically, you use this for testing.
+const app = require('../app');
+const { sequelize } = require('../config/dbConfig.js');
+
+jest.setTimeout(10000); 
+
+let userId; // Variable to hold the user ID for reuse in other tests
 
 describe('User Endpoints', () => {
-    it('should create a new user', async () => {
-      const res = await request(app)
-          .post('/api/users/register')
-          .send({
-              username: 'testuser',
-              email: 'test@example.com',
-              password: 'password123',
-              firstName: 'Test',
-              lastName: 'User'
-          });
-      expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty('username', 'testuser');
-    }, 10000); // Increasing timeout to 10 seconds
-  });
-  
-  // Add more tests
+  beforeEach(async () => {
 
+  });
+
+  describe('POST /register', () => {
+    it('should create a new user and return 201 status', async () => {
+      const userData = {
+          username: 'newuser',
+          email: 'test9@example.com',
+          password: 'password123',
+          firstName: 'Test',
+          lastName: 'User'
+      };
+
+      const response = await request(app)
+          .post('/api/users/register')
+          .send(userData);
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('username', userData.username);
+      userId = response.body.userId; // Store the userId for use in later tests
+    });
+
+    it('should handle validation errors and return 500 status', async () => {
+      const userData = {
+          username: '',
+          email: 'bademail',
+          password: 'pass',
+          firstName: '',
+          lastName: ''
+      };
+
+      const response = await request(app)
+          .post('/api/users/register')
+          .send(userData);
+      expect(response.status).toBe(500);
+    });
+  });
+
+  describe('POST /login', () => {
+    it('should authenticate user and return 200 status', async () => {
+      const loginData = {
+          email: 'test9@example.com',
+          password: 'password123'
+      };
+
+      const response = await request(app)
+          .post('/api/users/login')
+          .send(loginData);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('email', loginData.email);
+    });
+
+    it('should reject wrong credentials and return 401 status', async () => {
+      const loginData = {
+          email: 'test9@example.com',
+          password: 'wrongpassword'
+      };
+
+      const response = await request(app)
+          .post('/api/users/login')
+          .send(loginData);
+      expect(response.status).toBe(401);
+    });
+  });
+
+  describe('PATCH /:userId', () => {
+    it('should update user data and return 200 status', async () => {
+      const updateData = {
+          firstName: 'Updated',
+          lastName: 'Name'
+      };
+
+      const response = await request(app)
+          .patch(`/api/users/${userId}`) // Use dynamic user ID
+          .send(updateData);
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("User updated successfully");
+    });
+
+    it('should return 404 if user not found', async () => {
+      const response = await request(app)
+          .patch('/api/users/999') // Assume user 999 does not exist
+          .send({ firstName: 'Test' });
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('DELETE /:userId', () => {
+    it('should delete a user and return 200 status', async () => {
+      const response = await request(app)
+          .delete(`/api/users/${userId}`); // Use dynamic user ID
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("User deleted successfully");
+    });
+
+    it('should return 404 if no user found to delete', async () => {
+      const response = await request(app)
+          .delete('/api/users/999'); // Assume user 999 does not exist
+      expect(response.status).toBe(404);
+    });
+  });
+});
