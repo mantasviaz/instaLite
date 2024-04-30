@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import profilePic from "../assets/react.svg";
 import heartLogo from "../assets/logos/heart.svg";
 import heartFilledLogo from "../assets/logos/heart-fill.svg";
+import commentLogo from "../assets/logos/chat-left.svg";
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   const [comment, setComment] = useState("");
-  const [likeHover, setLikeHover] = useState(false);
+  const [likedPost, setLikedPost] = useState(false);
 
   const handleChange = (event) => {
     setComment(event.target.value);
@@ -29,6 +30,10 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
     }
   };
 
+  const handleLike = () => {
+    setLikedPost(!likedPost);
+  };
+
   return (
     <div className="my-2 w-[26rem] border-b-2 pb-2 font-sans">
       {/* Header div  */}
@@ -49,13 +54,17 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
         alt="Post Image"
       />
       {/* Button divs with like button, comment, maybe share and save */}
-      <div className="my-2">
+      <div className="my-2 flex items-center justify-start">
         <img
-          src={!likeHover ? heartLogo : heartFilledLogo}
+          src={!likedPost ? heartLogo : heartFilledLogo}
           alt="Like Button"
           className="h-[24px] w-[24px] cursor-pointer"
-          onMouseOver={() => setLikeHover(true)}
-          onMouseOut={() => setLikeHover(false)}
+          onClick={handleLike}
+        />
+        <img
+          src={commentLogo}
+          alt="Comment Logo"
+          className="ml-2 h-[24px] w-[24px] origin-top cursor-pointer"
         />
       </div>
       {/* Text Content */}
