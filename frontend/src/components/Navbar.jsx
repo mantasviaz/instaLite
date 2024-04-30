@@ -14,6 +14,9 @@ import listLogo from "../assets/logos/list.svg";
 
 import Search from "./Search";
 
+// Test Profile Img
+import testProfileImg from "../assets/test/phuc-lai-test.jpg";
+
 function Navbar() {
   const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [sidebar, setSidebar] = useState("");
@@ -53,6 +56,11 @@ function Navbar() {
             className="nav-logo"
           />
           <img src={addLogo} alt="Add Logo" className="nav-logo" />
+          <img
+            src={testProfileImg}
+            alt="Profile Picture"
+            className="nav-logo rounded-full"
+          />
         </div>
         <img src={listLogo} alt="List Logo" className="nav-logo mb-8" />
       </div>
