@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { sequelize } = require('../config/dbConfig.js');
+const sequelize = require('../config/dbConfig.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
@@ -45,25 +45,34 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-
-// Update user profile
+//update
 exports.updateUserProfile = async (req, res) => {
     let transaction;
 
     try {
+        console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
 
-        const user = await User.findByPk(req.params.userId, { transaction });
-        if (!user) {
+        const userExists = await User.findByPk(req.params.userId, { transaction });
+        console.log("User exists:", !!userExists);
+        if (!userExists) {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
 
-        const [updated] = await User.update(req.body, {
-            where: { userId: req.params.userId },
-            transaction
-        });
+        console.log("Update data:", req.body);
+        // Ensure the request body has the correct properties
+        const updateData = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            updated_at: new Date()  // Update the 'updated_at' field to current time
+        };
 
+        const [updated] = await User.update(updateData, {
+            where: { userId: req.params.userId },
+            transaction: transaction
+        });
+        
         if (updated) {
             const updatedUser = await User.findByPk(req.params.userId, { transaction });
             await transaction.commit();
@@ -78,6 +87,9 @@ exports.updateUserProfile = async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
 };
+
+
+
 
 
 
