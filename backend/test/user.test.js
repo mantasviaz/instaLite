@@ -1,6 +1,8 @@
 const request = require('supertest');
 const app = require('../app');
 const { sequelize } = require('../config/dbConfig.js');
+const User = require('../models/user');
+
 
 jest.setTimeout(10000); 
 
@@ -75,24 +77,34 @@ describe('User Endpoints', () => {
   describe('PATCH /:userId', () => {
     it('should update user data and return 200 status', async () => {
       const updateData = {
-          firstName: 'Updated',
-          lastName: 'Name'
+        first_name: 'NameChange1',
+        last_name: 'NameChange1'
       };
-
+  
+      // Log the user's data before the update attempt
+      const preUpdateUser = await User.findByPk(userId);
+      console.log('Pre-update user data:', preUpdateUser.toJSON());
+  
       const response = await request(app)
-          .patch(`/api/users/${userId}`) // Use dynamic user ID
-          .send(updateData);
+        .patch(`/api/users/${userId}`) // Use dynamic user ID
+        .send(updateData);
+  
+      console.log('API response:', response.body);
+  
       expect(response.status).toBe(200);
-      expect(response.text).toContain("User updated successfully");
+      expect(response.body.first_name).toBe(updateData.first_name);
+      expect(response.body.last_name).toBe(updateData.last_name);
     });
-
+  
     it('should return 404 if user not found', async () => {
       const response = await request(app)
-          .patch('/api/users/999') // Assume user 999 does not exist
-          .send({ firstName: 'Test' });
+        .patch('/api/users/999') // Assume user 999 does not exist
+        .send({ firstName: 'Test' });
       expect(response.status).toBe(404);
     });
   });
+  
+  
 
   describe('DELETE /:userId', () => {
     it('should delete a user and return 200 status', async () => {
