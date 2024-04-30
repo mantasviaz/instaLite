@@ -4,7 +4,6 @@ import profilePic from "../assets/react.svg";
 
 import heartFilledLogo from "../assets/logos/heart-fill.svg";
 import commentLogo from "../assets/logos/chat-left.svg";
-import heartLogo from "../assets/logos/heart.svg";
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   const [comment, setComment] = useState("");
@@ -35,6 +34,10 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
     setLikedPost(!likedPost);
   };
 
+  const handleLike = () => {
+    setLikedPost(!likedPost);
+  };
+
   return (
     <div className="my-2 w-[26rem] border-b-2 pb-2 font-sans">
       {/* Header div  */}
@@ -58,10 +61,18 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
       />
       {/* Button divs with like button, comment, maybe share and save */}
       <div className="my-2 flex items-center justify-start">
+      <div className="my-2 flex items-center justify-start">
         <img
+          src={!likedPost ? heartLogo : heartFilledLogo}
           src={!likedPost ? heartLogo : heartFilledLogo}
           alt="Like Button"
           className="h-[24px] w-[24px] cursor-pointer"
+          onClick={handleLike}
+        />
+        <img
+          src={commentLogo}
+          alt="Comment Logo"
+          className="ml-2 h-[24px] w-[24px] origin-top cursor-pointer"
           onClick={handleLike}
         />
         <img
