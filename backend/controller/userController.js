@@ -45,6 +45,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+
 //update
 exports.updateUserProfile = async (req, res) => {
     let transaction;
