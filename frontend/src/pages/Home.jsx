@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import image_post_test from "../test/image-post";
+import ImagePost from "../components/ImagePost";
+import CreatePost from "../components/CreatePost";
 
 function Home() {
   useEffect(() => {
@@ -6,21 +9,13 @@ function Home() {
   }, []);
   return (
     <div className="flex-start max-h-full flex-1 flex-col overflow-y-auto">
-      <h1 className=" bg-red-300 text-3xl font-bold underline">Home Page</h1>
+      <CreatePost />
       {image_post_test.map((post, idx) => (
         <ImagePost
           username={post.username}
           text={post.text}
           img_link={post.img}
           created_date={post.created_at}
-          key={idx}
-        />
-      ))}
-      {text_posts.map((post, idx) => (
-        <TextPost
-          username={post.username}
-          content={post.text}
-          num_of_likes={post.num_of_likes}
           key={idx}
         />
       ))}
