@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
+import FriendList from "./pages/FriendList";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/friends" element={<FriendList />} />
         </Routes>
       </BrowserRouter>
     </div>
