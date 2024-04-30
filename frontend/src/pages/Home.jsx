@@ -6,7 +6,7 @@ function Home() {
   }, []);
   return (
     <div className="flex-start max-h-full flex-1 flex-col overflow-y-auto">
-      <CreatePost />
+      <h1 className=" bg-red-300 text-3xl font-bold underline">Home Page</h1>
       {image_post_test.map((post, idx) => (
         <ImagePost
           username={post.username}
