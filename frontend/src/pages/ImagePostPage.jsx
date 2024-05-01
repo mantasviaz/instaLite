@@ -27,6 +27,7 @@ function ImagePostPage() {
   const handleEnterSubmit = (event) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
+      setComment("");
     }
   };
   const handleLike = () => {
