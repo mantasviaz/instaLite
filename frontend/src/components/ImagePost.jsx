@@ -52,7 +52,7 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
         <p className="text-[12px] text-neutral-500">{created_date}</p>
       </div>
       <img
-        className="h-[30rem] w-[26rem] rounded border-0 border-white"
+        className="h-[30rem] w-[26rem] rounded border-0 border-white object-contain"
         src={img_link}
         alt="Post Image"
       />
