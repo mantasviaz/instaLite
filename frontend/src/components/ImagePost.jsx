@@ -27,7 +27,6 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   const handleEnterSubmit = (event) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
-      setComment("");
     }
   };
 
