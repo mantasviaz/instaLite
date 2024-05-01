@@ -13,9 +13,12 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/home" element={<Home />} />
+<<<<<<< HEAD
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+=======
+>>>>>>> main
         </Routes>
       </BrowserRouter>
     </div>

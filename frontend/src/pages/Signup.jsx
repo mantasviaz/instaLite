@@ -11,6 +11,9 @@ function SignupForm() {
     birthday: "",
   });
 
+  //new
+  const history = useHistory(); // Access the history object
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -19,10 +22,28 @@ function SignupForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  //new
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Submit form data to backend API
-    console.log(formData); // Example: Log form data to console
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        console.log("User registered successfully");
+        // Redirect to home page after successful signup
+        history.push("/"); // Redirect to home page
+      } else {
+        console.error("Failed to register user");
+      }
+    } catch (error) {
+      console.error("Error registering user:", error);
+    }
   };
 
   return (
