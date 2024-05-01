@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
+
+// Test posts
 import image_post_test from "../test/image-post";
+import text_posts from "../test/text-post";
+
 import ImagePost from "../components/ImagePost";
 import CreatePost from "../components/CreatePost";
+import TextPost from "../components/TextPost";
 
 function Home() {
   return (
