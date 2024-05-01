@@ -45,10 +45,11 @@ function CreatePost() {
 
   const handlePost = (event) => {
     event.preventDefault();
-    const hashtags = content
-      .replace(/\s/g, "")
-      .split("#")
-      .slice(1, content.length);
+    // The backend can deal with parsing the hashtags
+    // const hashtags = content
+    //   .replace(/\s/g, "")
+    //   .split("#")
+    //   .slice(1, content.length);
 
     console.log(hashtags);
     console.log("SUBMIT POST");
