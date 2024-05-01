@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import TextPostPage from "./pages/TextPostPage";
 import FriendList from "./pages/FriendList";
 import ImagePostPage from "./pages/ImagePostPage";
+import TextPostPage from "./pages/TextPostPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/friends" element={<FriendList />} />
           <Route path="/image-post" element={<ImagePostPage />} />
+          <Route path="/text-post" element={<TextPostPage />} />
         </Routes>
       </BrowserRouter>
     </div>

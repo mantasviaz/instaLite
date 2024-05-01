@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import heartFilledLogo from "../assets/logos/heart-fill.svg";
-import heartLogo from "../assets/logos/heart.svg";
 
 import testImage from "../assets/test/ameer-umar-test.jpg";
 
@@ -9,12 +7,6 @@ import comments from "../test/comments";
 
 function TextPostPage() {
   const [comment, setComment] = useState("");
-  const [likedPost, setLikedPost] = useState(false);
-
-  const handleLike = () => {
-    setLikedPost(!likedPost);
-  };
-
   const handleChange = (event) => {
     setComment(event.target.value);
   };
@@ -50,15 +42,6 @@ function TextPostPage() {
             </span>
           </div>
           <p className="text-sm">{text_posts[0].text}</p>
-          <div className="flex-start mt-3">
-            <img
-              src={!likedPost ? heartLogo : heartFilledLogo}
-              alt="Like Button"
-              className="mr-3 h-[24px] w-[24px] cursor-pointer"
-              onClick={handleLike}
-            />
-            <span>1232 Likes</span>
-          </div>
         </div>
         <div className="no-scrollbar overflow-y-auto px-8">
           {comments.map((comment, idx) => (
