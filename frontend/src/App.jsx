@@ -14,6 +14,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/friends" element={<FriendList />} />
         </Routes>
       </BrowserRouter>
     </div>
