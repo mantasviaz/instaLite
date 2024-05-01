@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
 import FriendList from "./pages/FriendList";
+import ImagePostPage from "./pages/ImagePostPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/friends" element={<FriendList />} />
+          <Route path="/image-post" element={<ImagePostPage />} />
         </Routes>
       </BrowserRouter>
     </div>
