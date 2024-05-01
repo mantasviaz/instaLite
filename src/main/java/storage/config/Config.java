@@ -1,4 +1,4 @@
-package org.nets2120.storage.config;
+package storage.config;
 
 public class Config {
     public static final String CHROMA_CLIENT_PORT = "8000";

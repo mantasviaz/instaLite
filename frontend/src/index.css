@@ -1,7 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.nav-logo {
-    @apply h-[32px] w-[32px] cursor-pointer;
-}
