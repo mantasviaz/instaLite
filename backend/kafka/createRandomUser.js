@@ -104,14 +104,14 @@ const lastNames = [
   'Collins',
 ];
 
-// Function to generate random email
+// Generate random email
 function generateEmail(firstName, lastName) {
   const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com'];
   const domain = domains[Math.floor(Math.random() * domains.length)];
   return `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`;
 }
 
-// Function to create a random user
+// Create a random user
 function createRandomUser() {
   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];

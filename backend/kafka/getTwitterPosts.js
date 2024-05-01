@@ -97,6 +97,9 @@ const getTwitterPosts = async () => {
       await consumer.commitOffsets([{ topic, partition, offset: message.offset }]);
     },
   });
+  await consumer.disconnect();
 };
 
-module.exports = getTwitterPosts;
+getTwitterPosts().catch(console.error);
+
+// module.exports = getTwitterPosts;
