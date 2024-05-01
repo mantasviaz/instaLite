@@ -6,6 +6,7 @@ import FriendList from "./pages/FriendList";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import TextPostPage from "./pages/TextPostPage";
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/friends" element={<FriendList />} />
+          <Route path="/image-post" element={<ImagePostPage />} />
+          <Route path="/text-post" element={<TextPostPage />} />
         </Routes>
       </BrowserRouter>
     </div>
