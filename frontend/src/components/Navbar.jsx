@@ -14,6 +14,9 @@ import listLogo from "../assets/logos/list.svg";
 
 import Search from "./Search";
 
+// Test Profile Img
+import testProfileImg from "../assets/test/phuc-lai-test.jpg";
+
 function Navbar() {
   const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [sidebar, setSidebar] = useState("");
@@ -21,7 +24,7 @@ function Navbar() {
   const navigate = useNavigate();
   return (
     <>
-      <div className="flex-between w-24 flex-col border-r-2 px-2">
+      <div className="flex-between h-screen w-24 flex-col border-r-2 px-2">
         <img
           src={instagramLogo}
           alt="Instagram Logo"
@@ -53,6 +56,11 @@ function Navbar() {
             className="nav-logo"
           />
           <img src={addLogo} alt="Add Logo" className="nav-logo" />
+          <img
+            src={testProfileImg}
+            alt="Profile Picture"
+            className="nav-logo rounded-full"
+          />
         </div>
         <img src={listLogo} alt="List Logo" className="nav-logo mb-8" />
       </div>

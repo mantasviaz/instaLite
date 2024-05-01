@@ -34,7 +34,7 @@ function Search({ isOpen }) {
 
   return (
     <div
-      className={`absolute left-[90px] flex h-full flex-col items-center rounded-2xl border-solid shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${isOpen ? "w-0 opacity-0" : "w-96 opacity-100"} transition-max-width duration-500`}
+      className={`absolute left-24 flex h-full flex-col items-center rounded-2xl border-solid bg-white shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${isOpen ? "w-0 opacity-0" : "w-96 opacity-100"} transition-max-width z-10 duration-500`}
     >
       <h1 className="w-full p-7 text-left text-3xl font-semibold">Search</h1>
       <form

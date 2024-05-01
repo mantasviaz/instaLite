@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
+import FriendList from "./pages/FriendList";
+import ImagePostPage from "./pages/ImagePostPage";
+import TextPostPage from "./pages/TextPostPage";
 
 function App() {
   return (
@@ -10,6 +13,9 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/friends" element={<FriendList />} />
+          <Route path="/image-post" element={<ImagePostPage />} />
+          <Route path="/text-post" element={<TextPostPage />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -11,5 +11,30 @@
 }
 
 .flex-between {
-    @apply flex justify-between items-center
+    @apply flex justify-between items-center;
+}
+
+.flex-start {
+    @apply flex justify-start items-center;
+}
+
+.test-red {
+    @apply border-red-700 border-2
+}
+
+.test-blue {
+    @apply border-blue-700 border-2
+}
+
+.test-green {
+    @apply border-green-700 border-2
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
