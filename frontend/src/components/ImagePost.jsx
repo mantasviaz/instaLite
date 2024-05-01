@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import profilePic from "../assets/react.svg";
 
-
 import heartFilledLogo from "../assets/logos/heart-fill.svg";
+import heartLogo from "../assets/logos/heart.svg";
 import commentLogo from "../assets/logos/chat-left.svg";
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
@@ -60,8 +60,7 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
         alt="Post Image"
       />
       {/* Button divs with like button, comment, maybe share and save */}
-      <div className="my-2 flex items-center justify-start">
-      <div className="my-2 flex items-center justify-start">
+      <div className="flex-start my-2">
         <img
           src={!likedPost ? heartLogo : heartFilledLogo}
           src={!likedPost ? heartLogo : heartFilledLogo}
