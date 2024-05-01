@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import profilePic from "../assets/react.svg";
-import heartLogo from "../assets/logos/heart.svg";
+
 import heartFilledLogo from "../assets/logos/heart-fill.svg";
+import heartLogo from "../assets/logos/heart.svg";
 import commentLogo from "../assets/logos/chat-left.svg";
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
@@ -44,7 +45,9 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
             alt="Profile Picture"
             className="h-[24px] w-[24px] rounded-full"
           />
-          <h1 className="ml-2 text-xs font-bold">{username}</h1>
+          <h1 className="ml-2 text-xs font-bold hover:font-extrabold">
+            {username}
+          </h1>
         </div>
         <p className="text-[12px] text-neutral-500">{created_date}</p>
       </div>
@@ -54,7 +57,7 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
         alt="Post Image"
       />
       {/* Button divs with like button, comment, maybe share and save */}
-      <div className="my-2 flex items-center justify-start">
+      <div className="flex-start my-2">
         <img
           src={!likedPost ? heartLogo : heartFilledLogo}
           alt="Like Button"
