@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
+
+// Test posts
 import image_post_test from "../test/image-post";
+import text_posts from "../test/text-post";
+
 import ImagePost from "../components/ImagePost";
 import CreatePost from "../components/CreatePost";
+import TextPost from "../components/TextPost";
 
 function Home() {
   return (
@@ -13,6 +18,14 @@ function Home() {
           text={post.text}
           img_link={post.img}
           created_date={post.created_at}
+        />
+      ))}
+      {text_posts.map((post, idx) => (
+        <TextPost
+          username={post.username}
+          content={post.text}
+          num_of_likes={post.num_of_likes}
+          key={idx}
         />
       ))}
     </div>
