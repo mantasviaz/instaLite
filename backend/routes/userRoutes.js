@@ -1,8 +1,14 @@
 const express = require('express');
-const router = express.Router();
 const userController = require('../controller/userController');
+import { Router } from 'express';
+const router = Router();
 
-router.post('/register', userController.registerUser);
+// Define your routes
+
+export default router;
+
+
+router.post('/signup', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.patch('/:userId', userController.updateUserProfile);
 router.delete('/:userId', userController.deleteUser);
