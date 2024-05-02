@@ -72,8 +72,12 @@ function Profile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission (e.g., send data to backend API)
-    console.log(formData);
+    try {
+      // Similar to the signup form, send updated form data to backend API for profile update
+      console.log("Updated profile data:", formData);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   return (
