@@ -1,16 +1,20 @@
 const request = require('supertest');
 const app = require('../app');
-const { sequelize } = require('../config/dbConfig.js');
+const sequelize= require('../config/dbConfig.js');
 const User = require('../models/user');
 
 
-jest.setTimeout(10000); 
+//jest.setTimeout(10000); 
 
 let userId; // Variable to hold the user ID for reuse in other tests
 
 describe('User Endpoints', () => {
   beforeEach(async () => {
 
+  });
+  afterAll(async () => {
+
+    //await sequelize.close();
   });
 
   describe('POST /register', () => {
@@ -83,13 +87,13 @@ describe('User Endpoints', () => {
   
       // Log the user's data before the update attempt
       const preUpdateUser = await User.findByPk(userId);
-      console.log('Pre-update user data:', preUpdateUser.toJSON());
+      //console.log('Pre-update user data:', preUpdateUser.toJSON());
   
       const response = await request(app)
         .patch(`/api/users/${userId}`) // Use dynamic user ID
         .send(updateData);
   
-      console.log('API response:', response.body);
+      //console.log('API response:', response.body);
   
       expect(response.status).toBe(200);
       expect(response.body.first_name).toBe(updateData.first_name);

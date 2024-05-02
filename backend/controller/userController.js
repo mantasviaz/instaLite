@@ -50,17 +50,17 @@ exports.updateUserProfile = async (req, res) => {
     let transaction;
 
     try {
-        console.log("Received userId for update:", req.params.userId);
+        //console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
 
         const userExists = await User.findByPk(req.params.userId, { transaction });
-        console.log("User exists:", !!userExists);
+        //console.log("User exists:", !!userExists);
         if (!userExists) {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
 
-        console.log("Update data:", req.body);
+        //console.log("Update data:", req.body);
         // Ensure the request body has the correct properties
         const updateData = {
             first_name: req.body.first_name,
