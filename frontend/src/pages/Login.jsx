@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -15,17 +17,40 @@ function LoginForm() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Submit form data to backend API for login
-    console.log(formData); // Example: Log form data to console
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    try {
+      // Submit form data to backend API for login using fetch
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Login successful");
+        navigate("/home"); 
+      } else {
+        console.error("Login failed:", response.statusText);
+        // Optionally, handle login failure
+      }
+    } catch (error) {
+      console.error("Error during login:", error.message || "Unknown error");
+      // Handle error and optionally display a friendly message to the user
+    }
   };
 
   return (
     <div className="login-page flex justify-center items-center min-h-screen w-full bg-gray-100">
       <div className="login-form bg-white p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-3xl font-semibold mb-4 text-center">Log In</h1>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} method="POST">
           <div className="flex flex-col space-y-4">
             <input
               type="text"

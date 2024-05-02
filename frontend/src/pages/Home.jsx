@@ -8,7 +8,11 @@ import ImagePost from "../components/ImagePost";
 import CreatePost from "../components/CreatePost";
 import TextPost from "../components/TextPost";
 
+
 function Home() {
+  useEffect(() => {
+    console.log(image_post_test);
+  }, []);
   return (
     <div className="flex-start max-h-full flex-1 flex-col overflow-y-auto">
       <CreatePost />

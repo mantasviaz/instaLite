@@ -5,8 +5,6 @@ import profilePic from "../assets/react.svg";
 import heartFilledLogo from "../assets/logos/heart-fill.svg";
 import commentLogo from "../assets/logos/chat-left.svg";
 import heartLogo from "../assets/logos/heart.svg";
-import heartLogo from "../assets/logos/heart.svg";
-import commentLogo from "../assets/logos/chat-left.svg";
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   const [comment, setComment] = useState("");

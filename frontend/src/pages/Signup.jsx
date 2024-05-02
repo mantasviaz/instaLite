@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function SignupForm() {
   const [formData, setFormData] = useState({
@@ -27,8 +27,8 @@ function SignupForm() {
     "#books",
   ]);
 
-  //new
-  //const history = useHistory(); // Access the history object
+  
+  const navigate = useNavigate(); // Access the history object
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,90 +80,52 @@ function SignupForm() {
 
   //review
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    
     try {
       const formDataWithPhoto = new FormData();
-      formDataWithPhoto.append("profilePhoto", formData.profilePhoto);
-      formDataWithPhoto.append("username", formData.username);
-      formDataWithPhoto.append("password", formData.password);
-      // Add other form data fields as needed
+      formDataWithPhoto.append('profilePhoto', formData.profilePhoto);
+      formDataWithPhoto.append('username', formData.username);
+      formDataWithPhoto.append('password', formData.password);
+      formDataWithPhoto.append('firstName', formData.fullName.split(' ')[0]);
+      formDataWithPhoto.append('lastName', formData.fullName.split(' ')[1] || '');
+      formDataWithPhoto.append('email', formData.email);
+      formDataWithPhoto.append('school', formData.school);
+      formDataWithPhoto.append('birthday', formData.birthday);
+      formDataWithPhoto.append('hashtags', JSON.stringify(formData.hashtags));
 
-      const response = await fetch("/api/register", {
-        method: "POST",
+      const response = await fetch('/api/users', {
+        method: 'POST',
         body: formDataWithPhoto,
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Profile photo uploaded successfully");
-        console.log("Image URL:", data.imageUrl); // Assuming backend returns image URL
-        // Store the image URL in form data state
-        setFormData({
-          ...formData,
-          profilePhoto: data.imageUrl,
-        });
+        console.log('User registered successfully');
+        navigate('/home'); // Use navigate for redirection
       } else {
-        console.error("Failed to upload profile photo");
+        console.error('Failed to register user');
       }
     } catch (error) {
-      console.error("Error uploading profile photo:", error);
+      console.error('Error registering user:', error);
     }
+    e.preventDefault(); // Prevents default form submission behavior
+
+  /*try {
+    // Simulate a successful registration
+    console.log('User registered successfully');
+    
+    // Navigate to a success page or the home page after a successful signup
+    navigate('/home'); // You can change the path to any desired route
+    
+  } catch (error) {
+    console.error('Error registering user:', error);
+  }*/
   };
-    /*e.preventDefault();
-    try {
-      // Upload profile photo to server (You need to implement this part in the backend)
-      const formDataWithPhoto = new FormData();
-      formDataWithPhoto.append("profilePhoto", formData.profilePhoto);
-
-      // Send form data with photo to the server
-      const response = await fetch("/api/register", {
-        method: "POST",
-        body: formDataWithPhoto,
-      });
-
-      if (response.ok) {
-        console.log("Profile photo uploaded successfully");
-      } else {
-        console.error("Failed to upload profile photo");
-      }
-
-      // Remaining form data to be sent to server
-      const remainingFormData = {
-        username: formData.username,
-        password: formData.password,
-        fullName: formData.fullName,
-        email: formData.email,
-        school: formData.school,
-        birthday: formData.birthday,
-        hashtags: formData.hashtags,
-      };
-
-      // Send remaining form data to server
-      const registerResponse = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(remainingFormData),
-      });
-
-      if (registerResponse.ok) {
-        console.log("User registered successfully");
-        // Redirect to home page after successful signup
-        history.push("/"); // Redirect to home page
-      } else {
-        console.error("Failed to register user");
-      }
-    } catch (error) {
-      console.error("Error registering user:", error);
-    }
-    */
 
   return (
     <div className="signup-page flex justify-center items-center min-h-screen w-full bg-gray-100">
       <div className="signup-form bg-white p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-3xl font-semibold mb-4 text-center">Create an Account</h1>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} method="POST">
           <div className="flex flex-col space-y-4">
             {/* File Upload Section */}
             <div className="flex flex-col items-center space-y-2 mb-4">

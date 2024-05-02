@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 function Profile() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,9 @@ function Profile() {
     password: "",
     hashtags: [],
   });
+
+  const { userId } = useParams(); // Get userId from route parameters
+  const navigate = useNavigate();
 
   //placeholder hashtags
   const [topHashtags, setTopHashtags] = useState([
@@ -70,21 +74,42 @@ function Profile() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formDataWithPhoto = new FormData(); // Use FormData for file uploads
+    formDataWithPhoto.append("email", formData.email);
+    formDataWithPhoto.append("password", formData.password);
+
+    // If profile image is provided, add it to FormData
+    if (formData.actorImage) {
+        formDataWithPhoto.append("actorImage", formData.actorImage);
+    }
+
+    formDataWithPhoto.append("hashtags", JSON.stringify(formData.hashtags)); // Convert hashtags to JSON
+
     try {
-      // Similar to the signup form, send updated form data to backend API for profile update
-      console.log("Updated profile data:", formData);
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        body: formDataWithPhoto, // Sending form data
+      });
+
+      if (response.ok) {
+        console.log("Profile updated successfully");
+        navigate("/profile"); // Redirect to the profile page or another appropriate page
+      } else {
+        console.error("Profile update failed:", await response.text());
+      }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", error.message);
     }
   };
+
 
   return (
     <div className="profile-page flex justify-center items-center min-h-screen w-full bg-gray-100">
       <div className="profile-form bg-white p-8 rounded shadow-md w-full max-w-md">
         <h1 className="text-3xl font-semibold mb-4 text-center">Profile</h1>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} method="POST">
           <div className="mb-4">
             <label htmlFor="actorImage" className="block text-lg font-semibold mb-2">
               Change Profile Photo
