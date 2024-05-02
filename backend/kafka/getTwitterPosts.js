@@ -8,6 +8,11 @@ const PostHashtag = require('../models/postHashtag');
 var config = require('./config.json');
 const createRandomUser = require('./createRandomUser');
 
+const { CompressionTypes, CompressionCodecs } = require('kafkajs');
+const SnappyCodec = require('kafkajs-snappy');
+
+CompressionCodecs[CompressionTypes.Snappy] = SnappyCodec;
+
 const kafka = new Kafka({
   clientId: 'my-app',
   brokers: config.bootstrapServers,
@@ -72,32 +77,46 @@ const createPostHashtag = async (post, hashtags) => {
   }
 };
 
+const isValidJson = (string) => {
+  try {
+    JSON.parse(string);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 // Upload tweets from kafka to database
 const getTwitterPosts = async () => {
   // Consuming
   await consumer.connect();
   console.log(`Following topic ${config['consumer-topic']}`);
   // Subscribe to topic
-  await consumer.subscribe({ topic: config['consumer-topic'], fromBeginning: false });
+  await consumer.subscribe({ topic: config['consumer-topic'], fromBeginning: true, partitions: [0] }); // Will set fromBeginning to false in actual feed
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
-      const twitterPost = JSON.parse(message.value.toString());
-      const [user, hashtags] = await Promise.all([createUser(twitterPost.author_id), createHashtag(twitterPost.hashtags)]);
-      const newPost = await createPost(user.userId, twitterPost.text, new Date(twitterPost.created_at));
-      await createPostHashtag(newPost, hashtags);
+      let twitterPost;
+      if (isValidJson(message.value.toString())) {
+        twitterPost = JSON.parse(message.value.toString());
+        const twitterPost = JSON.parse(message.value.toString());
+        const [user, hashtags] = await Promise.all([createUser(twitterPost.author_id), createHashtag(twitterPost.hashtags)]);
+        const newPost = await createPost(user.userId, twitterPost.text, new Date(twitterPost.created_at));
+        await createPostHashtag(newPost, hashtags);
 
-      console.log({
-        twitterPost: twitterPost,
-        user: user,
-        hashtags: hashtags,
-        newPost: newPost,
-      });
+        console.log({
+          twitterPost: twitterPost,
+          user: user,
+          hashtags: hashtags,
+          newPost: newPost,
+        });
+      }
       // Commits an offset so that it resume to the previous offset before shutting down
-      await consumer.commitOffsets([{ topic, partition, offset: message.offset }]);
+      // await consumer.commitOffsets([{ topic, partition, offset: message.offset }]);
     },
   });
-  await consumer.disconnect();
+  await consumer.seek({ topic: config['consumer-topic'], partition: 0, offset: '0' });
+  // await consumer.disconnect();
 };
 
 getTwitterPosts().catch(console.error);

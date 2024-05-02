@@ -126,8 +126,4 @@ function createRandomUser() {
   };
 }
 
-// Example usage
-const randomUser = createRandomUser();
-console.log(randomUser);
-
 module.exports = createRandomUser;
