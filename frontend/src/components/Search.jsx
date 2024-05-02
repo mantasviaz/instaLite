@@ -1,23 +1,12 @@
-import React, { useEffect, useState } from "react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 function Search({ isOpen }) {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
-    const history = JSON.parse(localStorage.getItem("history") || '""');
-    if (typeof history === "object") {
-      setRecent(history.recent);
-    }
-    console.log(history);
-  }, []);
-
-  const [recent, setRecent] = useState([]);
-
-  useEffect(() => {
-    const history = JSON.parse(localStorage.getItem("history") || '""');
-    if (typeof history === "object") {
+    const history = JSON.parse(localStorage.getItem('history') || '""');
+    if (typeof history === 'object') {
       setRecent(history.recent);
     }
     console.log(history);
@@ -27,92 +16,47 @@ function Search({ isOpen }) {
     event.preventDefault();
     setRecent([content, ...recent]);
 
-    window.localStorage.setItem(
-      "history",
-      JSON.stringify({ recent: [content, ...recent] }),
-    );
-    setRecent([content, ...recent]);
-
-    window.localStorage.setItem(
-      "history",
-      JSON.stringify({ recent: [content, ...recent] }),
-    );
+    window.localStorage.setItem('history', JSON.stringify({ recent: [content, ...recent] }));
 
     // TO DO Handle Search
     console.log(event);
     console.log(content);
-    setContent("");
+    setContent('');
   }
 
   function clearRecent() {
     setRecent([]);
-    window.localStorage.setItem("history", JSON.stringify({ recent: [] }));
-    setContent("");
+    window.localStorage.setItem('history', JSON.stringify({ recent: [] }));
   }
-
-  function clearRecent() {
-    setRecent([]);
-    window.localStorage.setItem("history", JSON.stringify({ recent: [] }));
-  }
-
 
   return (
-    <div
-      className={`absolute left-24 flex h-full flex-col items-center rounded-2xl border-solid bg-white shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${isOpen ? "w-0 opacity-0" : "w-96 opacity-100"} transition-max-width z-10 duration-500`}
-    >
-      <h1 className="w-full p-7 text-left text-3xl font-semibold">Search</h1>
+    <div className={`absolute left-24 flex h-full flex-col items-center rounded-2xl border-solid bg-white shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${isOpen ? 'w-0 opacity-0' : 'w-96 opacity-100'} transition-max-width z-10 duration-500`}>
+      <h1 className='w-full p-7 text-left text-3xl font-semibold'>Search</h1>
       <form
-        className="flex-center w-full border-b-2 pb-8"
-        onSubmit={handleSearch}
-      >
-      <form
-        className="flex-center w-full border-b-2 pb-8"
+        className='flex-center w-full border-b-2 pb-8'
         onSubmit={handleSearch}
       >
         <input
-          className="w-[90%] rounded-xl border-solid bg-stone-200 p-3"
-          type="search"
-          className="w-[90%] rounded-xl border-solid bg-stone-200 p-3"
-          type="search"
-          placeholder="Search"
+          className='w-[90%] rounded-xl border-solid bg-stone-200 p-3'
+          type='search'
+          placeholder='Search'
           onChange={(event) => setContent(event.target.value)}
-          value={content}
           value={content}
         />
       </form>
-      <div className="flex-between w-full p-7">
-        <h1 className="text-md font-medium">Recent</h1>
+      <div className='flex-between w-full p-7'>
+        <h1 className='text-md font-medium'>Recent</h1>
         <a
-          className="text-md cursor-pointer font-semibold text-blue-400 hover:text-blue-800"
+          className='text-md cursor-pointer font-semibold text-blue-400 hover:text-blue-800'
           onClick={clearRecent}
         >
           Clear all
         </a>
       </div>
-      <div className="flex-center flex-col">
+      <div className='flex-center flex-col'>
         {recent.map((r, index) => (
           <a
-            className="cursor-pointer"
-            key={index}
-            onClick={(event) => setContent(event.target.text)}
-          >
-            {r}
-          </a>
-        ))}
-      </div>
-      <div className="flex-between w-full p-7">
-        <h1 className="text-md font-medium">Recent</h1>
-        <a
-          className="text-md cursor-pointer font-semibold text-blue-400 hover:text-blue-800"
-          onClick={clearRecent}
-        >
-          Clear all
-        </a>
-      </div>
-      <div className="flex-center flex-col">
-        {recent.map((r, index) => (
-          <a
-            className="cursor-pointer"
+            className='cursor-pointer'
             key={index}
             onClick={(event) => setContent(event.target.text)}
           >

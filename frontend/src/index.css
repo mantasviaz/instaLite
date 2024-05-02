@@ -11,7 +11,11 @@
 }
 
 .flex-between {
-    @apply flex justify-between items-center
+    @apply flex justify-between items-center;
+}
+
+.flex-start {
+    @apply flex justify-start items-center;
 }
 
 .test-red {
