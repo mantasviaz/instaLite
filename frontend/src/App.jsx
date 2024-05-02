@@ -19,6 +19,9 @@ function App() {
           <Route path="/friends" element={<FriendList />} />
           <Route path="/image-post" element={<ImagePostPage />} />
           <Route path="/text-post" element={<TextPostPage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </div>
