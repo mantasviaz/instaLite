@@ -8,6 +8,20 @@ function Profile() {
     hashtags: [],
   });
 
+  //placeholder hashtags
+  const [topHashtags, setTopHashtags] = useState([
+    "#technology",
+    "#travel",
+    "#food",
+    "#fitness",
+    "#music",
+    "#art",
+    "#photography",
+    "#fashion",
+    "#nature",
+    "#books",
+  ]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -41,6 +55,13 @@ function Profile() {
     });
   };
 
+  const handleHashtagClick = (tag) => {
+    setFormData({
+      ...formData,
+      hashtags: [...formData.hashtags, tag],
+    });
+  };
+
   const handleActorImageChange = (e) => {
     const imageFile = e.target.files[0];
     setFormData({
@@ -61,7 +82,9 @@ function Profile() {
         <h1 className="text-3xl font-semibold mb-4 text-center">Profile</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="actorImage" className="block text-lg font-semibold mb-2">Associated Actor Image</label>
+            <label htmlFor="actorImage" className="block text-lg font-semibold mb-2">
+              Change Profile Photo
+            </label>
             <input
               type="file"
               id="actorImage"
@@ -73,7 +96,9 @@ function Profile() {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-lg font-semibold mb-2">Change Email</label>
+            <label htmlFor="email" className="block text-lg font-semibold mb-2">
+              Change Email
+            </label>
             <input
               type="email"
               name="email"
@@ -85,7 +110,9 @@ function Profile() {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="password" className="block text-lg font-semibold mb-2">Change Password</label>
+            <label htmlFor="password" className="block text-lg font-semibold mb-2">
+              Change Password
+            </label>
             <input
               type="password"
               name="password"
@@ -97,7 +124,7 @@ function Profile() {
             />
           </div>
           <div className="hashtag-section">
-            <h2 className="text-lg font-semibold mb-2">Interests (Hashtags)</h2>
+            <h2 className="text-lg font-semibold mb-2">Change Hashtags of Interests</h2>
             {formData.hashtags.map((tag, index) => (
               <div key={index} className="flex items-center mb-2">
                 <input
@@ -117,13 +144,24 @@ function Profile() {
                 </button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={handleAddHashtag}
-              className="btn-primary"
-            >
+            <button type="button" onClick={handleAddHashtag} className="btn-primary">
               Add Hashtag
             </button>
+          </div>
+          {/* Display placeholder top hashtags */}
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Top 10 Hashtags:</h2>
+            <ul>
+              {topHashtags.map((tag, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleHashtagClick(tag)}
+                  className="cursor-pointer text-blue-500"
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
           </div>
           <button
             type="submit"
