@@ -1,33 +1,24 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUserContext } from '../hooks/useUserContext';
 
 function SignupForm() {
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    fullName: "",
-    email: "",
-    school: "",
-    birthday: "",
+    username: '',
+    password: '',
+    fullName: '',
+    email: '',
+    school: '',
+    birthday: '',
     profilePhoto: null, // To store the selected profile photo
     hashtags: [],
   });
 
   //placeholder hashtags
-  const [topHashtags, setTopHashtags] = useState([
-    "#technology",
-    "#travel",
-    "#food",
-    "#fitness",
-    "#music",
-    "#art",
-    "#photography",
-    "#fashion",
-    "#nature",
-    "#books",
-  ]);
+  const [topHashtags, setTopHashtags] = useState(['#technology', '#travel', '#food', '#fitness', '#music', '#art', '#photography', '#fashion', '#nature', '#books']);
 
-  
+  const { dispatch } = useUserContext();
+
   const navigate = useNavigate(); // Access the history object
 
   const handleInputChange = (e) => {
@@ -58,7 +49,7 @@ function SignupForm() {
   const handleAddHashtag = () => {
     setFormData({
       ...formData,
-      hashtags: [...formData.hashtags, ""],
+      hashtags: [...formData.hashtags, ''],
     });
   };
 
@@ -80,7 +71,6 @@ function SignupForm() {
 
   //review
   const handleSubmit = async (e) => {
-    
     try {
       const formDataWithPhoto = new FormData();
       formDataWithPhoto.append('profilePhoto', formData.profilePhoto);
@@ -100,6 +90,13 @@ function SignupForm() {
 
       if (response.ok) {
         console.log('User registered successfully');
+
+        // convert response to JSON and save the user into local storage
+        const jsonResponse = await response.json();
+        localStorage.setItem('user', JSON.stringify(jsonResponse));
+        // update the user context
+        dispatch({ type: 'LOGIN', payload: jsonResponse });
+
         navigate('/home'); // Use navigate for redirection
       } else {
         console.error('Failed to register user');
@@ -109,7 +106,7 @@ function SignupForm() {
     }
     e.preventDefault(); // Prevents default form submission behavior
 
-  /*try {
+    /*try {
     // Simulate a successful registration
     console.log('User registered successfully');
     
@@ -122,124 +119,134 @@ function SignupForm() {
   };
 
   return (
-    <div className="signup-page flex justify-center items-center min-h-screen w-full bg-gray-100">
-      <div className="signup-form bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-semibold mb-4 text-center">Create an Account</h1>
-        <form onSubmit={handleSubmit} method="POST">
-          <div className="flex flex-col space-y-4">
+    <div className='signup-page flex justify-center items-center min-h-screen w-full bg-gray-100'>
+      <div className='signup-form bg-white p-8 rounded shadow-md w-full max-w-md'>
+        <h1 className='text-3xl font-semibold mb-4 text-center'>Create an Account</h1>
+        <form
+          onSubmit={handleSubmit}
+          method='POST'
+        >
+          <div className='flex flex-col space-y-4'>
             {/* File Upload Section */}
-            <div className="flex flex-col items-center space-y-2 mb-4">
+            <div className='flex flex-col items-center space-y-2 mb-4'>
               <input
-                type="file"
-                name="profilePhoto"
+                type='file'
+                name='profilePhoto'
                 onChange={handleProfilePhotoChange}
-                accept="image/*"
-                className="input-field"
+                accept='image/*'
+                className='input-field'
                 required
               />
               {formData.profilePhoto && (
                 <img
                   src={URL.createObjectURL(formData.profilePhoto)}
-                  alt="Profile"
-                  className="w-32 h-32 rounded-full"
+                  alt='Profile'
+                  className='w-32 h-32 rounded-full'
                 />
               )}
             </div>
             {/* Username Input */}
             <input
-              type="text"
-              name="username"
+              type='text'
+              name='username'
               value={formData.username}
               onChange={handleInputChange}
-              placeholder="Username"
-              className="input-field"
+              placeholder='Username'
+              className='input-field'
               required
             />
             {/* Password Input */}
             <input
-              type="password"
-              name="password"
+              type='password'
+              name='password'
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="Password"
-              className="input-field"
+              placeholder='Password'
+              className='input-field'
               required
             />
             {/* Full Name Input */}
             <input
-              type="text"
-              name="fullName"
+              type='text'
+              name='fullName'
               value={formData.fullName}
               onChange={handleInputChange}
-              placeholder="Full Name"
-              className="input-field"
+              placeholder='Full Name'
+              className='input-field'
               required
             />
             {/* Email Input */}
             <input
-              type="email"
-              name="email"
+              type='email'
+              name='email'
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Email"
-              className="input-field"
+              placeholder='Email'
+              className='input-field'
               required
             />
             {/* School Input */}
             <input
-              type="text"
-              name="school"
+              type='text'
+              name='school'
               value={formData.school}
               onChange={handleInputChange}
-              placeholder="School"
-              className="input-field"
+              placeholder='School'
+              className='input-field'
               required
             />
             {/* Birthday Input */}
             <input
-              type="text"
-              name="birthday"
+              type='text'
+              name='birthday'
               value={formData.birthday}
               onChange={handleInputChange}
-              placeholder="Birthday"
-              className="input-field"
+              placeholder='Birthday'
+              className='input-field'
               required
             />
             {/* Hashtags Input */}
-            <div className="hashtag-section">
-              <h2 className="text-lg font-semibold mb-2">Hashtags of Interests</h2>
+            <div className='hashtag-section'>
+              <h2 className='text-lg font-semibold mb-2'>Hashtags of Interests</h2>
               {formData.hashtags.map((tag, index) => (
-                <div key={index} className="flex items-center mb-2">
+                <div
+                  key={index}
+                  className='flex items-center mb-2'
+                >
                   <input
-                    type="text"
+                    type='text'
                     value={tag}
                     onChange={(e) => handleHashtagChange(e, index)}
-                    placeholder="Hashtag"
-                    className="input-field mr-2"
+                    placeholder='Hashtag'
+                    className='input-field mr-2'
                     required
                   />
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => handleRemoveHashtag(index)}
-                    className="btn-secondary"
+                    className='btn-secondary'
                   >
                     Remove
                   </button>
                 </div>
               ))}
-              <button type="button" onClick={handleAddHashtag} className="btn-primary">
+              <button
+                type='button'
+                onClick={handleAddHashtag}
+                className='btn-primary'
+              >
                 Add Hashtag
               </button>
             </div>
             {/* Display placeholder top hashtags */}
             <div>
-              <h2 className="text-lg font-semibold mb-2">Top 10 Hashtags:</h2>
+              <h2 className='text-lg font-semibold mb-2'>Top 10 Hashtags:</h2>
               <ul>
                 {topHashtags.map((tag, index) => (
                   <li
                     key={index}
                     onClick={() => handleHashtagClick(tag)}
-                    className="cursor-pointer text-blue-500"
+                    className='cursor-pointer text-blue-500'
                   >
                     {tag}
                   </li>
@@ -249,14 +256,20 @@ function SignupForm() {
           </div>
           {/* Submit Button */}
           <button
-            type="submit"
-            className="btn-primary w-full mt-4 rounded bg-blue-500 text-white py-2 px-4 hover:bg-blue-600"
+            type='submit'
+            className='btn-primary w-full mt-4 rounded bg-blue-500 text-white py-2 px-4 hover:bg-blue-600'
           >
             Sign Up
           </button>
         </form>
-        <div className="text-center mt-4">
-          Already have an account? <Link to="/login" className="text-blue-500">Log in</Link>
+        <div className='text-center mt-4'>
+          Already have an account?{' '}
+          <Link
+            to='/login'
+            className='text-blue-500'
+          >
+            Log in
+          </Link>
         </div>
       </div>
     </div>
