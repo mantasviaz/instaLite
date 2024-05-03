@@ -7,15 +7,28 @@ import text_posts from '../test/text-post';
 import ImagePost from '../components/ImagePost';
 import CreatePost from '../components/CreatePost';
 import TextPost from '../components/TextPost';
-
+import { useUserContext } from '../hooks/useUserContext';
 
 function Home() {
+  const { dispatch } = useUserContext();
+
   useEffect(() => {
     console.log(image_post_test);
   }, []);
   return (
     <div className='flex-start max-h-full flex-1 flex-col overflow-y-auto'>
       <CreatePost />
+      {/* These buttons are to test the context */}
+      <button
+        onClick={() => {
+          const jsonResponse = { username: 'user1' };
+          localStorage.setItem('user', JSON.stringify(jsonResponse));
+          dispatch({ type: 'LOGIN', payload: jsonResponse });
+        }}
+      >
+        LOGIN
+      </button>
+      <button onClick={() => dispatch({ type: 'LOGOUT' })}>LOGOUT</button>
       {image_post_test.map((post, idx) => (
         <ImagePost
           username={post.username}
