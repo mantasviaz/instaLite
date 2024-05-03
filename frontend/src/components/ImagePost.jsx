@@ -14,14 +14,14 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   };
 
   const handleInput = (event) => {
-    event.target.style.height = "auto";
-    event.target.style.height = event.target.scrollHeight + "px";
+    event.target.style.height = 'auto';
+    event.target.style.height = event.target.scrollHeight + 'px';
   };
 
   function handleCommentSubmit(event) {
     event.preventDefault();
     // Handle Comment Submit
-    setComment("");
+    setComment('');
   }
 
   const handleEnterSubmit = (event) => {
@@ -35,32 +35,30 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
   };
 
   return (
-    <div className="my-2 w-[26rem] border-b-2 pb-2 font-sans">
+    <div className='my-2 w-[26rem] border-b-2 pb-2 font-sans'>
       {/* Header div  */}
-      <div className="flex-between mb-2">
-        <div className="flex-center cursor-pointer">
+      <div className='flex-between mb-2'>
+        <div className='flex-center cursor-pointer'>
           <img
             src={img_link}
-            alt="Profile Picture"
-            className="h-[24px] w-[24px] rounded-full"
+            alt='Profile Picture'
+            className='h-[24px] w-[24px] rounded-full'
           />
-          <h1 className="ml-2 text-xs font-bold hover:font-extrabold">
-            {username}
-          </h1>
+          <h1 className='ml-2 text-xs font-bold hover:font-extrabold'>{username}</h1>
         </div>
-        <p className="text-[12px] text-neutral-500">{created_date}</p>
+        <p className='text-[12px] text-neutral-500'>{created_date}</p>
       </div>
       <img
-        className="h-[30rem] w-[26rem] rounded border-0 border-white object-contain"
+        className='h-[30rem] w-[26rem] rounded border-0 border-white object-contain'
         src={img_link}
-        alt="Post Image"
+        alt='Post Image'
       />
       {/* Button divs with like button, comment, maybe share and save */}
-      <div className="flex-start my-2">
+      <div className='flex-start my-2'>
         <img
           src={!likedPost ? heartLogo : heartFilledLogo}
-          alt="Like Button"
-          className="h-[24px] w-[24px] cursor-pointer"
+          alt='Like Button'
+          className='h-[24px] w-[24px] cursor-pointer'
           onClick={handleLike}
         />
         <img

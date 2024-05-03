@@ -24,7 +24,7 @@ function Navbar() {
   const navigate = useNavigate();
   return (
     <>
-      <div className="flex-between h-screen w-24 flex-col border-r-2 px-2">
+      <div className="flex-between w-24 flex-col border-r-2 px-2">
         <img
           src={instagramLogo}
           alt="Instagram Logo"

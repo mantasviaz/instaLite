@@ -1,19 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
 // Test posts
-import image_post_test from "../test/image-post";
-import text_posts from "../test/text-post";
+import image_post_test from '../test/image-post';
+import text_posts from '../test/text-post';
 
-import ImagePost from "../components/ImagePost";
-import CreatePost from "../components/CreatePost";
-import TextPost from "../components/TextPost";
+import ImagePost from '../components/ImagePost';
+import CreatePost from '../components/CreatePost';
+import TextPost from '../components/TextPost';
+
 
 function Home() {
   useEffect(() => {
     console.log(image_post_test);
   }, []);
   return (
-    <div className="flex-start max-h-full flex-1 flex-col overflow-y-auto">
+    <div className='flex-start max-h-full flex-1 flex-col overflow-y-auto'>
       <CreatePost />
       {image_post_test.map((post, idx) => (
         <ImagePost
