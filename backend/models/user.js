@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
+const bcrypt = require('bcryptjs')
 
 class User extends Model {}
 
@@ -18,8 +19,15 @@ User.init({
   sequelize,
   modelName: 'User',
   timestamps: false,
-  tableName: 'users'
+  tableName: 'users',
+  hooks: {
+    beforeCreate: async (user) => {
+      const salt = await bcrypt.genSalt(10);
+      user.password_hash = await bcrypt.hash(user.password_hash, salt);
+    }
+  }
 });
+
 
 console.log("User table created");
 module.exports = User;
