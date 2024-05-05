@@ -15,8 +15,10 @@ function Search({ isOpen }) {
   function handleSearch(event) {
     event.preventDefault();
     setRecent([content, ...recent]);
-
-    window.localStorage.setItem('history', JSON.stringify({ recent: [content, ...recent] }));
+    window.localStorage.setItem(
+      "history",
+      JSON.stringify({ recent: [content, ...recent] }),
+    );
 
     // TO DO Handle Search
     console.log(event);

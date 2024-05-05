@@ -8,6 +8,7 @@ import ImagePost from '../components/ImagePost';
 import CreatePost from '../components/CreatePost';
 import TextPost from '../components/TextPost';
 
+
 function Home() {
   useEffect(() => {
     console.log(image_post_test);

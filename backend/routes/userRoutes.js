@@ -8,4 +8,3 @@ router.patch('/:userId', userController.updateUserProfile);
 router.delete('/:userId', userController.deleteUser);
 
 module.exports = router;
-
