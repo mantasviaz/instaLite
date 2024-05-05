@@ -11,4 +11,7 @@ router.post('/friends/:userId', createFriendship);
 // Update a friendship status
 router.patch('/friends/:userId', updateFriendshipStatus);
 
+// Remove a friendship
+router.delete('/friends/:userId1/:userId2', removeFriendship);
+
 module.exports = router;

@@ -70,3 +70,26 @@ exports.updateFriendshipStatus = async (req, res) => {
         res.status(500).send({ error: 'Failed to update friendship status', message: error.message });
     }
 };
+
+exports.removeFriendship = async (req, res) => {
+    try {
+        const { userId1, userId2 } = req.params;
+        const result = await Friendship.destroy({
+            where: {
+                [Op.or]: [
+                    { user_id_1: userId1, user_id_2: userId2 },
+                    { user_id_1: userId2, user_id_2: userId1 }
+                ]
+            }
+        });
+
+        if (result > 0) {
+            res.status(200).send({ message: 'Friendship removed successfully' });
+        } else {
+            res.status(404).send({ error: 'Friendship not found' });
+        }
+    } catch (error) {
+        console.error('Error removing friendship:', error);
+        res.status(500).send({ error: 'Failed to remove friendship', message: error.message });
+    }
+};
