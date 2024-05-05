@@ -1,13 +1,17 @@
-import React, { useState } from "react";
-import profilePic from "../assets/react.svg";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useUserContext } from '../hooks/useUserContext';
 
-import heartFilledLogo from "../assets/logos/heart-fill.svg";
-import heartLogo from "../assets/logos/heart.svg";
-import commentLogo from "../assets/logos/chat-left.svg";
+import profilePic from '../assets/react.svg';
+
+import heartFilledLogo from '../assets/logos/heart-fill.svg';
+import heartLogo from '../assets/logos/heart.svg';
+import commentLogo from '../assets/logos/chat-left.svg';
 
 function ImagePost({ username, text, img_link, created_date, profile_pic }) {
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('');
   const [likedPost, setLikedPost] = useState(false);
+  const { user } = useUserContext();
 
   const handleChange = (event) => {
     setComment(event.target.value);
@@ -18,11 +22,16 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
     event.target.style.height = event.target.scrollHeight + 'px';
   };
 
-  function handleCommentSubmit(event) {
+  const handleCommentSubmit = async (event) => {
     event.preventDefault();
     // Handle Comment Submit
     setComment('');
-  }
+
+    /* const response = await axios.post(`http://localhost:3000/api/posts/${postId}/comments`, {
+      userId : user.userId,
+      text: comment
+    }); */
+  };
 
   const handleEnterSubmit = (event) => {
     if (event.keyCode === 13 && !event.shiftKey) {
@@ -63,20 +72,23 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
         />
         <img
           src={commentLogo}
-          alt="Comment Logo"
-          className="ml-2 h-[24px] w-[24px] origin-top cursor-pointer"
+          alt='Comment Logo'
+          className='ml-2 h-[24px] w-[24px] origin-top cursor-pointer'
         />
       </div>
       {/* Text Content */}
-      <p className="text-xs">
-        <b className="mr-1 cursor-pointer">{username}</b>
+      <p className='text-xs'>
+        <b className='mr-1 cursor-pointer'>{username}</b>
         {text}
       </p>
       {/* Comment Section */}
-      <form onSubmit={handleCommentSubmit} className="flex-center mt-2">
+      <form
+        onSubmit={handleCommentSubmit}
+        className='flex-center mt-2'
+      >
         <textarea
-          placeholder="Add a comment..."
-          className="no-scrollbar max-h-[100px] flex-1 resize-none overflow-visible text-xs outline-none"
+          placeholder='Add a comment...'
+          className='no-scrollbar max-h-[100px] flex-1 resize-none overflow-visible text-xs outline-none'
           onChange={handleChange}
           onInput={handleInput}
           onKeyDown={handleEnterSubmit}
@@ -84,11 +96,7 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
           rows={1}
           value={comment}
         />
-        {comment.length > 0 && (
-          <button className="ml-2 h-5 text-[13px] font-semibold text-blue-400">
-            Post
-          </button>
-        )}
+        {comment.length > 0 && <button className='ml-2 h-5 text-[13px] font-semibold text-blue-400'>Post</button>}
       </form>
     </div>
   );
