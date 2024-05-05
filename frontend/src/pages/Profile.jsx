@@ -72,6 +72,7 @@ function Profile() {
       ...formData,
       actorImage: imageFile,
     });
+    //setProfileImageUrl(URL.createObjectURL(imageFile));
   };
 
   const handleSubmit = async (e) => {
@@ -123,6 +124,13 @@ function Profile() {
               className="input-field"
               required
             />
+            {formData.actorImage && (
+                <img
+                  src={URL.createObjectURL(formData.actorImage)}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full"
+                />
+              )}
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block text-lg font-semibold mb-2">

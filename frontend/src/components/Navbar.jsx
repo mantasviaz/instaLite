@@ -60,6 +60,7 @@ function Navbar() {
             src={testProfileImg}
             alt="Profile Picture"
             className="nav-logo rounded-full"
+            onClick={() => navigate("/profile")}
           />
         </div>
         <img src={listLogo} alt="List Logo" className="nav-logo mb-8" />

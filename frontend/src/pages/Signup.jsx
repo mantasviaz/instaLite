@@ -80,7 +80,8 @@ function SignupForm() {
 
   //review
   const handleSubmit = async (e) => {
-    
+    /*
+    e.preventDefault();
     try {
       const formDataWithPhoto = new FormData();
       formDataWithPhoto.append('profilePhoto', formData.profilePhoto);
@@ -106,19 +107,15 @@ function SignupForm() {
       }
     } catch (error) {
       console.error('Error registering user:', error);
-    }
-    e.preventDefault(); // Prevents default form submission behavior
+    }*/
 
-  /*try {
-    // Simulate a successful registration
+  try {
     console.log('User registered successfully');
-    
-    // Navigate to a success page or the home page after a successful signup
-    navigate('/home'); // You can change the path to any desired route
+    navigate('/home');
     
   } catch (error) {
     console.error('Error registering user:', error);
-  }*/
+  }
   };
 
   return (
