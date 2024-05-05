@@ -21,8 +21,8 @@ describe('User Endpoints', () => {
     it('should create a new user and return 201 status', async () => {
       const userData = {
           username: 'newuser',
-          email: 'test9@example.com',
-          password: 'password123',
+          email: 'tester5000@example.com',
+          password: 'password',
           firstName: 'Test',
           lastName: 'User'
       };
@@ -54,26 +54,34 @@ describe('User Endpoints', () => {
   describe('POST /login', () => {
     it('should authenticate user and return 200 status', async () => {
       const loginData = {
-          email: 'test9@example.com',
-          password: 'password123'
+        email: 'tester5000@example.com',
+        password: 'password'
       };
-
+  
+      // Log in with correct credentials
       const response = await request(app)
-          .post('/api/users/login')
-          .send(loginData);
+        .post('/api/users/login')
+        .send(loginData);
+      
+      
+      console.log("Login request data:", loginData);  // Additional debugging
+      console.log("Login response body:", response.body);  // Additional debugging
+      console.log("Login response status:", response.status);  // Additional debugging
+  
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('email', loginData.email);
     });
-
+  
     it('should reject wrong credentials and return 401 status', async () => {
       const loginData = {
-          email: 'test9@example.com',
-          password: 'wrongpassword'
+        email: 'test9@example.com',
+        password: 'wrongpassword'
       };
-
+  
       const response = await request(app)
-          .post('/api/users/login')
-          .send(loginData);
+        .post('/api/users/login')
+        .send(loginData);
+  
       expect(response.status).toBe(401);
     });
   });
