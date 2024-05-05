@@ -80,7 +80,6 @@ function SignupForm() {
 
   //review
   const handleSubmit = async (e) => {
-    /*
     e.preventDefault();
     try {
       const formDataWithPhoto = new FormData();
@@ -107,15 +106,15 @@ function SignupForm() {
       }
     } catch (error) {
       console.error('Error registering user:', error);
-    }*/
+    }
 
-  try {
+  /*try {
     console.log('User registered successfully');
     navigate('/home');
     
   } catch (error) {
     console.error('Error registering user:', error);
-  }
+  }*/
   };
 
   return (
