@@ -29,13 +29,25 @@ exports.registerUser = async (req, res) => {
 // Login user
 exports.loginUser = async (req, res) => {
     try {
-        const user = await User.findOne({ where: { email: req.body.email } });
+        const { email, password } = req.body;
+        const user = await User.findOne({ where: { email } });
+
         if (!user) {
+            console.log("User not found for email:", email);
             return res.status(401).send("Authentication failed: User not found");
         }
-        const passwordValid = await bcrypt.compare(req.body.password, user.password_hash);
+
+        console.log("Found user:", user.email);
+        console.log("Stored hash:", user.password_hash);
+        const passwordValid = await bcrypt.compare(password, user.password_hash);
+
+        console.log("Submitted password:", password);
+        console.log("Is password valid:", passwordValid);
+
         if (passwordValid) {
-            res.status(200).send(user); // Ensure sensitive info is not sent
+            const result = user.toJSON();
+            delete result.password_hash;  // Remove sensitive data before sending response
+            res.status(200).send(result);
         } else {
             res.status(401).send("Authentication failed: Incorrect password");
         }
@@ -44,6 +56,8 @@ exports.loginUser = async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
 };
+
+
 
 //update
 exports.updateUserProfile = async (req, res) => {

@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const Post = require('../models/post');
+const Like = require('../models/like');
+
 const sequelize = require('../config/dbConfig');
 
 
@@ -55,4 +57,34 @@ exports.deletePost = async (req, res) => {
   } catch (error) {
       res.status(500).send({ error: 'Failed to delete post', message: error.message });
   }
+};
+
+exports.likePost = async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.user.id; // Assuming you have some way of getting the current user's ID
+
+    try {
+        // Check if the user has already liked this post
+        const existingLike = await Like.findOne({
+            where: {
+                postId: postId,
+                userId: userId
+            }
+        });
+
+        if (existingLike) {
+            return res.status(409).send({ error: 'You have already liked this post' });
+        }
+
+        // Create a new like
+        const newLike = await Like.create({
+            postId: postId,
+            userId: userId
+        });
+
+        res.status(201).send({ message: `Post ${postId} liked successfully`, likeId: newLike.likeId });
+    } catch (error) {
+        console.error('Error liking post:', error);
+        res.status(500).send({ error: 'Failed to like the post', message: error.message });
+    }
 };
