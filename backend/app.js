@@ -9,6 +9,7 @@ const Post = require('./models/post');
 const Comment = require('./models/comment'); 
 const Friendship = require('./models/friendship'); 
 
+
 const app = express();
 
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/friendships', friendshipRoutes);
+
 
 // Sync all models
 sequelize.sync().then(() => {

@@ -9,5 +9,3 @@ router.delete('/:postId', deletePost);
 router.post('/posts/:postId/likes', likePost);
 
 module.exports = router;
-
-
