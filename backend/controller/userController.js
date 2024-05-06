@@ -29,13 +29,25 @@ exports.registerUser = async (req, res) => {
 // Login user
 exports.loginUser = async (req, res) => {
     try {
-        const user = await User.findOne({ where: { email: req.body.email } });
+        const { email, password } = req.body;
+        const user = await User.findOne({ where: { email } });
+
         if (!user) {
+            console.log("User not found for email:", email);
             return res.status(401).send("Authentication failed: User not found");
         }
-        const passwordValid = await bcrypt.compare(req.body.password, user.password_hash);
+
+        console.log("Found user:", user.email);
+        console.log("Stored hash:", user.password_hash);
+        const passwordValid = await bcrypt.compare(password, user.password_hash);
+
+        console.log("Submitted password:", password);
+        console.log("Is password valid:", passwordValid);
+
         if (passwordValid) {
-            res.status(200).send(user); // Ensure sensitive info is not sent
+            const result = user.toJSON();
+            delete result.password_hash;  // Remove sensitive data before sending response
+            res.status(200).send(result);
         } else {
             res.status(401).send("Authentication failed: Incorrect password");
         }
@@ -45,22 +57,24 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+
+
 //update
 exports.updateUserProfile = async (req, res) => {
     let transaction;
 
     try {
-        console.log("Received userId for update:", req.params.userId);
+        //console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
 
         const userExists = await User.findByPk(req.params.userId, { transaction });
-        console.log("User exists:", !!userExists);
+        //console.log("User exists:", !!userExists);
         if (!userExists) {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
 
-        console.log("Update data:", req.body);
+        //console.log("Update data:", req.body);
         // Ensure the request body has the correct properties
         const updateData = {
             first_name: req.body.first_name,
