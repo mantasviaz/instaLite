@@ -6,7 +6,8 @@ function SignupForm() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     school: '',
     birthday: '',
@@ -73,30 +74,33 @@ function SignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formDataWithPhoto = new FormData();
-      formDataWithPhoto.append('profilePhoto', formData.profilePhoto);
-      formDataWithPhoto.append('username', formData.username);
-      formDataWithPhoto.append('password', formData.password);
-      formDataWithPhoto.append('firstName', formData.fullName.split(' ')[0]);
-      formDataWithPhoto.append('lastName', formData.fullName.split(' ')[1] || '');
-      formDataWithPhoto.append('email', formData.email);
-      formDataWithPhoto.append('school', formData.school);
-      formDataWithPhoto.append('birthday', formData.birthday);
-      formDataWithPhoto.append('hashtags', JSON.stringify(formData.hashtags));
+        const requestBody = {
+            profilePhoto: formData.profilePhoto,
+            username: formData.username,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            school: formData.school,
+            birthday: formData.birthday,
+            hashtags: formData.hashtags,
+          };
 
-      const response = await fetch('/api/users', {
+      const response = await fetch('http://localhost:3000/api/users/signup', {
         method: 'POST',
-        body: formDataWithPhoto,
+        headers: {
+            "Content-Type": "application/json",
+          },
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
-        console.log('User registered successfully');
-
         // convert response to JSON and save the user into local storage
         const jsonResponse = await response.json();
         localStorage.setItem('user', JSON.stringify(jsonResponse));
         // update the user context
         dispatch({ type: 'LOGIN', payload: jsonResponse });
+        console.log('User registered successfully');
 
         navigate('/home'); // Use navigate for redirection
       } else {
@@ -126,6 +130,7 @@ function SignupForm() {
           <div className='flex flex-col space-y-4'>
             {/* File Upload Section */}
             <div className='flex flex-col items-center space-y-2 mb-4'>
+                hi
               <input
                 type='file'
                 name='profilePhoto'
@@ -164,13 +169,22 @@ function SignupForm() {
             />
             {/* Full Name Input */}
             <input
-              type='text'
-              name='fullName'
-              value={formData.fullName}
-              onChange={handleInputChange}
-              placeholder='Full Name'
-              className='input-field'
-              required
+                type='text'
+                name='firstName'
+                value={formData.firstName}
+                onChange={handleInputChange}
+                placeholder='First Name'
+                className='input-field'
+                required
+            />
+            <input
+                type='text'
+                name='lastName'
+                value={formData.lastName}
+                onChange={handleInputChange}
+                placeholder='Last Name'
+                className='input-field'
+                required
             />
             {/* Email Input */}
             <input

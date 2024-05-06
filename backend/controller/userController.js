@@ -4,7 +4,9 @@ const sequelize = require('../config/dbConfig.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
+    console.log("IRENE SKCS");
     try {
+        console.log(req.body)
         if (!req.body.username || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
             return res.status(500).send({ error: 'Validation Error', message: 'Required fields are missing' });
         }

@@ -8,14 +8,17 @@ const User = require('./models/user');
 const Post = require('./models/post'); 
 const Comment = require('./models/comment'); 
 const Friendship = require('./models/friendship'); 
+const cors = require('cors');
 
 const app = express();
+app.use(cors({ origin: '*' }));
 
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/friendships', friendshipRoutes);
+
 
 // Sync all models
 sequelize.sync().then(() => {
