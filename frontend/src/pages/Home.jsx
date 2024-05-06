@@ -21,7 +21,7 @@ function Home() {
       {/* These buttons are to test the context */}
       <button
         onClick={() => {
-          const jsonResponse = { username: 'user1' };
+          const jsonResponse = { username: 'Twitter', userId: 4 };
           localStorage.setItem('user', JSON.stringify(jsonResponse));
           dispatch({ type: 'LOGIN', payload: jsonResponse });
         }}

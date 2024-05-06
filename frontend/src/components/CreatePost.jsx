@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import axios from 'axios';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // Test Profile Img
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
@@ -8,9 +9,12 @@ import uploadLogo from '../assets/logos/upload.svg';
 import deleteLogo from '../assets/logos/x.svg';
 import { useUserContext } from '../hooks/useUserContext';
 
+import config from '../config.json';
+
 function CreatePost() {
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
+  const [uploadImage, setUploadImage] = useState(null);
 
   const { user } = useUserContext();
 
@@ -23,9 +27,7 @@ function CreatePost() {
 
   const handleImageUpload = (event) => {
     const fileUploaded = event.target.files[0];
-    console.log(fileUploaded);
-    // Handle the fileUploaded here
-    // handleFile(fileUploaded);
+    setUploadImage(fileUploaded);
 
     if (fileUploaded) {
       const reader = new FileReader();
@@ -48,35 +50,57 @@ function CreatePost() {
   };
 
   const handlePost = async (event) => {
+    // Prevent page from refreshing
     event.preventDefault();
-    // The backend can deal with parsing the hashtags
-    // const hashtags = content
-    //   .replace(/\s/g, "")
-    //   .split("#")
-    //   .slice(1, content.length);
-
-    // API Calls
-    // ======================
-    /* if (image == null || content === '') {
+    // Check to see if there is content
+    if (uploadImage == null && content === '') {
       return;
     }
 
+    // Create body to send
     const body = {};
     if (content) {
       body.text = content;
     }
 
-    if (image) {
-      // Store into s3 and then get the URL
-      body.image_url = image;
+    // Check for images to upload
+    if (uploadImage) {
+      // Initialize s3 client
+      const s3Client = new S3Client({
+        region: 'us-east-1',
+        credentials: {
+          accessKeyId: config.ACCESS_KEY_ID,
+          secretAccessKey: config.SECRET_ACESS_KEY,
+          sessionToken: config.SESSION_TOKEN,
+        },
+      });
+      const params = {
+        Bucket: config.S3_BUCKET,
+        Key: uploadImage.name,
+        Body: uploadImage,
+      };
+      console.log(params);
+      // Upload to s3
+      try {
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+      } catch (error) {
+        console.log(error);
+      }
+
+      body.image_url = `https://${config.S3_BUCKET}.s3.amazonaws.com/${uploadImage.name}`;
     }
 
-    const response = await axios.post('http://localhost:3000/api/posts', {
-      ...body,
-      userId: user.userId,
-    }); */
+    try {
+      const response = await axios.post('http://localhost:3000/api/posts', {
+        ...body,
+        userId: user.userId,
+      });
 
-    console.log('SUBMIT POST');
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -110,6 +134,7 @@ function CreatePost() {
                 className='absolute right-1 top-1 h-6 w-6 cursor-pointer rounded-full bg-stone-400 opacity-50 hover:opacity-60'
                 onClick={() => {
                   setImage(null);
+                  setUploadImage(null);
                   fileInput.current.value = null;
                 }}
               />
