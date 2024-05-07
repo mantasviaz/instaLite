@@ -130,7 +130,6 @@ function SignupForm() {
           <div className='flex flex-col space-y-4'>
             {/* File Upload Section */}
             <div className='flex flex-col items-center space-y-2 mb-4'>
-                hi
               <input
                 type='file'
                 name='profilePhoto'

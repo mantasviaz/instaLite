@@ -3,12 +3,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 function Profile() {
   const [formData, setFormData] = useState({
-    actorImage: null,
+    profilePhoto : null,
     email: "",
     password: "",
     hashtags: [],
   });
 
+  const [modifiedFields, setModifiedFields] = useState([]);
   const { userId } = useParams(); // Get userId from route parameters
   const navigate = useNavigate();
 
@@ -29,10 +30,13 @@ function Profile() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
-      ...formData,
-      [name]: value,
+        ...formData,
+        [name]: value,
     });
-  };
+    if (!modifiedFields.includes(name)) {
+        setModifiedFields([...modifiedFields, name]);
+    }
+};
 
   const handleHashtagChange = (e, index) => {
     const newHashtags = [...formData.hashtags];
@@ -66,44 +70,48 @@ function Profile() {
     });
   };
 
-  const handleActorImageChange = (e) => {
+  const handleProfilePhotoChange = (e) => {
     const imageFile = e.target.files[0];
     setFormData({
-      ...formData,
-      actorImage: imageFile,
+        ...formData,
+        profilePhoto: imageFile,
     });
-    //setProfileImageUrl(URL.createObjectURL(imageFile));
-  };
+    if (!modifiedFields.includes("profilePhoto")) {
+        setModifiedFields([...modifiedFields, "profilePhoto"]);
+    }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataWithPhoto = new FormData(); // Use FormData for file uploads
-    formDataWithPhoto.append("email", formData.email);
-    formDataWithPhoto.append("password", formData.password);
-
-    // If profile image is provided, add it to FormData
-    if (formData.actorImage) {
-        formDataWithPhoto.append("actorImage", formData.actorImage);
-    }
-
-    formDataWithPhoto.append("hashtags", JSON.stringify(formData.hashtags)); // Convert hashtags to JSON
+    if (modifiedFields.length === 0) {
+      console.log("No fields are modified. Form submission cancelled.");
+      return; // Exit the function without submitting the form
+  }
+    // Construct JSON object with updated fields
+    const modifiedData = {};
+        modifiedFields.forEach((field) => {
+            modifiedData[field] = formData[field];
+        });
 
     try {
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "PATCH",
-        body: formDataWithPhoto, // Sending form data
-      });
+        const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json" // Specify JSON content type
+            },
+            body: JSON.stringify(jsonData) // Convert JSON object to string
+        });
 
-      if (response.ok) {
-        console.log("Profile updated successfully");
-        navigate("/profile"); // Redirect to the profile page or another appropriate page
-      } else {
-        console.error("Profile update failed:", await response.text());
-      }
+        if (response.ok) {
+            console.log("Profile updated successfully");
+            navigate("/profile"); // Redirect to the profile page or another appropriate page
+        } else {
+            console.error("Profile update failed:", await response.text());
+        }
     } catch (error) {
-      console.error("Error updating profile:", error.message);
+        console.error("Error updating profile:", error.message);
     }
-  };
+};
 
 
   return (
@@ -112,21 +120,20 @@ function Profile() {
         <h1 className="text-3xl font-semibold mb-4 text-center">Profile</h1>
         <form onSubmit={handleSubmit} method="POST">
           <div className="mb-4">
-            <label htmlFor="actorImage" className="block text-lg font-semibold mb-2">
+            <label htmlFor="profilePhoto" className="block text-lg font-semibold mb-2">
               Change Profile Photo
             </label>
             <input
               type="file"
-              id="actorImage"
-              name="actorImage"
-              onChange={handleActorImageChange}
+              id="profilePhoto"
+              name="profilePhoto"
+              onChange={handleProfilePhotoChange}
               accept="image/*"
               className="input-field"
-              required
             />
-            {formData.actorImage && (
+            {formData.profilePhoto && (
                 <img
-                  src={URL.createObjectURL(formData.actorImage)}
+                  src={URL.createObjectURL(formData.profilePhoto)}
                   alt="Profile"
                   className="w-32 h-32 rounded-full"
                 />
@@ -143,7 +150,6 @@ function Profile() {
               onChange={handleInputChange}
               placeholder="Email"
               className="input-field"
-              required
             />
           </div>
           <div className="mb-4">
@@ -157,7 +163,6 @@ function Profile() {
               onChange={handleInputChange}
               placeholder="Password"
               className="input-field"
-              required
             />
           </div>
           <div className="hashtag-section">
@@ -170,7 +175,6 @@ function Profile() {
                   onChange={(e) => handleHashtagChange(e, index)}
                   placeholder="Hashtag"
                   className="input-field mr-2"
-                  required
                 />
                 <button
                   type="button"
