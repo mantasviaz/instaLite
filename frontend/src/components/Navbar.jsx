@@ -10,6 +10,7 @@ import reelsLogo from '../assets/logos/reels.svg';
 import messageLogo from '../assets/logos/message.svg';
 import notifcationsLogo from '../assets/logos/heart.svg';
 import addLogo from '../assets/logos/plus-square.svg';
+import peopleLogo from '../assets/logos/people.svg';
 import listLogo from '../assets/logos/list.svg';
 
 import Search from './Search';
@@ -53,9 +54,10 @@ function Navbar() {
             className='nav-logo'
           />
           <img
-            src={reelsLogo}
-            alt='Reels Logo'
+            src={peopleLogo}
+            alt='People Logo'
             className='nav-logo'
+            onClick={() => navigate('/friends')}
           />
           <img
             src={messageLogo}
