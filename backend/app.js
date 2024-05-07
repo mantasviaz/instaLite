@@ -8,8 +8,11 @@ const User = require('./models/user');
 const Post = require('./models/post'); 
 const Comment = require('./models/comment'); 
 const Friendship = require('./models/friendship'); 
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
+
 
 app.use(express.json());
 app.use('/api/users', userRoutes);

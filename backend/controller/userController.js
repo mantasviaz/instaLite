@@ -4,11 +4,15 @@ const sequelize = require('../config/dbConfig.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
+    console.log("trying to register user");
     try {
         if (!req.body.username || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
             return res.status(500).send({ error: 'Validation Error', message: 'Required fields are missing' });
         }
+        console.log("Password being hashed:", req.body.password);
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        console.log("Generated hash:", hashedPassword);
+        
         const user = await User.create({
             username: req.body.username,
             email: req.body.email,
@@ -27,28 +31,30 @@ exports.registerUser = async (req, res) => {
   
 
 // Login user
+// Login user
 exports.loginUser = async (req, res) => {
+    console.log("Attempting to log in user with email:", req.body.email);
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log("User not found for email:", email);
+            console.log("Login failed: No user found with email", email);
             return res.status(401).send("Authentication failed: User not found");
         }
 
-        console.log("Found user:", user.email);
-        console.log("Stored hash:", user.password_hash);
-        const passwordValid = await bcrypt.compare(password, user.password_hash);
-
-        console.log("Submitted password:", password);
-        console.log("Is password valid:", passwordValid);
+        console.log("Hash from database:", user.password_hash);
+        console.log("Password for comparison:", password);
+        const passwordValid = bcrypt.compare(password, user.password_hash);
+        console.log("Comparison result:", passwordValid);
 
         if (passwordValid) {
             const result = user.toJSON();
             delete result.password_hash;  // Remove sensitive data before sending response
+            console.log("Login successful for user:", result);
             res.status(200).send(result);
         } else {
+            console.log("Login failed: Incorrect password for user", email);
             res.status(401).send("Authentication failed: Incorrect password");
         }
     } catch (error) {
@@ -56,6 +62,7 @@ exports.loginUser = async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
 };
+
 
 
 

@@ -5,6 +5,7 @@ class Chat extends Model {}
 
 Chat.init({
   chatId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: {type: DataTypes.STRING},
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, {

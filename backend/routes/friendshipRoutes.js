@@ -1,5 +1,5 @@
 const express = require('express');
-const { getFriendships, createFriendship, updateFriendshipStatus } = require('../controller/friendshipController');
+const { getFriendships, createFriendship, updateFriendshipStatus, removeFriendship } = require('../controller/friendshipController');
 const router = express.Router();
 
 // Get all friendships for a user
