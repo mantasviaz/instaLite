@@ -26,7 +26,16 @@ function Home() {
           dispatch({ type: 'LOGIN', payload: jsonResponse });
         }}
       >
-        LOGIN
+        LOGIN TEST 1
+      </button>
+      <button
+        onClick={() => {
+          const jsonResponse = { username: 'Twitter2', userId: 8 };
+          localStorage.setItem('user', JSON.stringify(jsonResponse));
+          dispatch({ type: 'LOGIN', payload: jsonResponse });
+        }}
+      >
+        LOGIN TEST 2
       </button>
       <button
         onClick={() => {
