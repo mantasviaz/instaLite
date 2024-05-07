@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
 import comments from '../test/comments';
@@ -11,16 +11,27 @@ function ChatBox({ socket }) {
   const [message, setMessage] = useState('');
   const [messageHistory, setMessageHistory] = useState([]);
   const { user } = useUserContext();
+  const scrollableDivRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (scrollableDivRef.current) {
+      scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
+    }
+  };
 
   useEffect(() => {
     socket.emit('join_room', 'test');
   });
 
+  useLayoutEffect(() => {
+    scrollToBottom();
+  }, [messageHistory]);
+
   useEffect(() => {
     socket.on('receive_message', (data) => {
       console.log(data);
       // Update messageHistory state with the new message
-      setMessageHistory((prevMessageHistory) => [...prevMessageHistory, { message: data.message, username: data.author }]);
+      setMessageHistory((prevMessageHistory) => [...prevMessageHistory, { message: data.message, username: data.author, time: data.time }]);
     });
 
     return () => {
@@ -39,7 +50,7 @@ function ChatBox({ socket }) {
     };
 
     await socket.emit('send_message', messageBody);
-    setMessageHistory([...messageHistory, { message: message, username: user.username }]);
+    setMessageHistory([...messageHistory, { message: message, username: user.username, time: messageBody.time }]);
     console.log(messageHistory);
     setMessage('');
 
@@ -62,7 +73,7 @@ function ChatBox({ socket }) {
   };
   return (
     <div className='w-[70%]'>
-      <div className='test-blue h-[10%] flex-start p-5'>
+      <div className='h-[10%] flex-start p-5 border-b-2'>
         <img
           src={testProfileImg}
           alt='user Profile Picture'
@@ -71,11 +82,15 @@ function ChatBox({ socket }) {
         <span>Chat</span>
       </div>
       <div className='h-[90%] flex-start flex-col'>
-        <div className='flex-1 w-full overflow-y-auto p-5'>
+        <div
+          className='flex-1 w-full overflow-y-auto p-5 flex flex-col scroll-auto'
+          ref={scrollableDivRef}
+        >
           {messageHistory.map((message, idx) => (
             <Message
               username={message.username}
               message={message.message}
+              time={message.time}
             />
           ))}
         </div>
@@ -85,7 +100,7 @@ function ChatBox({ socket }) {
         >
           <textarea
             placeholder='Message...'
-            className='no-scrollbar max-h-[100px] flex-1 resize-none overflow-visible text-xs outline-none border-2 rounded-2xl px-3 py-2'
+            className='no-scrollbar max-h-[100px] flex-1 resize-none overflow-visible text-xs outline-none border-2 rounded-2xl px-3 py-2 h-[auto]'
             onChange={(event) => setMessage(event.target.value)}
             onInput={handleInput}
             onKeyDown={handleEnterSubmit}
