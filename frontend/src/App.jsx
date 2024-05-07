@@ -53,7 +53,7 @@ function App() {
           />
           <Route
             path='/chat'
-            element={<Chat />}
+            element={<Chat socket={socket} />}
           />
         </Routes>
       </BrowserRouter>
