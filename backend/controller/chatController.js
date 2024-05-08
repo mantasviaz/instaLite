@@ -2,6 +2,7 @@ const Chat = require('../models/chat');
 const ChatMessage = require('../models/chatMessage');
 const ChatUser = require('../models/chatUser');
 const User = require('../models/user');
+const sequelize = require('../config/dbConfig');
 
 exports.createChat = async (req, res) => {
   try {
@@ -10,22 +11,20 @@ exports.createChat = async (req, res) => {
       where: {
         userId: [userId, userId2],
       },
+      include: [
+        {
+          model: Chat,
+          where: {
+            isGroup: false,
+          },
+        },
+      ],
+      group: ['chatId'],
+      having: sequelize.literal('COUNT(*) = 2'),
     });
 
-    const uniqueChatIds = [...new Set(chatUsers.map((chatUser) => chatUser.chatId))];
-    console.log({ chatUsers: uniqueChatIds });
-
-    const chats = await Chat.findAll({
-      where: {
-        chatId: uniqueChatIds,
-      },
-    });
-    const singleChats = [...new Set(chats.filter((chat) => !chat.isGroup))];
-
-    // console.log({ chatUsers, uniqueChatIds, chats, singleChats });
-
-    if (singleChats.length > 0) {
-      res.status(201).send(singleChats[0]);
+    if (chatUsers.length > 0) {
+      res.status(201).send(chatUsers[0]);
     } else {
       const chat = await Chat.create();
       const chatId = chat.chatId;
@@ -57,6 +56,27 @@ exports.acceptChatRequest = async (req, res) => {
     chatUser.status = 'joined';
     await chatUser.save();
     res.status(200).send(chatUser);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to accept chat request', message: error.message });
+  }
+};
+
+exports.declineChatRequest = async (req, res) => {
+  try {
+    const { chatId } = req.body;
+    const chatUsers = await ChatUser.destroy({
+      where: {
+        chatId: chatId,
+      },
+    });
+
+    const chats = await Chat.destroy({
+      where: {
+        chatId: chatId,
+      },
+    });
+
+    res.status(200).send(chatUsers);
   } catch (error) {
     res.status(500).send({ error: 'Failed to accept chat request', message: error.message });
   }

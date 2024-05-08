@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
+const Chat = require('./chat');
 
 class ChatUser extends Model {}
 
@@ -18,5 +19,7 @@ ChatUser.init(
     tableName: 'chat_users',
   }
 );
+
+ChatUser.belongsTo(Chat, { foreignKey: 'chatId' });
 
 module.exports = ChatUser;
