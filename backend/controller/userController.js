@@ -1,9 +1,10 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/dbConfig.js');
+const upload = require('../config/s3Config.js');
 
 // Register a new user
-exports.registerUser = async (req, res) => {
+exports.registerUser = upload.single('profilePhoto'), async (req, res) => {
     console.log("trying to register user");
     try {
         if (!req.body.username || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
@@ -18,7 +19,8 @@ exports.registerUser = async (req, res) => {
             email: req.body.email,
             password_hash: hashedPassword,
             first_name: req.body.firstName,
-            last_name: req.body.lastName
+            last_name: req.body.lastName,
+            profile_photo_url: req.file.location
         });
         const result = user.toJSON();
         delete result.password_hash;
