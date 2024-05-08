@@ -22,6 +22,9 @@ function SignupForm() {
 
   const navigate = useNavigate(); // Access the history object
 
+  const [selectedCircleIndex, setSelectedCircleIndex] = useState(0);
+  const [circleElements, setCircleElements] = useState([]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -30,12 +33,31 @@ function SignupForm() {
     });
   };
 
-  const handleProfilePhotoChange = (e) => {
+  const handleProfilePhotoChange = (e, index) => {
     const file = e.target.files[0];
     setFormData({
       ...formData,
       profilePhoto: file,
     });
+  
+    // Generate five circles with the uploaded image
+    const circles = Array.from({ length: 5 }, (_, i) => {
+      const isSelected = i === index;
+      return (
+        <div
+          key={i}
+          className={`circle ${isSelected ? 'selected' : ''}`}
+          onClick={() => setSelectedCircleIndex(i)}
+        >
+          <img
+            src={URL.createObjectURL(file)}
+            alt='Profile'
+            className='w-full h-full rounded-full'
+          />
+        </div>
+      );
+    });
+    setCircleElements(circles);
   };
 
   const handleHashtagChange = (e, index) => {
@@ -136,7 +158,6 @@ function SignupForm() {
                 onChange={handleProfilePhotoChange}
                 accept='image/*'
                 className='input-field'
-                required
               />
               {formData.profilePhoto && (
                 <img
@@ -145,6 +166,10 @@ function SignupForm() {
                   className='w-32 h-32 rounded-full'
                 />
               )}
+            </div>
+            {/* Circles for profile photo selection */}
+            <div className='flex items-center justify-center space-x-2 mb-4'>
+                {circleElements}
             </div>
             {/* Username Input */}
             <input
@@ -166,7 +191,7 @@ function SignupForm() {
               className='input-field'
               required
             />
-            {/* Full Name Input */}
+            {/* Name Input */}
             <input
                 type='text'
                 name='firstName'
@@ -229,7 +254,6 @@ function SignupForm() {
                     onChange={(e) => handleHashtagChange(e, index)}
                     placeholder='Hashtag'
                     className='input-field mr-2'
-                    required
                   />
                   <button
                     type='button'
@@ -283,6 +307,7 @@ function SignupForm() {
         </div>
       </div>
     </div>
+    
   );
 }
 

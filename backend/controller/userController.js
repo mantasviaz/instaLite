@@ -19,7 +19,9 @@ exports.registerUser = async (req, res) => {
             email: req.body.email,
             password_hash: hashedPassword,
             first_name: req.body.firstName,
-            last_name: req.body.lastName
+            last_name: req.body.lastName,
+            school: req.body.school,
+            birthday: req.body.birthday,
         });
         const result = user.toJSON();
         delete result.password_hash;
@@ -45,8 +47,6 @@ exports.loginUser = async (req, res) => {
 
         console.log("Hash from database:", user.password_hash);
         console.log("Password for comparison:", password);
-        // Await the result of bcrypt.compare
-        //const passwordValid = await bcrypt.compare(password, user.password_hash);
         const passwordValid = bcrypt.compare(password, user.password_hash);
         console.log("Comparison result:", passwordValid);
 
