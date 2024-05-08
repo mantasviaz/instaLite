@@ -39,6 +39,16 @@ function Home() {
       </button>
       <button
         onClick={async () => {
+          const jsonResponse = { username: 'Test123', userId: 11 };
+          localStorage.setItem('user', JSON.stringify(jsonResponse));
+          dispatch({ type: 'LOGIN', payload: jsonResponse });
+          const response = await axios.post('http://localhost:3000/api/users/status', { userId: 11, status: 'online' });
+        }}
+      >
+        LOGIN TEST 3
+      </button>
+      <button
+        onClick={async () => {
           localStorage.removeItem('user');
           dispatch({ type: 'LOGOUT' });
           const response = await axios.post('http://localhost:3000/api/users/status', { userId: user.userId, status: 'offline' });
