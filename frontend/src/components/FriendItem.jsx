@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import testImg from '../assets/test/ameer-umar-test.jpg';
 
-function FriendItem({ username, status }) {
+function FriendItem({ userId, username, status, setUserClicked }) {
   const [confirmRemove, setConfirmRemove] = useState(false);
 
   const handleRemove = () => {
@@ -11,13 +11,12 @@ function FriendItem({ username, status }) {
   };
 
   const handleProfile = () => {
-    console.log('PROFILE CLICK');
-    // TO DO
-    // Navigate to user profile
+    setUserClicked(userId);
+    console.log('CLIKCED ', userId);
   };
 
   return (
-    <div className='flex-start my-2 h-20 w-72'>
+    <div className='flex-start h-20 w-[95%]'>
       <div className='relative mr-3 h-[42px] w-[42px]'>
         <img
           src={testImg}
@@ -29,7 +28,7 @@ function FriendItem({ username, status }) {
       <div className='flex-between flex-1'>
         <span
           className='cursor-pointer text-sm'
-          onclick={handleProfile}
+          onClick={handleProfile}
         >
           {username}
         </span>

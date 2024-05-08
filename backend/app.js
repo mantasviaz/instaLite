@@ -42,6 +42,9 @@ sequelize
     console.log('Error syncing database', error);
   });
 
+// Socket.io
+const { sendMessage } = require('./controller/chatController');
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -58,8 +61,18 @@ io.on('connection', (socket) => {
     socket.join(data);
   });
 
-  socket.on('send_message', (data) => {
+  socket.on('user_typing', (data) => {
+    socket.to(data.room).emit('user_is_typing', data);
+  });
+
+  socket.on('send_message', async (data) => {
     console.log(data);
+    console.log({
+      message: data.message,
+      chatId: data.room,
+      userId: data.userId,
+    });
+    await sendMessage(data.message, data.room, data.userId);
     socket.to(data.room).emit('receive_message', data);
   });
 

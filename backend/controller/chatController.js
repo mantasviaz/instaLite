@@ -1,25 +1,48 @@
 const Chat = require('../models/chat');
 const ChatMessage = require('../models/chatMessage');
 const ChatUser = require('../models/chatUser');
+const User = require('../models/user');
 
 exports.createChat = async (req, res) => {
   try {
     const { userId, userId2 } = req.body;
-    const chat = await Chat.create();
-    const chatId = chat.chatId;
-
-    const chatUser = await ChatUser.create({
-      chatId: chatId,
-      userId: userId,
-      status: 'joined',
+    const chatUsers = await ChatUser.findAll({
+      where: {
+        userId: [userId, userId2],
+      },
     });
 
-    await ChatUser.create({
-      chatId: chatId,
-      userId: userId2,
-    });
+    const uniqueChatIds = [...new Set(chatUsers.map((chatUser) => chatUser.chatId))];
+    console.log({ chatUsers: uniqueChatIds });
 
-    res.status(201).send(chatUser);
+    const chats = await Chat.findAll({
+      where: {
+        chatId: uniqueChatIds,
+      },
+    });
+    const singleChats = [...new Set(chats.filter((chat) => !chat.isGroup))];
+
+    // console.log({ chatUsers, uniqueChatIds, chats, singleChats });
+
+    if (singleChats.length > 0) {
+      res.status(201).send(singleChats[0]);
+    } else {
+      const chat = await Chat.create();
+      const chatId = chat.chatId;
+
+      await ChatUser.create({
+        chatId: chatId,
+        userId: userId,
+        status: 'joined',
+      });
+
+      await ChatUser.create({
+        chatId: chatId,
+        userId: userId2,
+      });
+
+      res.status(201).send(chat);
+    }
   } catch (error) {
     res.status(500).send({ error: 'Failed to create chat', message: error.message });
   }
@@ -71,10 +94,18 @@ exports.getChatMessages = async (req, res) => {
   try {
     const { chatId } = req.params;
     const chatMessages = await ChatMessage.findAll({
+      include: [
+        {
+          model: User,
+          required: true,
+          attributes: ['username'],
+        },
+      ],
       where: {
         chatId: chatId,
       },
     });
+    console.log(chatMessages);
 
     res.status(200).send(chatMessages);
   } catch (error) {
@@ -82,16 +113,31 @@ exports.getChatMessages = async (req, res) => {
   }
 };
 
+exports.getChatStatus = async (req, res) => {
+  try {
+    const { chatId } = req.body;
+    console.log(chatId);
+    const chatUsers = await ChatUser.findAll({
+      where: {
+        chatId: chatId,
+      },
+    });
+    res.status(200).send(chatUsers);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get chat status', message: error.message });
+  }
+};
+
 exports.sendMessage = async (message, chatId, userId) => {
   try {
+    console.log({ message, chatId, userId });
     const chatMessage = await ChatMessage.create({
       chatId: chatId,
       text: message,
-      senderId: userId,
+      userId: userId,
     });
-
-    res.status(200).send(chatMessage);
+    return chatMessage;
   } catch (error) {
-    res.status(500).send({ error: 'Failed to store message', message: error.message });
+    console.log(error);
   }
 };

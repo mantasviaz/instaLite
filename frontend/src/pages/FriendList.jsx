@@ -7,7 +7,7 @@ import axios from 'axios';
 import FriendItem from '../components/FriendItem';
 import { useUserContext } from '../hooks/useUserContext';
 
-function FriendList() {
+function FriendList({ setUserClicked }) {
   const [friends, setFriends] = useState([]);
   const { user } = useUserContext();
 
@@ -23,16 +23,17 @@ function FriendList() {
       }
     };
     getFriends();
-  }, []);
+  }, [user]);
 
   return (
     <div className='flex max-h-full flex-1 flex-col items-center justify-start overflow-y-auto'>
-      <h1 className='m-4 text-4xl font-semibold'>Your Friends</h1>
       {friends.map((friend, idx) => (
         <FriendItem
           key={idx}
+          userId={friend.userId}
           username={friend.username}
           status={friend.status}
+          setUserClicked={setUserClicked}
         />
       ))}
     </div>
