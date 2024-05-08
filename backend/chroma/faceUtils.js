@@ -1,13 +1,3 @@
-/***
- * Face-API embedding computations.
- * 
- * We will be embedding each face.
- * 
- * For NETS 2120
- * 
- * Derived from the face-api.js example code, https://github.com/vladmandic/face-api/blob/master/demo/node-face-compare.js
- */
-
 // Setup
 var path = require('path');
 const { ChromaClient } = require("chromadb");
