@@ -3,6 +3,7 @@ const ChatMessage = require('../models/chatMessage');
 const ChatUser = require('../models/chatUser');
 const User = require('../models/user');
 const sequelize = require('../config/dbConfig');
+const { Op } = require('sequelize');
 
 exports.createChat = async (req, res) => {
   try {
@@ -102,9 +103,35 @@ exports.getChatSessions = async (req, res) => {
       where: {
         userId: userId,
       },
+      attributes: ['chatId'],
     });
 
-    res.status(200).send(chatSessions);
+    const chatIds = chatSessions.map((chat) => chat.chatId);
+
+    const chats = await ChatUser.findAll({
+      where: {
+        userId: {
+          [Op.ne]: userId,
+        },
+      },
+      include: [
+        {
+          model: Chat,
+          where: {
+            chatId: chatIds,
+          },
+          attributes: ['chatId', 'isGroup'],
+        },
+        {
+          model: User,
+          required: true,
+          attributes: ['username'],
+        },
+      ],
+      group: ['chatId'],
+    });
+
+    res.status(200).send(chats);
   } catch (error) {
     res.status(500).send({ error: 'Failed to get chat sessions', message: error.message });
   }

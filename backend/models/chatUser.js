@@ -1,6 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
 const Chat = require('./chat');
+const User = require('./user');
 
 class ChatUser extends Model {}
 
@@ -21,5 +22,6 @@ ChatUser.init(
 );
 
 ChatUser.belongsTo(Chat, { foreignKey: 'chatId' });
+ChatUser.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = ChatUser;
