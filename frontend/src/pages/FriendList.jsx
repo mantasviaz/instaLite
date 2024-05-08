@@ -26,7 +26,7 @@ function FriendList({ setUserClicked }) {
   }, [user]);
 
   return (
-    <div className='flex max-h-full flex-1 flex-col items-center justify-start overflow-y-auto'>
+    <div className='flex max-h-[75%] flex-1 flex-col items-center justify-start overflow-y-auto test-blue'>
       {friends.map((friend, idx) => (
         <FriendItem
           key={idx}

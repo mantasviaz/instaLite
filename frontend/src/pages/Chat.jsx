@@ -3,6 +3,7 @@ import { useUserContext } from '../hooks/useUserContext';
 
 import ChatBox from '../components/ChatBox';
 import FriendList from './FriendList';
+import GroupChat from '../components/GroupChat';
 
 function Chat({ socket }) {
   const [userClicked, setUserClicked] = useState(null);
@@ -18,6 +19,7 @@ function Chat({ socket }) {
           </div>
         </div>
         <FriendList setUserClicked={setUserClicked} />
+        <GroupChat />
       </div>
       {userClicked !== null && (
         <ChatBox
