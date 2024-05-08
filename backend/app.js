@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const sequelize = require('./config/dbConfig');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes'); // Import post routes
