@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import axios from 'axios';
 
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
-import comments from '../test/comments';
 
 import Message from './Message';
 import { useUserContext } from '../hooks/useUserContext';
@@ -46,19 +45,16 @@ function ChatBox({ socket, clickedUser }) {
           userId: user.userId,
           userId2: clickedUser,
         });
-        // console.log(response);
         setChatId(response.data.chatId);
 
         response = await axios.post('http://localhost:3000/api/chats/users', {
           chatId: response.data.chatId,
         });
 
-        console.log(response);
         const currUser = response.data.filter((u) => u.userId === user.userId);
         const usersStatus = response.data.filter((user) => user.status == 'pending');
         const chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined';
         setStatus(chatStatus);
-        console.log({ currUser, usersStatus, chatStatus, userId: user.userId });
 
         if (chatStatus === 'joined') {
           response = await axios.get(`http://localhost:3000/api/chats/${response.data[0].chatId}/messages`);
@@ -79,7 +75,6 @@ function ChatBox({ socket, clickedUser }) {
     };
 
     createRoom();
-    // socket.emit('join_room', 'test');
   }, []);
 
   useLayoutEffect(() => {
