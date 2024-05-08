@@ -7,7 +7,6 @@ import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import FriendList from './pages/FriendList';
 import ImagePostPage from './pages/ImagePostPage';
 import TextPostPage from './pages/TextPostPage';
 import Chat from './pages/Chat';
@@ -26,10 +25,6 @@ function App() {
           <Route
             path='/home'
             element={<Home />}
-          />
-          <Route
-            path='/friends'
-            element={<FriendList />}
           />
           <Route
             path='/image-post'
