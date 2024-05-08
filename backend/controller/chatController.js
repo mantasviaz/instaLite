@@ -81,7 +81,7 @@ exports.declineChatRequest = async (req, res) => {
       },
     });
 
-    if (usersLeft.length > 1) {
+    if (usersLeft.length === 1) {
       await Chat.destroy({
         where: {
           chatId: chatId,
@@ -285,6 +285,29 @@ exports.getChatStatus = async (req, res) => {
     res.status(200).send(chatUsers);
   } catch (error) {
     res.status(500).send({ error: 'Failed to get chat status', message: error.message });
+  }
+};
+
+exports.getGroupChats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const groupChats = await ChatUser.findAll({
+      include: [
+        {
+          model: Chat,
+          where: {
+            isGroup: true,
+          },
+        },
+      ],
+      where: {
+        userId: userId,
+      },
+      attributes: ['chatId'],
+    });
+    res.status(200).send(groupChats);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get group chats', message: error.message });
   }
 };
 

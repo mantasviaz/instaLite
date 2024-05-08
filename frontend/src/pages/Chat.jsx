@@ -7,7 +7,13 @@ import GroupChat from '../components/GroupChat';
 
 function Chat({ socket }) {
   const [userClicked, setUserClicked] = useState(null);
+  const [chatIdClicked, setChatIdClicked] = useState(null);
+  const [clickedGroupChat, setClickedGroupChat] = useState(false);
   const { user } = useUserContext();
+
+  useEffect(() => {
+    console.log({ chatIdClicked, clickedGroupChat });
+  });
 
   return (
     <div className='flex-1 flex'>
@@ -18,14 +24,23 @@ function Chat({ socket }) {
             <span className='text-xs font-semibold'>Friends</span>
           </div>
         </div>
-        <FriendList setUserClicked={setUserClicked} />
-        <GroupChat />
+        <FriendList
+          setUserClicked={setUserClicked}
+          setClickedGroupChat={setClickedGroupChat}
+        />
+        <GroupChat
+          setChatIdClicked={setChatIdClicked}
+          setClickedGroupChat={setClickedGroupChat}
+        />
       </div>
-      {userClicked !== null && (
+      {(userClicked !== null || clickedGroupChat) && (
         <ChatBox
           socket={socket}
           clickedUser={userClicked}
           setUserClicked={setUserClicked}
+          clickedChatId={chatIdClicked}
+          clickedGroupChat={clickedGroupChat}
+          setClickedGroupChat={setClickedGroupChat}
         />
       )}
     </div>

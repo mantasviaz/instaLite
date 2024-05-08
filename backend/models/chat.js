@@ -7,6 +7,7 @@ Chat.init(
   {
     chatId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     isGroup: { type: DataTypes.BOOLEAN, defaultValue: false },
+    name: { type: DataTypes.STRING },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },

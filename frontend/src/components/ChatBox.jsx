@@ -7,9 +7,9 @@ import { useUserContext } from '../hooks/useUserContext';
 import addLogo from '../assets/logos/person-add.svg';
 import closeLogo from '../assets/logos/x.svg';
 
-function ChatBox({ socket, clickedUser, setUserClicked }) {
+function ChatBox({ socket, clickedUser, setUserClicked, clickedGroupChat, clickedChatId, setClickedGroupChat }) {
   const [chatName, setChatName] = useState(null);
-  const [chatId, setChatId] = useState(null);
+  const [chatId, setChatId] = useState(clickedChatId);
   const [status, setStatus] = useState('pending');
   const [message, setMessage] = useState('');
   const [messageHistory, setMessageHistory] = useState([]);
@@ -43,6 +43,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
       });
       if (response.status === 200) {
         setUserClicked(null);
+        setClickedGroupChat(false);
       }
     } catch (error) {
       console.log(error);
@@ -50,29 +51,34 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
   };
 
   useEffect(() => {
+    console.log({ chatId, clickedGroupChat });
     const createRoom = async () => {
       try {
         // Create chat room
-        let response = await axios.post('http://localhost:3000/api/chats', {
-          userId: user.userId,
-          userId2: clickedUser,
-        });
-        setChatId(response.data.chatId);
-
-        console.log(response);
-        if (response.data.Chat.isGroup) {
+        let response;
+        if (!clickedGroupChat) {
+          console.log('HERE');
+          response = await axios.post('http://localhost:3000/api/chats', {
+            userId: user.userId,
+            userId2: clickedUser,
+          });
+          setChatId(response.data.chatId);
+        } else {
           setIsGroup(true);
         }
 
         // Get all users in chat
         response = await axios.post('http://localhost:3000/api/chats/users', {
-          chatId: response.data.chatId,
+          chatId: response ? response.data.chatId : chatId,
         });
 
         console.log(response);
         const currUser = response.data.filter((u) => u.userId === user.userId); // Current User
         const usersStatus = response.data.filter((user) => user.status == 'pending'); // Get all users who haven't accepted
-        const chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined'; // Status after checking other users
+        let chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined'; // Status after checking other users
+        if (chatStatus === 'waiting' && clickedGroupChat) {
+          chatStatus = 'joined';
+        }
         setStatus(chatStatus);
 
         // if all users accept request
@@ -84,6 +90,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
 
           // Get all messages
           response = await axios.get(`http://localhost:3000/api/chats/${response.data[0].chatId}/messages`);
+          console.log(response);
           // Sort by timestamp
           const sortedMessages = response.data.sort((a, b) => a.timestamp - b.timestamp);
           const messages = sortedMessages.map((msg) => {
@@ -101,7 +108,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     };
 
     createRoom();
-  }, []);
+  }, [status]);
 
   // Automatically scroll to the bottom
   const scrollToBottom = () => {
@@ -181,7 +188,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     console.log('INVITE');
   };
   return (
-    <div className='w-[70%] test-green relative'>
+    <div className='w-[70%] relative'>
       {status === 'waiting' ? (
         <div className='h-full w-full flex-center'>Waiting for user to accept...</div>
       ) : status === 'pending' ? (
@@ -229,7 +236,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
             </div>
           )}
 
-          <div className='h-[10%] flex-between p-5 border-b-2 test-blue'>
+          <div className='h-[10%] flex-between p-5 border-b-2'>
             {chatName && <span>{chatName}</span>}
             <img
               src={addLogo}
