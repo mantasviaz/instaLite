@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import axios from 'axios';
 
 // Test posts
 import image_post_test from '../test/image-post';
@@ -10,37 +11,37 @@ import TextPost from '../components/TextPost';
 import { useUserContext } from '../hooks/useUserContext';
 
 function Home() {
-  const { dispatch } = useUserContext();
+  const { user, dispatch } = useUserContext();
 
-  useEffect(() => {
-    console.log(image_post_test);
-  }, []);
   return (
     <div className='flex-start max-h-full flex-1 flex-col overflow-y-auto'>
       <CreatePost />
       {/* These buttons are to test the context */}
       <button
-        onClick={() => {
+        onClick={async () => {
           const jsonResponse = { username: 'Twitter', userId: 4 };
           localStorage.setItem('user', JSON.stringify(jsonResponse));
           dispatch({ type: 'LOGIN', payload: jsonResponse });
+          const response = await axios.post('http://localhost:3000/api/users/status', { userId: 4, status: 'online' });
         }}
       >
         LOGIN TEST 1
       </button>
       <button
-        onClick={() => {
+        onClick={async () => {
           const jsonResponse = { username: 'Twitter2', userId: 8 };
           localStorage.setItem('user', JSON.stringify(jsonResponse));
           dispatch({ type: 'LOGIN', payload: jsonResponse });
+          const response = await axios.post('http://localhost:3000/api/users/status', { userId: 8, status: 'online' });
         }}
       >
         LOGIN TEST 2
       </button>
       <button
-        onClick={() => {
+        onClick={async () => {
           localStorage.removeItem('user');
           dispatch({ type: 'LOGOUT' });
+          const response = await axios.post('http://localhost:3000/api/users/status', { userId: user.userId, status: 'offline' });
         }}
       >
         LOGOUT
