@@ -6,8 +6,6 @@ import instagramLogo from '../assets/logos/instagram.svg';
 import homeLogo from '../assets/logos/home.svg';
 import searchLogo from '../assets/logos/search.svg';
 import compassLogo from '../assets/logos/compass.svg';
-import reelsLogo from '../assets/logos/reels.svg';
-import messageLogo from '../assets/logos/message.svg';
 import notifcationsLogo from '../assets/logos/heart.svg';
 import addLogo from '../assets/logos/plus-square.svg';
 import peopleLogo from '../assets/logos/people.svg';
@@ -56,12 +54,6 @@ function Navbar() {
           <img
             src={peopleLogo}
             alt='People Logo'
-            className='nav-logo'
-            onClick={() => navigate('/friends')}
-          />
-          <img
-            src={messageLogo}
-            alt='Message Logo'
             className='nav-logo'
             onClick={() => navigate('/chat')}
           />

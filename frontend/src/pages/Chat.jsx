@@ -14,7 +14,7 @@ function Chat({ socket }) {
         <div className='border-b-2 p-5'>
           {user && <h1 className='font-bold cursor-pointer'>{user.username}</h1>}
           <div className='mt-2'>
-            <span className='text-xs font-semibold'>Messages</span>
+            <span className='text-xs font-semibold'>Friends</span>
           </div>
         </div>
         <FriendList setUserClicked={setUserClicked} />
