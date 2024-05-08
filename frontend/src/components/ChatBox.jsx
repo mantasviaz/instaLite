@@ -1,25 +1,24 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import axios from 'axios';
 
-import testProfileImg from '../assets/test/phuc-lai-test.jpg';
-
 import Message from './Message';
 import { useUserContext } from '../hooks/useUserContext';
 
+import addLogo from '../assets/logos/person-add.svg';
+import closeLogo from '../assets/logos/x.svg';
+
 function ChatBox({ socket, clickedUser, setUserClicked }) {
+  const [chatName, setChatName] = useState(null);
   const [chatId, setChatId] = useState(null);
   const [status, setStatus] = useState('pending');
   const [message, setMessage] = useState('');
   const [messageHistory, setMessageHistory] = useState([]);
   const [userIsTyping, setUserIsTyping] = useState('');
+  const [isGroup, setIsGroup] = useState(false);
+  const [inviteBox, setInviteBox] = useState(false);
+  const [userInvited, setUserInvited] = useState(null);
   const { user } = useUserContext();
   const scrollableDivRef = useRef(null);
-
-  const scrollToBottom = () => {
-    if (scrollableDivRef.current) {
-      scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
-    }
-  };
 
   const clickYes = async () => {
     try {
@@ -40,6 +39,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     try {
       const response = await axios.post('http://localhost:3000/api/chats/decline', {
         chatId: chatId,
+        userId: user.userId,
       });
       if (response.status === 200) {
         setUserClicked(null);
@@ -52,28 +52,43 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
   useEffect(() => {
     const createRoom = async () => {
       try {
+        // Create chat room
         let response = await axios.post('http://localhost:3000/api/chats', {
           userId: user.userId,
           userId2: clickedUser,
         });
         setChatId(response.data.chatId);
 
+        console.log(response);
+        if (response.data.Chat.isGroup) {
+          setIsGroup(true);
+        }
+
+        // Get all users in chat
         response = await axios.post('http://localhost:3000/api/chats/users', {
           chatId: response.data.chatId,
         });
 
-        const currUser = response.data.filter((u) => u.userId === user.userId);
-        const usersStatus = response.data.filter((user) => user.status == 'pending');
-        const chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined';
+        console.log(response);
+        const currUser = response.data.filter((u) => u.userId === user.userId); // Current User
+        const usersStatus = response.data.filter((user) => user.status == 'pending'); // Get all users who haven't accepted
+        const chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined'; // Status after checking other users
         setStatus(chatStatus);
 
+        // if all users accept request
         if (chatStatus === 'joined') {
+          // Set chat name
+          const allUsersInChat = response.data.filter((u) => u.userId !== user.userId).map((u) => u.User.username);
+          setChatName(`${isGroup ? 'Group Chat' : 'Chat'} with ${allUsersInChat.map((u) => u + ' ')}`);
+          console.log(`${chatName} with ${allUsersInChat.map((u) => u + ' ')}`);
+
+          // Get all messages
           response = await axios.get(`http://localhost:3000/api/chats/${response.data[0].chatId}/messages`);
+          // Sort by timestamp
           const sortedMessages = response.data.sort((a, b) => a.timestamp - b.timestamp);
           const messages = sortedMessages.map((msg) => {
             return { message: msg.text, username: msg.User.username, time: msg.timestamp };
           });
-          console.log(messages);
           setMessageHistory(messages);
         }
       } catch (error) {
@@ -87,6 +102,13 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
 
     createRoom();
   }, []);
+
+  // Automatically scroll to the bottom
+  const scrollToBottom = () => {
+    if (scrollableDivRef.current) {
+      scrollableDivRef.current.scrollTop = scrollableDivRef.current.scrollHeight;
+    }
+  };
 
   useLayoutEffect(() => {
     scrollToBottom();
@@ -137,8 +159,29 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
       handleMessageSend(event);
     }
   };
+
+  const handleInvite = async (event) => {
+    event.preventDefault();
+    try {
+      console.log({
+        chatId: chatId,
+        username: userInvited,
+        userId: user.userId,
+      });
+      const response = await axios.post('http://localhost:3000/api/chats/send', {
+        chatId: chatId,
+        username: userInvited,
+        userId: user.userId,
+      });
+      console.log(response);
+      setInviteBox(false);
+    } catch (error) {
+      window.alert(error.response.data.error);
+    }
+    console.log('INVITE');
+  };
   return (
-    <div className='w-[70%]'>
+    <div className='w-[70%] test-green relative'>
       {status === 'waiting' ? (
         <div className='h-full w-full flex-center'>Waiting for user to accept...</div>
       ) : status === 'pending' ? (
@@ -163,13 +206,37 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
         </div>
       ) : (
         <>
-          <div className='h-[10%] flex-start p-5 border-b-2'>
+          {inviteBox && (
+            <div className='absolute w-full h-48 top-1/3 flex-center'>
+              <form
+                className='bg-stone-200 flex-center flex-col py-6 px-10 rounded-3xl relative'
+                onSubmit={handleInvite}
+              >
+                <img
+                  src={closeLogo}
+                  alt='Close Logo'
+                  className='w-6 h-6 absolute left-[88%] top-[5%] cursor-pointer'
+                  onClick={() => setInviteBox(false)}
+                />
+                <h1 className='mb-4 '>Who do you want to invite?</h1>
+                <input
+                  type='text'
+                  placeholder='Enter a username...'
+                  className='p-2 rounded-md outline-none'
+                  onChange={(event) => setUserInvited(event.target.value)}
+                />
+              </form>
+            </div>
+          )}
+
+          <div className='h-[10%] flex-between p-5 border-b-2 test-blue'>
+            {chatName && <span>{chatName}</span>}
             <img
-              src={testProfileImg}
-              alt='user Profile Picture'
-              className='w-10 h-10 rounded-full'
+              src={addLogo}
+              alt='Invite Logo'
+              className='w-7 h-7 cursor-pointer'
+              onClick={() => setInviteBox(true)}
             />
-            <span>Chat</span>
           </div>
           <div className='h-[90%] flex-start flex-col'>
             <div
