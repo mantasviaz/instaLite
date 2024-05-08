@@ -43,7 +43,7 @@ function App() {
             element={<Login />}
           />
           <Route
-            path='/profile'
+            path='/:userId'
             element={<Profile />}
           />
         </Routes>

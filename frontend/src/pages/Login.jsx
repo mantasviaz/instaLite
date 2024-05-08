@@ -4,7 +4,7 @@ import { useUserContext } from '../hooks/useUserContext';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
 
@@ -25,7 +25,7 @@ function LoginForm() {
 
     try {
       // Submit form data to backend API for login using fetch
-      const response = await fetch('/api/users/login', {
+      const response = await fetch('http://localhost:3000/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,10 +67,10 @@ function LoginForm() {
           <div className='flex flex-col space-y-4'>
             <input
               type='text'
-              name='username'
-              value={formData.username}
+              name='email'
+              value={formData.email}
               onChange={handleInputChange}
-              placeholder='Username'
+              placeholder='Email'
               className='input-field'
               required
             />

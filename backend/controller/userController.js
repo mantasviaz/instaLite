@@ -32,7 +32,6 @@ exports.registerUser = async (req, res) => {
   
 
 // Login user
-// Login user
 exports.loginUser = async (req, res) => {
     console.log("Attempting to log in user with email:", req.body.email);
     try {
@@ -46,6 +45,8 @@ exports.loginUser = async (req, res) => {
 
         console.log("Hash from database:", user.password_hash);
         console.log("Password for comparison:", password);
+        // Await the result of bcrypt.compare
+        //const passwordValid = await bcrypt.compare(password, user.password_hash);
         const passwordValid = bcrypt.compare(password, user.password_hash);
         console.log("Comparison result:", passwordValid);
 

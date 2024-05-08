@@ -83,6 +83,7 @@ function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('hello');
     if (modifiedFields.length === 0) {
       console.log("No fields are modified. Form submission cancelled.");
       return; // Exit the function without submitting the form
@@ -99,12 +100,12 @@ function Profile() {
             headers: {
                 "Content-Type": "application/json" // Specify JSON content type
             },
-            body: JSON.stringify(jsonData) // Convert JSON object to string
+            body: JSON.stringify(modifiedData) // Convert JSON object to string
         });
 
         if (response.ok) {
             console.log("Profile updated successfully");
-            navigate("/profile"); // Redirect to the profile page or another appropriate page
+            navigate(`/${userId}`); // Redirect to the profile page or another appropriate page
         } else {
             console.error("Profile update failed:", await response.text());
         }

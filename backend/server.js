@@ -1,6 +1,4 @@
 const app = require('./app');
-const express = require('express');
-const cors = require('cors');
 
 // Allow requests from all origins
 // app.use(cors({ origin: '*' }));
