@@ -11,7 +11,11 @@ function FriendItem({ userId, username, status, setUserClicked }) {
   };
 
   const handleProfile = () => {
-    setUserClicked(userId);
+    if (status === 'offline') {
+      window.alert('Cannot chat with someone offline');
+    } else {
+      setUserClicked(userId);
+    }
     console.log('CLIKCED ', userId);
   };
 
