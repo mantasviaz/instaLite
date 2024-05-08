@@ -6,7 +6,7 @@ import testProfileImg from '../assets/test/phuc-lai-test.jpg';
 import Message from './Message';
 import { useUserContext } from '../hooks/useUserContext';
 
-function ChatBox({ socket, clickedUser }) {
+function ChatBox({ socket, clickedUser, setUserClicked }) {
   const [chatId, setChatId] = useState(null);
   const [status, setStatus] = useState('pending');
   const [message, setMessage] = useState('');
@@ -36,7 +36,18 @@ function ChatBox({ socket, clickedUser }) {
     }
   };
 
-  const clickNo = () => {};
+  const clickNo = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/chats/decline', {
+        chatId: chatId,
+      });
+      if (response.status === 200) {
+        setUserClicked(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const createRoom = async () => {

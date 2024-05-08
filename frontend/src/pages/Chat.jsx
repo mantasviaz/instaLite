@@ -23,6 +23,7 @@ function Chat({ socket }) {
         <ChatBox
           socket={socket}
           clickedUser={userClicked}
+          setUserClicked={setUserClicked}
         />
       )}
     </div>

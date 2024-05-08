@@ -64,21 +64,21 @@ exports.acceptChatRequest = async (req, res) => {
 exports.declineChatRequest = async (req, res) => {
   try {
     const { chatId } = req.body;
-    const chatUsers = await ChatUser.destroy({
+    await ChatUser.destroy({
       where: {
         chatId: chatId,
       },
     });
 
-    const chats = await Chat.destroy({
+    await Chat.destroy({
       where: {
         chatId: chatId,
       },
     });
 
-    res.status(200).send(chatUsers);
+    res.status(200).send('sucess');
   } catch (error) {
-    res.status(500).send({ error: 'Failed to accept chat request', message: error.message });
+    res.status(500).send({ error: 'Failed to decline chat request', message: error.message });
   }
 };
 

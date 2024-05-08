@@ -1,5 +1,5 @@
 const express = require('express');
-const { createChat, acceptChatRequest, sendChatRequest, getChatMessages, getChatSessions, getChatStatus } = require('../controller/chatController');
+const { createChat, acceptChatRequest, sendChatRequest, getChatMessages, getChatSessions, getChatStatus, declineChatRequest } = require('../controller/chatController');
 const router = express.Router();
 
 // Create Chat Session
@@ -19,5 +19,8 @@ router.get('/:chatId/messages', getChatMessages);
 
 // Get All Chat Users
 router.post('/users', getChatStatus);
+
+// Decline Chat Request
+router.post('/decline', declineChatRequest);
 
 module.exports = router;
