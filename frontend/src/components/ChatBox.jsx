@@ -52,6 +52,9 @@ function ChatBox({ socket, clickedUser, setUserClicked, clickedGroupChat, clicke
 
   useEffect(() => {
     const createRoom = async () => {
+      if (!clickedUser) {
+        return;
+      }
       let response = null;
       try {
         // Create chat room
@@ -62,6 +65,15 @@ function ChatBox({ socket, clickedUser, setUserClicked, clickedGroupChat, clicke
             userId2: clickedUser,
           });
           setChatId(response.data.chatId);
+          if (!response.data.Chat) {
+            socket.emit('send_notifications', {
+              userId: clickedUser,
+              type: 'chat_request',
+              notification: `${user.username} requests to chat with you`,
+              timestamp: Date.now(),
+            });
+            console.log('First time chatting');
+          }
           console.log(response);
         } else {
           setIsGroup(true);
