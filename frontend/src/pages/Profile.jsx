@@ -3,10 +3,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 function Profile() {
   const [formData, setFormData] = useState({
-    profilePhoto : null,
+    profilePhoto: null,
     email: "",
     password: "",
     hashtags: [],
+    firstName: "",
+    lastName: "",
   });
 
   const [modifiedFields, setModifiedFields] = useState([]);
@@ -29,7 +31,7 @@ function Profile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Only update the form data if the input field is not empty
     if (value.trim() !== "") {
       setFormData({
@@ -37,7 +39,7 @@ function Profile() {
         [name]: value,
       });
     }
-    
+
     if (!modifiedFields.includes(name)) {
       setModifiedFields([...modifiedFields, name]);
     }
@@ -78,13 +80,13 @@ function Profile() {
   const handleProfilePhotoChange = (e) => {
     const imageFile = e.target.files[0];
     setFormData({
-        ...formData,
-        profilePhoto: imageFile,
+      ...formData,
+      profilePhoto: imageFile,
     });
     if (!modifiedFields.includes("profilePhoto")) {
-        setModifiedFields([...modifiedFields, "profilePhoto"]);
+      setModifiedFields([...modifiedFields, "profilePhoto"]);
     }
-};
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,34 +94,34 @@ function Profile() {
     if (modifiedFields.length === 0) {
       console.log("No fields are modified. Form submission cancelled.");
       return; // Exit the function without submitting the form
-  }
+    }
     // Construct JSON object with updated fields
     const modifiedData = {};
     modifiedFields.forEach((field) => {
-    if (field !== "password" || formData[field].trim() !== "") {
-      modifiedData[field] = formData[field];
-    }
-  });
+      if (field !== "password" || formData[field].trim() !== "") {
+        modifiedData[field] = formData[field];
+      }
+    });
 
     try {
-        const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json" // Specify JSON content type
-            },
-            body: JSON.stringify(modifiedData) // Convert JSON object to string
-        });
+      const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json" // Specify JSON content type
+        },
+        body: JSON.stringify(modifiedData) // Convert JSON object to string
+      });
 
-        if (response.ok) {
-            console.log("Profile updated successfully");
-            navigate(`/${userId}`); // Redirect to the profile page or another appropriate page
-        } else {
-            console.error("Profile update failed:", await response.text());
-        }
+      if (response.ok) {
+        console.log("Profile updated successfully");
+        navigate(`/${userId}`); // Redirect to the profile page or another appropriate page
+      } else {
+        console.error("Profile update failed:", await response.text());
+      }
     } catch (error) {
-        console.error("Error updating profile:", error.message);
+      console.error("Error updating profile:", error.message);
     }
-};
+  };
 
 
   return (
@@ -140,12 +142,38 @@ function Profile() {
               className="input-field"
             />
             {formData.profilePhoto && (
-                <img
-                  src={URL.createObjectURL(formData.profilePhoto)}
-                  alt="Profile"
-                  className="w-32 h-32 rounded-full"
-                />
-              )}
+              <img
+                src={URL.createObjectURL(formData.profilePhoto)}
+                alt="Profile"
+                className="w-32 h-32 rounded-full"
+              />
+            )}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="firstName" className="block text-lg font-semibold mb-2">
+              Change First Name
+            </label>
+            <input
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              placeholder="First Name"
+              className="input-field"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="lastName" className="block text-lg font-semibold mb-2">
+              Change Last Name
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              placeholder="Last Name"
+              className="input-field"
+            />
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block text-lg font-semibold mb-2">
