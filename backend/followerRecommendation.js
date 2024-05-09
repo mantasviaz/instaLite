@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const Friendship = require('./models/friendship');
 const User = require('./models/user');
 const UserHashtag = require('./models/userHashtag');
+const FollowerRecommendation = require('./models/followerRecommendation');
 
 const getRecommendations = async (userId) => {
   try {
@@ -51,11 +52,36 @@ const getRecommendations = async (userId) => {
     // console.log(filteredFriendsOfFriends);
     // console.log(userRecommendations);
     console.log(`Recommendations for User ${userId}:`, userRecommendations);
+    const recommendationsPromises = Object.entries(userRecommendations).map(([userId2, strength]) => updateRecommendation(userId, userId2, strength));
+    const recommendations = await Promise.all(recommendationsPromises);
 
-    return userRecommendations;
+    return recommendations;
   } catch (error) {
     console.log(error);
   }
+};
+
+const updateRecommendation = async (userId, userId2, strength) => {
+  let userRecommendation = await FollowerRecommendation.findOne({
+    where: {
+      userId: userId,
+      recommendId: userId2,
+    },
+  });
+
+  if (userRecommendation) {
+    userRecommendation.strength = strength;
+    await userRecommendation.save();
+    return userRecommendation;
+  }
+
+  userRecommendation = await FollowerRecommendation.create({
+    userId: userId,
+    recommendId: userId2,
+    strength: strength,
+  });
+
+  return userRecommendation;
 };
 
 const getHashtagBasedRecommendations = async (userId) => {
@@ -91,13 +117,12 @@ const getAllRecommendations = async () => {
     const allUsers = await User.findAll();
     const allUsersId = [...allUsers.map((u) => u.userId)];
     const recommendationsPromises = allUsersId.map((userId) => getRecommendations(userId));
-    const recommendations = await Promise.all(recommendationsPromises);
+    await Promise.all(recommendationsPromises);
 
-    console.log(recommendations.filter((r) => r !== null));
+    // console.log(recommendations.filter((r) => r !== null));
   } catch (error) {
     console.log(error);
   }
 };
 
 getAllRecommendations();
-// getRecommendations(1);

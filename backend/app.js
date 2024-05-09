@@ -17,6 +17,7 @@ const Friendship = require('./models/friendship');
 const PostHashtag = require('./models/postHashtag');
 const Hashtag = require('./models/hashtag');
 const UserHashtag = require('./models/userHashtag');
+const followerRecommendation = require('./models/followerRecommendation');
 
 const app = express();
 
