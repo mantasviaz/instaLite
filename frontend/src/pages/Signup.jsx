@@ -96,20 +96,24 @@ function SignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const formData = new FormData();
-        formData.append('username', formData.username);
-        formData.append('password', formData.password);
-        formData.append('firstName', formData.firstName);
-        formData.append('lastName', formData.lastName);
-        formData.append('email', formData.email);
-        formData.append('school', formData.school);
-        formData.append('birthday', formData.birthday);
-        formData.append('hashtags', JSON.stringify(formData.hashtags));  // Serialize array data if needed
-        formData.append('profilePhoto', formData.profilePhoto);  
+        const requestBody = {
+            profilePhoto: formData.profilePhoto,
+            username: formData.username,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            school: formData.school,
+            birthday: formData.birthday,
+            hashtags: formData.hashtags,
+          };  
 
       const response = await fetch('http://localhost:3000/api/users/signup', {
         method: 'POST',
-        body: formData,
+        headers: {
+            "Content-Type": "application/json",
+          },
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
