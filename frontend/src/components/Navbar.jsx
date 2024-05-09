@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Logos
@@ -16,10 +16,22 @@ import Search from './Search';
 // Test Profile Img
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
 
-function Navbar() {
+function Navbar({ socket }) {
   const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [sidebar, setSidebar] = useState('');
+  const [notifications, setNotifications] = useState([]);
 
+  useEffect(() => {
+    socket.on('get_notifications', (data) => {
+      console.log(data);
+      setNotifications((prevNotif) => [...prevNotif, { type: data.type, content: data.notification }]);
+      console.log(notifications);
+    });
+
+    return () => {
+      socket.off('get_notifications');
+    };
+  }, [socket]);
   const navigate = useNavigate();
   return (
     <>
@@ -57,11 +69,15 @@ function Navbar() {
             className='nav-logo'
             onClick={() => navigate('/chat')}
           />
-          <img
-            src={notifcationsLogo}
-            alt='Notifications Logo'
-            className='nav-logo'
-          />
+          <div className='relative w-[48px] h-[48px] flex-center'>
+            <img
+              src={notifcationsLogo}
+              alt='Notifications Logo'
+              className='nav-logo'
+              onClick={() => setNotifications([])}
+            />
+            {notifications.length > 0 && <div className='bg-red-500 w-4 h-4 absolute right-[5%] top-[5%] rounded-full'></div>}
+          </div>
           <img
             src={addLogo}
             alt='Add Logo'

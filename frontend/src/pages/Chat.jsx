@@ -32,6 +32,13 @@ function Chat({ socket }) {
           setChatIdClicked={setChatIdClicked}
           setClickedGroupChat={setClickedGroupChat}
         />
+        <button
+          onClick={async () => {
+            await socket.emit('send_notifications', { userId: 8, notification: 'Send chat request', type: 'chat' });
+          }}
+        >
+          Send Notificaitons
+        </button>
       </div>
       {(userClicked !== null || clickedGroupChat) && (
         <ChatBox

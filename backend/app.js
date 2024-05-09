@@ -14,6 +14,8 @@ const User = require('./models/user');
 const Post = require('./models/post');
 const Comment = require('./models/comment');
 const Friendship = require('./models/friendship');
+const PostHashtag = require('./models/postHashtag');
+const Hashtag = require('./models/hashtag');
 
 const app = express();
 
@@ -34,7 +36,7 @@ app.use('/api/chats', chatRoutes);
 
 // Sync all models
 sequelize
-  .sync()
+  .sync({ force: false })
   .then(() => {
     console.log('Database synced');
   })
@@ -58,9 +60,19 @@ io.on('connection', (socket) => {
   console.log(`USER CONNECTED ${socket.id}`);
 
   socket.on('join_room', (data) => {
+    console.log(data);
     socket.join(data);
   });
 
+  socket.on('join_notifications', (data) => {
+    console.log(`UserId${data}`);
+    socket.join(`UserId${data}`);
+  });
+
+  socket.on('send_notifications', (data) => {
+    console.log(data);
+    socket.to(`UserId${data.userId}`).emit('get_notifications', data);
+  });
   socket.on('user_typing', (data) => {
     socket.to(data.room).emit('user_is_typing', data);
   });

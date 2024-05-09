@@ -11,16 +11,23 @@ import ImagePostPage from './pages/ImagePostPage';
 import TextPostPage from './pages/TextPostPage';
 import Chat from './pages/Chat';
 import { useUserContext } from './hooks/useUserContext';
+import { useEffect } from 'react';
 
 const socket = io.connect('http://localhost:3001');
 
 function App() {
   const { user } = useUserContext();
 
+  useEffect(() => {
+    if (user) {
+      socket.emit('join_notifications', user.userId);
+    }
+  }, [user]);
+
   return (
     <div className='relative flex h-screen w-screen'>
       <BrowserRouter>
-        {user && <Navbar />}
+        {user && <Navbar socket={socket} />}
         <Routes>
           <Route
             path='/home'
