@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const Friendship = require('./models/friendship');
 const User = require('./models/user');
+const UserHashtag = require('./models/userHashtag');
 
 const getRecommendations = async (userId) => {
   try {
@@ -52,6 +53,34 @@ const getRecommendations = async (userId) => {
     console.log(`Recommendations for User ${userId}:`, userRecommendations);
 
     return userRecommendations;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getHashtagBasedRecommendations = async (userId) => {
+  try {
+    const userHashtags = await UserHashtag.findAll({
+      where: {
+        user_id: userId,
+      },
+    });
+    const hashtags = [...userHashtags.map((h) => h.hashtag_id)];
+    const commonUsers = await UserHashtag.findAll({
+      where: {
+        hashtag_id: hashtags,
+        user_id: {
+          [Op.ne]: userId,
+        },
+      },
+    });
+
+    const userRecommendation = {};
+    commonUsers.forEach((u) => {
+      userRecommendation[u.user_id] = (userRecommendation[u.user_id] || 0) + 1;
+    });
+
+    return userRecommendation;
   } catch (error) {
     console.log(error);
   }
