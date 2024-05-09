@@ -9,6 +9,7 @@ const postRoutes = require('./routes/postRoutes'); // Import post routes
 const commentRoutes = require('./routes/commentRoutes');
 const friendshipRoutes = require('./routes/friendshipRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const User = require('./models/user');
 const Post = require('./models/post');
@@ -16,6 +17,7 @@ const Comment = require('./models/comment');
 const Friendship = require('./models/friendship');
 const PostHashtag = require('./models/postHashtag');
 const Hashtag = require('./models/hashtag');
+const notification = require('./models/notification');
 const UserHashtag = require('./models/userHashtag');
 const followerRecommendation = require('./models/followerRecommendation');
 
@@ -35,6 +37,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/friendships', friendshipRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/notification', notificationRoutes);
 
 // Sync all models
 sequelize
@@ -48,6 +51,7 @@ sequelize
 
 // Socket.io
 const { sendMessage } = require('./controller/chatController');
+const Notification = require('./models/notification');
 
 const server = http.createServer(app);
 
@@ -71,10 +75,18 @@ io.on('connection', (socket) => {
     socket.join(`UserId${data}`);
   });
 
-  socket.on('send_notifications', (data) => {
+  socket.on('send_notifications', async (data) => {
     console.log(data);
-    socket.to(`UserId${data.userId}`).emit('get_notifications', data);
+    const notification = await Notification.create({
+      userId: data.userId,
+      type: data.type,
+      text: data.notification,
+      created_at: data.timestamp,
+      senderId: data.senderId ? data.senderId : null,
+    });
+    await socket.to(`UserId${data.userId}`).emit('get_notifications', notification);
   });
+
   socket.on('user_typing', (data) => {
     socket.to(data.room).emit('user_is_typing', data);
   });
@@ -85,6 +97,7 @@ io.on('connection', (socket) => {
       message: data.message,
       chatId: data.room,
       userId: data.userId,
+      created_at: data.timestamp,
     });
     await sendMessage(data.message, data.room, data.userId);
     socket.to(data.room).emit('receive_message', data);

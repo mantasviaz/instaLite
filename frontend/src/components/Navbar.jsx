@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useUserContext } from '../hooks/useUserContext';
 
 // Logos
 import instagramLogo from '../assets/logos/instagram.svg';
@@ -12,19 +14,41 @@ import peopleLogo from '../assets/logos/people.svg';
 import listLogo from '../assets/logos/list.svg';
 
 import Search from './Search';
+import Notification from './Notification';
 
 // Test Profile Img
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
 
 function Navbar({ socket }) {
   const [searchIsOpen, setSearchIsOpen] = useState(false);
+  const [notificationIsOpen, setNotificationIsOpen] = useState(false);
   const [sidebar, setSidebar] = useState('');
   const [notifications, setNotifications] = useState([]);
+  const { user } = useUserContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getNotifications = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/notification/${user.userId}`);
+        console.log(response);
+        setNotifications(response.data);
+        await console.log(notifications);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (user) getNotifications();
+  }, []);
+
+  useEffect(() => {
+    console.log(notifications);
+  }, [notifications]);
 
   useEffect(() => {
     socket.on('get_notifications', (data) => {
       console.log(data);
-      setNotifications((prevNotif) => [...prevNotif, { type: data.type, content: data.notification }]);
+      setNotifications([...notifications, data]);
       console.log(notifications);
     });
 
@@ -32,7 +56,7 @@ function Navbar({ socket }) {
       socket.off('get_notifications');
     };
   }, [socket]);
-  const navigate = useNavigate();
+
   return (
     <>
       <div className='flex-between w-24 flex-col border-r-2 px-2'>
@@ -55,7 +79,7 @@ function Navbar({ socket }) {
             className='nav-logo'
             onClick={() => {
               setSearchIsOpen(!searchIsOpen);
-              setSidebar('search');
+              setSidebar(sidebar === 'search' ? '' : 'search');
             }}
           />
           <img
@@ -74,7 +98,10 @@ function Navbar({ socket }) {
               src={notifcationsLogo}
               alt='Notifications Logo'
               className='nav-logo'
-              onClick={() => setNotifications([])}
+              onClick={() => {
+                setNotificationIsOpen(!notificationIsOpen);
+                setSidebar(sidebar === 'notification' ? '' : 'notification');
+              }}
             />
             {notifications.length > 0 && <div className='bg-red-500 w-4 h-4 absolute right-[5%] top-[5%] rounded-full'></div>}
           </div>
@@ -95,7 +122,12 @@ function Navbar({ socket }) {
           className='nav-logo mb-8'
         />
       </div>
-      {sidebar === 'search' ? <Search isOpen={searchIsOpen} /> : <></>}
+      <Search isOpen={sidebar === 'search'} />
+      <Notification
+        isOpen={sidebar === 'notification'}
+        notifications={notifications}
+        setNotifications={setNotifications}
+      />
     </>
   );
 }
