@@ -3,7 +3,7 @@ import axios from 'axios';
 import testImg from '../assets/test/ameer-umar-test.jpg';
 import { useUserContext } from '../hooks/useUserContext';
 
-function FriendItem({ userId, username, status, setUserClicked, setClickedGroupChat }) {
+function FriendItem({ userId, username, status, setUserClicked, setClickedGroupChat, setChatIdClicked }) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [removed, setRemoved] = useState(false);
   const { user } = useUserContext();
@@ -28,6 +28,7 @@ function FriendItem({ userId, username, status, setUserClicked, setClickedGroupC
     } else {
       setUserClicked(userId);
       setClickedGroupChat(false);
+      setChatIdClicked(null);
     }
     console.log('CLIKCED ', userId);
   };

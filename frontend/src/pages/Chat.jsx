@@ -27,10 +27,12 @@ function Chat({ socket }) {
         <FriendList
           setUserClicked={setUserClicked}
           setClickedGroupChat={setClickedGroupChat}
+          setChatIdClicked={setChatIdClicked}
         />
         <GroupChat
           setChatIdClicked={setChatIdClicked}
           setClickedGroupChat={setClickedGroupChat}
+          setUserClicked={setUserClicked}
         />
         <button
           onClick={async () => {
@@ -40,16 +42,14 @@ function Chat({ socket }) {
           Send Notificaitons
         </button>
       </div>
-      {(userClicked !== null || clickedGroupChat) && (
-        <ChatBox
-          socket={socket}
-          clickedUser={userClicked}
-          setUserClicked={setUserClicked}
-          clickedChatId={chatIdClicked}
-          clickedGroupChat={clickedGroupChat}
-          setClickedGroupChat={setClickedGroupChat}
-        />
-      )}
+      <ChatBox
+        socket={socket}
+        clickedUser={userClicked}
+        setUserClicked={setUserClicked}
+        clickedChatId={chatIdClicked}
+        clickedGroupChat={clickedGroupChat}
+        setClickedGroupChat={setClickedGroupChat}
+      />
     </div>
   );
 }

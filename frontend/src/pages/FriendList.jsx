@@ -7,7 +7,7 @@ import axios from 'axios';
 import FriendItem from '../components/FriendItem';
 import { useUserContext } from '../hooks/useUserContext';
 
-function FriendList({ setUserClicked, setClickedGroupChat }) {
+function FriendList({ setUserClicked, setClickedGroupChat, setChatIdClicked }) {
   const [friends, setFriends] = useState([]);
   const { user } = useUserContext();
 
@@ -35,6 +35,7 @@ function FriendList({ setUserClicked, setClickedGroupChat }) {
           status={friend.status}
           setUserClicked={setUserClicked}
           setClickedGroupChat={setClickedGroupChat}
+          setChatIdClicked={setChatIdClicked}
         />
       ))}
     </div>

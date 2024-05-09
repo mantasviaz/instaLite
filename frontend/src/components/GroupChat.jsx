@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useUserContext } from '../hooks/useUserContext';
 import axios from 'axios';
 
-function GroupChatItem({ setChatIdClicked, setClickedGroupChat, chatId, name }) {
+function GroupChatItem({ setChatIdClicked, setClickedGroupChat, setUserClicked, chatId, name }) {
   const handleClick = () => {
     setChatIdClicked(chatId);
     setClickedGroupChat(true);
+    setUserClicked(null);
     console.log({ chatId, name });
   };
   return (
@@ -18,7 +19,7 @@ function GroupChatItem({ setChatIdClicked, setClickedGroupChat, chatId, name }) 
   );
 }
 
-function GroupChat({ setChatIdClicked, setClickedGroupChat }) {
+function GroupChat({ setChatIdClicked, setClickedGroupChat, setUserClicked }) {
   const [groupChats, setGroupChats] = useState([]);
   const { user } = useUserContext();
 
@@ -48,6 +49,7 @@ function GroupChat({ setChatIdClicked, setClickedGroupChat }) {
             setClickedGroupChat={setClickedGroupChat}
             chatId={gc.Chat.chatId}
             name={gc.Chat.name}
+            setUserClicked={setUserClicked}
           />
         ))}
       </div>

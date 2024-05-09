@@ -28,23 +28,26 @@ exports.createChat = async (req, res) => {
 
     if (chatUsers.length > 0) {
       res.status(201).send(chatUsers[0]);
-    } else {
-      const chat = await Chat.create();
-      const chatId = chat.chatId;
-
-      await ChatUser.create({
-        chatId: chatId,
-        userId: userId,
-        status: 'joined',
-      });
-
-      await ChatUser.create({
-        chatId: chatId,
-        userId: userId2,
-      });
-
-      res.status(201).send(chat);
+      return;
     }
+
+    console.log({ length: chatUsers.length, ...req.body });
+
+    const chat = await Chat.create();
+    const chatId = chat.chatId;
+
+    await ChatUser.create({
+      chatId: chatId,
+      userId: userId,
+      status: 'joined',
+    });
+
+    await ChatUser.create({
+      chatId: chatId,
+      userId: userId2,
+    });
+
+    res.status(201).send(chat);
   } catch (error) {
     res.status(500).send({ error: 'Failed to create chat', message: error.message });
   }
