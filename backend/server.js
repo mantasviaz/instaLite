@@ -1,7 +1,7 @@
 const app = require('./app');
 
 // Allow requests from all origins
-// app.use(cors({ origin: '*' }));
+//app.use(cors({ origin: '*' }));
 
 // Other middleware and route handlers...
 

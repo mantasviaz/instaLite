@@ -29,14 +29,19 @@ function Profile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
+    
+    // Only update the form data if the input field is not empty
+    if (value.trim() !== "") {
+      setFormData({
         ...formData,
         [name]: value,
-    });
-    if (!modifiedFields.includes(name)) {
-        setModifiedFields([...modifiedFields, name]);
+      });
     }
-};
+    
+    if (!modifiedFields.includes(name)) {
+      setModifiedFields([...modifiedFields, name]);
+    }
+  };
 
   const handleHashtagChange = (e, index) => {
     const newHashtags = [...formData.hashtags];
@@ -90,9 +95,11 @@ function Profile() {
   }
     // Construct JSON object with updated fields
     const modifiedData = {};
-        modifiedFields.forEach((field) => {
-            modifiedData[field] = formData[field];
-        });
+    modifiedFields.forEach((field) => {
+    if (field !== "password" || formData[field].trim() !== "") {
+      modifiedData[field] = formData[field];
+    }
+  });
 
     try {
         const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
@@ -126,8 +133,8 @@ function Profile() {
             </label>
             <input
               type="file"
-              id="profilePhoto"
               name="profilePhoto"
+              id="profilePhoto"
               onChange={handleProfilePhotoChange}
               accept="image/*"
               className="input-field"

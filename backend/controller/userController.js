@@ -4,7 +4,7 @@ const sequelize = require('../config/dbConfig.js');
 const upload = require('../config/s3Config.js');
 
 // Register a new user
-exports.registerUser = upload.single('profilePhoto'), async (req, res) => {
+exports.registerUser = /*upload.single('profilePhoto'),*/ async (req, res) => {
     console.log("trying to register user");
     try {
         console.log(req.body)
@@ -22,8 +22,8 @@ exports.registerUser = upload.single('profilePhoto'), async (req, res) => {
             first_name: req.body.firstName,
             last_name: req.body.lastName,
             school: req.body.school,
-            birthday: req.body.birthday,,
-            profile_photo_url: req.file.location
+            birthday: req.body.birthday,
+            profile_photo_url: req.file ? req.file.location : null
         });
         const result = user.toJSON();
         delete result.password_hash;
@@ -75,19 +75,21 @@ exports.updateUserProfile = async (req, res) => {
     let transaction;
 
     try {
-        //console.log("Received userId for update:", req.params.userId);
+        console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
 
         const userExists = await User.findByPk(req.params.userId, { transaction });
-        //console.log("User exists:", !!userExists);
+        console.log("User exists:", !!userExists);
         if (!userExists) {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
 
-        //console.log("Update data:", req.body);
+        console.log("Update data:", req.body);
         // Ensure the request body has the correct properties
         const updateData = {
+            email: req.body.email, // Include email field
+            password_hash: req.body.password, // Include password field
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             updated_at: new Date()  // Update the 'updated_at' field to current time
