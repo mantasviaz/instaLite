@@ -1,10 +1,10 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/dbConfig.js');
-const upload = require('../config/s3Config.js');
+//const upload = require('../config/s3Config.js');
 
 // Register a new user
-exports.registerUser = upload.single('profilePhoto'), async (req, res) => {
+exports.registerUser = /*upload.single('profilePhoto'),*/ async (req, res) => {
     console.log("trying to register user");
     try {
         console.log(req.body)
@@ -22,7 +22,7 @@ exports.registerUser = upload.single('profilePhoto'), async (req, res) => {
             first_name: req.body.firstName,
             last_name: req.body.lastName,
             school: req.body.school,
-            birthday: req.body.birthday,,
+            birthday: req.body.birthday,
             profile_photo_url: req.file.location
         });
         const result = user.toJSON();
