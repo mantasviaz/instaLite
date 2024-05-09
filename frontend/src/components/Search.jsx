@@ -15,10 +15,7 @@ function Search({ isOpen }) {
   function handleSearch(event) {
     event.preventDefault();
     setRecent([content, ...recent]);
-    window.localStorage.setItem(
-      "history",
-      JSON.stringify({ recent: [content, ...recent] }),
-    );
+    window.localStorage.setItem('history', JSON.stringify({ recent: [content, ...recent] }));
 
     // TO DO Handle Search
     console.log(event);
@@ -32,7 +29,9 @@ function Search({ isOpen }) {
   }
 
   return (
-    <div className={`absolute left-24 flex h-full flex-col items-center rounded-2xl border-solid bg-white shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${isOpen ? 'w-0 opacity-0' : 'w-96 opacity-100'} transition-max-width z-10 duration-500`}>
+    <div
+      className={`absolute left-24 flex h-full flex-col items-center rounded-2xl border-solid bg-white shadow-[rgba(0,0,0,0.1)_5px_0px_10px_0px] ${!isOpen ? 'w-0 opacity-0 transition-min-width' : 'w-96 opacity-100 transition-max-width'} z-10 duration-500`}
+    >
       <h1 className='w-full p-7 text-left text-3xl font-semibold'>Search</h1>
       <form
         className='flex-center w-full border-b-2 pb-8'
