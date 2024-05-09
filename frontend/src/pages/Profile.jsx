@@ -4,11 +4,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 function Profile() {
   const [formData, setFormData] = useState({
     profilePhoto: null,
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     hashtags: [],
-    firstName: "",
-    lastName: "",
   });
 
   const [modifiedFields, setModifiedFields] = useState([]);
@@ -31,7 +31,6 @@ function Profile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     // Only update the form data if the input field is not empty
     if (value.trim() !== "") {
       setFormData({
@@ -90,7 +89,6 @@ function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('hello');
     if (modifiedFields.length === 0) {
       console.log("No fields are modified. Form submission cancelled.");
       return; // Exit the function without submitting the form
@@ -114,7 +112,7 @@ function Profile() {
 
       if (response.ok) {
         console.log("Profile updated successfully");
-        navigate(`/${userId}`); // Redirect to the profile page or another appropriate page
+        navigate(`/${userId}`); // Redirect to the profile page
       } else {
         console.error("Profile update failed:", await response.text());
       }
@@ -157,7 +155,7 @@ function Profile() {
               type="text"
               name="firstName"
               value={formData.firstName}
-              onChange={handleInputChange}
+              onChange={handleInputChangse}
               placeholder="First Name"
               className="input-field"
             />
