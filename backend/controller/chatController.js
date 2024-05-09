@@ -88,7 +88,13 @@ exports.declineChatRequest = async (req, res) => {
         },
       });
     }
-
+    const chat = await Chat.findOne({
+      where: {
+        chatId: chatId,
+      },
+    });
+    chat.isGroup = false;
+    await chat.save();
     res.status(200).send('success');
   } catch (error) {
     res.status(500).send({ error: 'Failed to decline chat request', message: error.message });
