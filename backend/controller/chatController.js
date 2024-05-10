@@ -106,7 +106,7 @@ exports.declineChatRequest = async (req, res) => {
 
 exports.sendChatRequest = async (req, res) => {
   try {
-    const { chatId, username, userId } = req.body;
+    const { chatId, username, userId, groupChatName } = req.body;
 
     const user = await User.findOne({
       where: {
@@ -194,19 +194,34 @@ exports.sendChatRequest = async (req, res) => {
         }
       }
     }
-
-    const chatUser = await ChatUser.create({
-      chatId: chatId,
-      userId: user.userId,
-    });
-
-    const groupChat = await Chat.findOne({
+    const exisitingChat = await Chat.findOne({
       where: {
         chatId: chatId,
       },
     });
-    groupChat.isGroup = true;
-    await groupChat.save();
+    if (exisitingChat) {
+      const chatUser = await ChatUser.create({
+        chatId: exisitingChat.chatId,
+        userId: user.userId,
+      });
+
+      res.status(200).send(chatUser);
+      return;
+    }
+    const groupChat = await Chat.create({
+      isGroup: true,
+      name: groupChatName,
+    });
+
+    await ChatUser.create({
+      chatId: groupChat.chatId,
+      userId: userId,
+    });
+
+    const chatUser = await ChatUser.create({
+      chatId: groupChat.chatId,
+      userId: user.userId,
+    });
 
     res.status(200).send(chatUser);
   } catch (error) {
@@ -317,6 +332,31 @@ exports.getGroupChats = async (req, res) => {
     res.status(200).send(groupChats);
   } catch (error) {
     res.status(500).send({ error: 'Failed to get group chats', message: error.message });
+  }
+};
+
+exports.getGroupChat = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const groupChatUsers = await ChatUser.findAll({
+      where: {
+        chatId: chatId,
+      },
+      include: [
+        {
+          model: Chat,
+          required: true,
+        },
+        {
+          model: User,
+          require: true,
+          attributes: ['username'],
+        },
+      ],
+    });
+    res.status(200).send(groupChatUsers);
+  } catch (error) {
+    res.status(500).send({ error: 'Cannot get group chat users', message: error.message });
   }
 };
 

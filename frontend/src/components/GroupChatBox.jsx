@@ -7,23 +7,23 @@ import { useUserContext } from '../hooks/useUserContext';
 import addLogo from '../assets/logos/person-add.svg';
 import closeLogo from '../assets/logos/x.svg';
 
-function ChatBox({ socket, clickedUser, setUserClicked }) {
-  const [chatName, setChatName] = useState(null);
-  const [chatId, setChatId] = useState();
+function GroupChatBox({ socket, clickedGroupChat, setClickedGroupChat }) {
+  const [name, setName] = useState('');
   const [status, setStatus] = useState('');
   const [message, setMessage] = useState('');
   const [messageHistory, setMessageHistory] = useState([]);
   const [userIsTyping, setUserIsTyping] = useState('');
   const [inviteBox, setInviteBox] = useState(false);
+  const [usersBox, setUsersBox] = useState(false);
   const [userInvited, setUserInvited] = useState(null);
-  const [groupChatName, setGroupChatName] = useState('');
+  const [users, setUsers] = useState([]);
   const { user } = useUserContext();
   const scrollableDivRef = useRef(null);
 
   const clickYes = async () => {
     try {
       const response = await axios.post('http://localhost:3000/api/chats/requests', {
-        chatId: chatId,
+        chatId: clickedGroupChat,
         userId: user.userId,
       });
 
@@ -33,7 +33,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
         socket.emit('send_notifications', {
           userId: clickedUser,
           type: 'chat',
-          notification: `${user.username} accepted your chat request`,
+          notification: `${user.username} accepted your group chat request`,
           timestamp: Date.now(),
         });
       }
@@ -45,16 +45,15 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
   const clickNo = async () => {
     try {
       const response = await axios.post('http://localhost:3000/api/chats/decline', {
-        chatId: chatId,
+        chatId: clickedGroupChat,
         userId: user.userId,
       });
       if (response.status === 200) {
-        setUserClicked(null);
-        setStatus('joined');
+        setClickedGroupChat(null);
         socket.emit('send_notifications', {
           userId: clickedUser,
           type: 'chat',
-          notification: `${user.username} declined your chat request`,
+          notification: `${user.username} declined your group chat request`,
           timestamp: Date.now(),
         });
       }
@@ -64,69 +63,40 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
   };
 
   useEffect(() => {
-    const createRoom = async () => {
-      if (!clickedUser) {
-        return;
-      }
-      let response = null;
+    const getChat = async () => {
+      console.log(clickedGroupChat);
+      if (!clickedGroupChat) return;
       try {
-        // Create chat room
-        response = await axios.post('http://localhost:3000/api/chats', {
-          userId: user.userId,
-          userId2: clickedUser,
-        });
-
-        setChatId(response.data.chatId);
-
-        if (!response.data.Chat) {
-          socket.emit('send_notifications', {
-            userId: clickedUser,
-            type: 'chat_request',
-            notification: `${user.username} requests to chat with you`,
-            timestamp: Date.now(),
-          });
-          console.log('First time chatting');
-        }
+        const response = await axios.get(`http://localhost:3000/api/chats/groupchats/${clickedGroupChat}/users`);
         console.log(response);
-
-        // Get all users in chat
-        response = await axios.post('http://localhost:3000/api/chats/users', {
-          chatId: response.data.chatId,
-        });
-
-        console.log(response);
+        setName(response.data[0].Chat.name);
+        setUsers(response.data);
         const currUser = response.data.filter((u) => u.userId === user.userId); // Current User
-        const usersStatus = response.data.filter((user) => user.status == 'pending'); // Get all users who haven't accepted
-        let chatStatus = currUser[0].status === 'pending' ? 'pending' : usersStatus.length > 0 ? 'waiting' : 'joined'; // Status after checking other users
-        setStatus(chatStatus);
-
-        // if all users accept request
-        if (chatStatus === 'joined') {
-          // Set chat name
-          const allUsersInChat = response.data.filter((u) => u.userId !== user.userId).map((u) => u.User.username);
-          setChatName(`Chat with ${allUsersInChat.map((u) => u + ' ')}`);
-          console.log(`${chatName} with ${allUsersInChat.map((u) => u + ' ')}`);
-
-          // Get all messages
-          response = await axios.get(`http://localhost:3000/api/chats/${response.data[0].chatId}/messages`);
-          console.log(response);
-          // Sort by timestamp
-          const sortedMessages = response.data.sort((a, b) => a.timestamp - b.timestamp);
-          const messages = sortedMessages.map((msg) => {
-            return { message: msg.text, username: msg.User.username, time: msg.timestamp };
-          });
-          setMessageHistory(messages);
-        }
+        const usersStatus = [...response.data.map((u) => u.status)];
+        const joinedUsers = usersStatus.filter((status) => status === 'joined');
+        setStatus(currUser[0].status === 'pending' ? 'pending' : joinedUsers.length > 2 ? 'joined' : 'waiting');
       } catch (error) {
         console.log(error);
       }
-
-      if (status === 'joined') {
-        socket.emit('join_room', chatId);
-      }
     };
 
-    createRoom();
+    const getMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/chats/${clickedGroupChat}/messages`);
+        console.log(response);
+        // Sort by timestamp
+        const sortedMessages = response.data.sort((a, b) => a.timestamp - b.timestamp);
+        const messages = sortedMessages.map((msg) => {
+          return { message: msg.text, username: msg.User.username, time: msg.timestamp };
+        });
+        setMessageHistory(messages);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getMessages();
+    getChat();
+    socket.emit('join_room', clickedGroupChat);
   }, []);
 
   // Automatically scroll to the bottom
@@ -160,7 +130,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
   const handleMessageSend = async (event) => {
     event.preventDefault();
     const messageBody = {
-      room: chatId,
+      room: clickedGroupChat,
       author: user.username,
       userId: user.userId,
       message: message,
@@ -171,7 +141,7 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     setMessageHistory([...messageHistory, { message: message, username: user.username, time: messageBody.time }]);
     console.log(messageHistory);
     setMessage('');
-    socket.emit('user_typing', { room: chatId, username: '' });
+    socket.emit('user_typing', { room: clickedGroupChat, username: '' });
   };
 
   const handleInput = (event) => {
@@ -188,28 +158,23 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
 
   const handleInvite = async (event) => {
     event.preventDefault();
-    console.log('HERE');
-    if (groupChatName === '') {
-      window.alert('Enter name for group chat');
-      return;
-    }
     try {
       console.log({
-        chatId: chatId,
+        chatId: clickedGroupChat,
         username: userInvited,
         userId: user.userId,
       });
       const response = await axios.post('http://localhost:3000/api/chats/send', {
-        chatId: chatId,
+        chatId: clickedGroupChat,
         username: userInvited,
         userId: user.userId,
-        groupChatName: groupChatName,
+        groupChatName: name,
       });
       console.log(response);
       socket.emit('send_notifications', {
         userId: response.data.userId,
         type: 'chat_request',
-        notification: `${user.username} has invited you to a group chat called ${groupChatName}`,
+        notification: `${user.username} has invited you to a group chat called ${name}`,
         timestamp: Date.now(),
       });
       setInviteBox(false);
@@ -218,15 +183,16 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     }
     console.log('INVITE');
   };
+
   return (
     <>
       <div className='w-[70%] relative'>
         {status === 'waiting' ? (
-          <div className='h-full w-full flex-center'>Waiting for user to accept...</div>
+          <div className='h-full w-full flex-center'>Waiting for all user to accept...</div>
         ) : status === 'pending' ? (
           <div className='flex-center h-full w-full flex-col'>
             <div className='w-[25%] flex-center flex-col'>
-              <h1>Do you want to chat with this user?</h1>
+              <h1>Do you want to join this group chat?</h1>
               <div className='flex-between w-full my-4'>
                 <button
                   className='rounded-2xl bg-green-400 px-7 py-1'
@@ -261,20 +227,37 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
                     className='p-2 rounded-md outline-none'
                     onChange={(event) => setUserInvited(event.target.value)}
                   />
-                  <h1 className='my-4 '>Name the group chat</h1>
-                  <input
-                    type='text'
-                    placeholder='Enter a name...'
-                    className='p-2 rounded-md outline-none'
-                    onChange={(event) => setGroupChatName(event.target.value)}
-                  />
                   <button onClick={handleInvite}>Send</button>
                 </form>
               </div>
             )}
 
+            {usersBox && (
+              <div className='absolute w-full h-48 top-1/3 flex-center'>
+                <div className='bg-stone-200 flex-center flex-col py-6 px-10 rounded-3xl relative'>
+                  <img
+                    src={closeLogo}
+                    alt='Close Logo'
+                    className='w-6 h-6 absolute left-[88%] top-[5%] cursor-pointer'
+                    onClick={() => setUsersBox(false)}
+                  />
+                  <h1 className='mb-4 '>{`Users in ${name}`}</h1>
+                  {users.map((u) => (
+                    <p>{u.User.username}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className='h-[10%] flex-between p-5 border-b-2'>
-              {chatName && <span>{chatName}</span>}
+              {name && (
+                <span
+                  className='cursor-pointer font-semibold text-lg hover:font-bold'
+                  onClick={() => setUsersBox(true)}
+                >
+                  {name}
+                </span>
+              )}
               <img
                 src={addLogo}
                 alt='Invite Logo'
@@ -311,9 +294,9 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
                   onChange={(event) => {
                     setMessage(event.target.value);
                     if (event.target.value === '') {
-                      socket.emit('user_typing', { room: chatId, username: '' });
+                      socket.emit('user_typing', { room: clickedGroupChat, username: '' });
                     } else {
-                      socket.emit('user_typing', { room: chatId, username: user.username });
+                      socket.emit('user_typing', { room: clickedGroupChat, username: user.username });
                     }
                   }}
                   onInput={handleInput}
@@ -331,4 +314,5 @@ function ChatBox({ socket, clickedUser, setUserClicked }) {
     </>
   );
 }
-export default ChatBox;
+
+export default GroupChatBox;

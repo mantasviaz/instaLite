@@ -4,15 +4,15 @@ import { useUserContext } from '../hooks/useUserContext';
 import ChatBox from '../components/ChatBox';
 import FriendList from './FriendList';
 import GroupChat from '../components/GroupChat';
+import GroupChatBox from '../components/GroupChatBox';
 
 function Chat({ socket }) {
   const [userClicked, setUserClicked] = useState(null);
-  const [chatIdClicked, setChatIdClicked] = useState(null);
-  const [clickedGroupChat, setClickedGroupChat] = useState(false);
+  const [clickedGroupChat, setClickedGroupChat] = useState(null);
   const { user } = useUserContext();
 
   useEffect(() => {
-    console.log({ chatIdClicked, clickedGroupChat });
+    console.log({ userClicked, clickedGroupChat });
   });
 
   return (
@@ -27,29 +27,26 @@ function Chat({ socket }) {
         <FriendList
           setUserClicked={setUserClicked}
           setClickedGroupChat={setClickedGroupChat}
-          setChatIdClicked={setChatIdClicked}
         />
         <GroupChat
-          setChatIdClicked={setChatIdClicked}
           setClickedGroupChat={setClickedGroupChat}
           setUserClicked={setUserClicked}
         />
-        <button
-          onClick={async () => {
-            await socket.emit('send_notifications', { userId: 8, notification: 'Send chat request', type: 'chat' });
-          }}
-        >
-          Send Notificaitons
-        </button>
       </div>
-      <ChatBox
-        socket={socket}
-        clickedUser={userClicked}
-        setUserClicked={setUserClicked}
-        clickedChatId={chatIdClicked}
-        clickedGroupChat={clickedGroupChat}
-        setClickedGroupChat={setClickedGroupChat}
-      />
+      {userClicked && (
+        <ChatBox
+          socket={socket}
+          clickedUser={userClicked}
+          setUserClicked={setUserClicked}
+        />
+      )}
+      {clickedGroupChat && (
+        <GroupChatBox
+          socket={socket}
+          clickedGroupChat={clickedGroupChat}
+          setClickedGroupChat={setClickedGroupChat}
+        />
+      )}
     </div>
   );
 }

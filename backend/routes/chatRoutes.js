@@ -1,5 +1,5 @@
 const express = require('express');
-const { createChat, acceptChatRequest, sendChatRequest, getChatMessages, getChatSessions, getChatStatus, declineChatRequest, getGroupChats } = require('../controller/chatController');
+const { createChat, acceptChatRequest, sendChatRequest, getChatMessages, getChatSessions, getChatStatus, declineChatRequest, getGroupChats, getGroupChat } = require('../controller/chatController');
 const router = express.Router();
 
 // Create Chat Session
@@ -17,10 +17,12 @@ router.get('/:userId', getChatSessions);
 // Get Chat Messages
 router.get('/:chatId/messages', getChatMessages);
 
-// Get All Chat Users
+// Get All User's Group Chats
 router.get('/groupchats/:userId', getGroupChats);
 
-// Get All User's Group Chats
+router.get('/groupchats/:chatId/users', getGroupChat);
+
+// Get All Chat Users
 router.post('/users', getChatStatus);
 
 // Decline Chat Request

@@ -2,24 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useUserContext } from '../hooks/useUserContext';
 import axios from 'axios';
 
-function GroupChatItem({ setChatIdClicked, setClickedGroupChat, setUserClicked, chatId, name }) {
+function GroupChatItem({ setClickedGroupChat, setUserClicked, chatId, name }) {
   const handleClick = () => {
-    setChatIdClicked(chatId);
-    setClickedGroupChat(true);
+    setClickedGroupChat(chatId);
     setUserClicked(null);
     console.log({ chatId, name });
   };
   return (
     <p
       onClick={handleClick}
-      className='cursor-pointer'
+      className='cursor-pointer hover:bg-slate-100 text-lg border-2 p-5 m-2'
     >
       {name}
     </p>
   );
 }
 
-function GroupChat({ setChatIdClicked, setClickedGroupChat, setUserClicked }) {
+function GroupChat({ setClickedGroupChat, setUserClicked }) {
   const [groupChats, setGroupChats] = useState([]);
   const { user } = useUserContext();
 
@@ -39,13 +38,12 @@ function GroupChat({ setChatIdClicked, setClickedGroupChat, setUserClicked }) {
   }, [user]);
 
   return (
-    <div className='flex max-h-[25%] flex-1 flex-col items-center justify-start overflow-y-auto test-blue'>
-      <h2>Group Chats</h2>
-      <div>
+    <div className='flex flex-1 flex-col justify-start'>
+      <h2 className='text-normal font-semibold px-5 mt-2'>Group Chats</h2>
+      <div className=' overflow-y-auto'>
         {groupChats.map((gc, idx) => (
           <GroupChatItem
             key={idx}
-            setChatIdClicked={setChatIdClicked}
             setClickedGroupChat={setClickedGroupChat}
             chatId={gc.Chat.chatId}
             name={gc.Chat.name}

@@ -3,7 +3,7 @@ import axios from 'axios';
 import testImg from '../assets/test/ameer-umar-test.jpg';
 import { useUserContext } from '../hooks/useUserContext';
 
-function FriendItem({ userId, username, status, setUserClicked, setClickedGroupChat, setChatIdClicked }) {
+function FriendItem({ userId, username, status, setUserClicked, setClickedGroupChat }) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [removed, setRemoved] = useState(false);
   const { user } = useUserContext();
@@ -27,8 +27,7 @@ function FriendItem({ userId, username, status, setUserClicked, setClickedGroupC
       window.alert('Cannot chat with someone offline');
     } else {
       setUserClicked(userId);
-      setClickedGroupChat(false);
-      setChatIdClicked(null);
+      setClickedGroupChat(null);
     }
     console.log('CLIKCED ', userId);
   };
