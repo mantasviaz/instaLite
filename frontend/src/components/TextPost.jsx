@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 import testImage from '../assets/test/ameer-umar-test.jpg';
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
@@ -6,27 +7,59 @@ import heartLogo from '../assets/logos/heart.svg';
 import commentLogo from '../assets/logos/chat-left.svg';
 import twitterLogo from '../assets/logos/twitter.svg';
 import { useNavigate } from 'react-router-dom';
+import { useUserContext } from '../hooks/useUserContext';
 
 function TextPost({ post, num_of_likes }) {
   const [likedPost, setLikedPost] = useState(false);
   const [numOfLikes, setNumOfLikes] = useState(num_of_likes);
+  const { user } = useUserContext();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(post);
+    const getLike = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}/${user.userId}`);
+        setLikedPost(response.data === 'liked' ? true : false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getNumOfLikes = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}`);
+        setNumOfLikes(response.data.num_of_likes);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getLike();
+    getNumOfLikes();
   }, []);
 
-  const handleLike = () => {
-    let updatedNumOfLikes = numOfLikes;
-    if (!likedPost) {
-      updatedNumOfLikes++;
-    } else {
-      updatedNumOfLikes--;
-    }
+  const handleLike = async () => {
+    try {
+      const response = await axios.post(`http://localhost:3000/api/likes/${post.postId}`, {
+        userId: user.userId,
+        isLike: likedPost,
+      });
 
-    setNumOfLikes(updatedNumOfLikes);
-    setLikedPost(!likedPost);
+      let updatedNumOfLikes = numOfLikes;
+      if (!likedPost) {
+        updatedNumOfLikes++;
+      } else {
+        updatedNumOfLikes--;
+      }
+
+      setNumOfLikes(updatedNumOfLikes);
+      setLikedPost(!likedPost);
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
     <div className='my-2 w-[26rem] border-b-2 pb-2 font-sans text-xs'>
       <div className='flex-start'>
