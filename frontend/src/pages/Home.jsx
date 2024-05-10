@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 // Test posts
@@ -11,7 +11,21 @@ import TextPost from '../components/TextPost';
 import { useUserContext } from '../hooks/useUserContext';
 
 function Home() {
+  const [feed, setFeed] = useState([]);
   const { user, dispatch } = useUserContext();
+
+  useEffect(() => {
+    const getFeed = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/feed');
+        console.log(response);
+        setFeed(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getFeed();
+  }, []);
 
   return (
     <div className='flex-start max-h-full flex-1 flex-col overflow-y-auto'>
@@ -56,23 +70,23 @@ function Home() {
       >
         LOGOUT
       </button>
-      {image_post_test.map((post, idx) => (
-        <ImagePost
-          username={post.username}
-          text={post.text}
-          img_link={post.img}
-          created_date={post.created_at}
-          key={idx}
-        />
-      ))}
-      {text_posts.map((post, idx) => (
-        <TextPost
-          username={post.username}
-          content={post.text}
-          num_of_likes={post.num_of_likes}
-          key={idx}
-        />
-      ))}
+      {feed.length > 0 &&
+        feed.map((post, idx) => (
+          <TextPost
+            post={post}
+            key={idx}
+          />
+        ))}
+      {/* {feed.length > 0 &&
+        image_post_test.map((post, idx) => (
+          <ImagePost
+            username={post.username}
+            text={post.text}
+            img_link={post.img}
+            created_date={post.created_at}
+            key={idx}
+          />
+        ))} */}
     </div>
   );
 }

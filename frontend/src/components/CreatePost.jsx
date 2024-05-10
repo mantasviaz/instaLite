@@ -96,7 +96,9 @@ function CreatePost() {
         ...body,
         userId: user.userId,
       });
-
+      setContent('');
+      setImage(null);
+      setUploadImage(null);
       console.log(response);
     } catch (err) {
       console.log(err);
@@ -155,7 +157,7 @@ function CreatePost() {
             style={{ display: 'none' }}
           />
           <button
-            className='rounded-2xl bg-blue-400 px-4 py-1 text-xs font-semibold'
+            className='rounded-2xl bg-blue-400 px-4 py-1 text-xs font-semibold hover:bg-blue-500'
             onClick={handlePost}
           >
             Post

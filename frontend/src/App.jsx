@@ -12,6 +12,7 @@ import TextPostPage from './pages/TextPostPage';
 import Chat from './pages/Chat';
 import { useUserContext } from './hooks/useUserContext';
 import { useEffect } from 'react';
+import PostPage from './pages/PostPage';
 
 const socket = io.connect('http://localhost:3001');
 
@@ -38,10 +39,6 @@ function App() {
             element={<ImagePostPage />}
           />
           <Route
-            path='/text-post'
-            element={<TextPostPage />}
-          />
-          <Route
             path='/signup'
             element={<Signup />}
           />
@@ -56,6 +53,10 @@ function App() {
           <Route
             path='/chat'
             element={<Chat socket={socket} />}
+          />
+          <Route
+            path='/post/:postId'
+            element={<PostPage />}
           />
         </Routes>
       </BrowserRouter>
