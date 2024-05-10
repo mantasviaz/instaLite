@@ -9,9 +9,9 @@ import twitterLogo from '../assets/logos/twitter.svg';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../hooks/useUserContext';
 
-function TextPost({ post, num_of_likes }) {
+function TextPost({ post }) {
   const [likedPost, setLikedPost] = useState(false);
-  const [numOfLikes, setNumOfLikes] = useState(num_of_likes);
+  const [numOfLikes, setNumOfLikes] = useState();
   const { user } = useUserContext();
   const navigate = useNavigate();
 

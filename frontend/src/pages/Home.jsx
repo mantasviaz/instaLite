@@ -12,6 +12,7 @@ import { useUserContext } from '../hooks/useUserContext';
 
 function Home() {
   const [feed, setFeed] = useState([]);
+  const [imageFeed, setImageFeed] = useState([]);
   const { user, dispatch } = useUserContext();
 
   useEffect(() => {
@@ -24,6 +25,17 @@ function Home() {
         console.log(error);
       }
     };
+
+    const getImageFeed = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/imagepost');
+        console.log(response);
+        setImageFeed(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getImageFeed();
     getFeed();
   }, []);
 
@@ -70,6 +82,13 @@ function Home() {
       >
         LOGOUT
       </button>
+      {imageFeed.length > 0 &&
+        imageFeed.map((post, idx) => (
+          <ImagePost
+            post={post}
+            key={idx}
+          />
+        ))}
       {feed.length > 0 &&
         feed.map((post, idx) => (
           <TextPost
@@ -77,16 +96,6 @@ function Home() {
             key={idx}
           />
         ))}
-      {/* {feed.length > 0 &&
-        image_post_test.map((post, idx) => (
-          <ImagePost
-            username={post.username}
-            text={post.text}
-            img_link={post.img}
-            created_date={post.created_at}
-            key={idx}
-          />
-        ))} */}
     </div>
   );
 }

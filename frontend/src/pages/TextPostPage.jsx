@@ -12,6 +12,7 @@ import text_posts from '../test/text-post';
 
 function TextPostPage({ post }) {
   const [comment, setComment] = useState('');
+  const [numOfLikes, setNumOfLikes] = useState();
   const [likedPost, setLikedPost] = useState(false);
   const [comments, setComments] = useState([]);
   const { user } = useUserContext();
@@ -26,11 +27,49 @@ function TextPostPage({ post }) {
         console.log(error);
       }
     };
+    const getLike = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}/${user.userId}`);
+        setLikedPost(response.data === 'liked' ? true : false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getNumOfLikes = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}`);
+        setNumOfLikes(response.data.num_of_likes);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getLike();
+    getNumOfLikes();
     getComments();
   }, []);
 
-  const handleLike = () => {
-    setLikedPost(!likedPost);
+  const handleLike = async () => {
+    try {
+      const response = await axios.post(`http://localhost:3000/api/likes/${post.postId}`, {
+        userId: user.userId,
+        isLike: likedPost,
+      });
+
+      let updatedNumOfLikes = numOfLikes;
+      if (!likedPost) {
+        updatedNumOfLikes++;
+      } else {
+        updatedNumOfLikes--;
+      }
+
+      setNumOfLikes(updatedNumOfLikes);
+      setLikedPost(!likedPost);
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleChange = (event) => {
@@ -68,8 +107,8 @@ function TextPostPage({ post }) {
     <>
       {post && (
         <div className='flex-center flex-1'>
-          <div className='flex h-full w-[40%] flex-col border-2'>
-            <div className='h-[32%] w-full border-b-2 p-4'>
+          <div className='flex h-full w-[40%] flex-col border-2 test-blue'>
+            <div className='h-[32%] w-full border-b-2 p-4 test-red'>
               <div className='flex-start mb-2'>
                 <img
                   src={post.User.username === 'Twitter' ? twitterLogo : testImage}
@@ -78,7 +117,7 @@ function TextPostPage({ post }) {
                 />
                 <span className='cursor-pointer text-lg font-semibold hover:font-bold'>{post.User.username}</span>
               </div>
-              <p className='text-sm'>{post.text}</p>
+              <p className='text-sm flex-1'>{post.text}</p>
               <div className='flex-start mt-3'>
                 <img
                   src={!likedPost ? heartLogo : heartFilledLogo}
@@ -86,7 +125,7 @@ function TextPostPage({ post }) {
                   className='mr-3 h-[24px] w-[24px] cursor-pointer'
                   onClick={handleLike}
                 />
-                <span>1232 Likes</span>
+                <span>{numOfLikes}</span>
               </div>
             </div>
             <div className='no-scrollbar overflow-y-auto px-8 flex-1'>

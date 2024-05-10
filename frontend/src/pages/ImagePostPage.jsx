@@ -1,13 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useUserContext } from '../hooks/useUserContext';
 
 import testImage from '../assets/test/ameer-umar-test.jpg';
 import comments from '../test/comments';
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
 import heartLogo from '../assets/logos/heart.svg';
 
-function ImagePostPage() {
+function ImagePostPage({ post }) {
   const [comment, setComment] = useState('');
   const [likedPost, setLikedPost] = useState(false);
+  const [numOfLikes, setNumOfLikes] = useState();
+  const [comments, setComments] = useState([]);
+  const { user } = useUserContext();
+
+  useEffect(() => {
+    console.log(post.image_url);
+    const getComments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/comments/posts/${post.postId}/comments`);
+        console.log(response);
+        setComments(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const getLike = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}/${user.userId}`);
+        setLikedPost(response.data === 'liked' ? true : false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getNumOfLikes = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}`);
+        setNumOfLikes(response.data.num_of_likes);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getLike();
+    getNumOfLikes();
+    getComments();
+  }, []);
 
   const handleChange = (event) => {
     setComment(event.target.value);
@@ -18,11 +56,22 @@ function ImagePostPage() {
     event.target.style.height = event.target.scrollHeight + 'px';
   };
 
-  function handleCommentSubmit(event) {
+  const handleCommentSubmit = async (event) => {
     event.preventDefault();
     // Handle Comment Submit
-    setComment('');
-  }
+    try {
+      const response = await axios.post(`http://localhost:3000/api/comments/posts/${post.postId}/comments`, {
+        userId: user.userId,
+        text: comment,
+      });
+      console.log(response);
+      setComment('');
+      setComments((prevComments) => [...prevComments, response.data]);
+      console.log(comments);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleEnterSubmit = (event) => {
     if (event.keyCode === 13 && !event.shiftKey) {
@@ -32,24 +81,28 @@ function ImagePostPage() {
   const handleLike = () => {
     setLikedPost(!likedPost);
   };
+
   return (
     <div className='flex-center flex-1'>
       <div className='flex h-[85%] w-[80%]'>
         <div className='flex-center test-green h-full w-[60%] bg-black'>
           <img
-            src={testImage}
+            src={post.image_url}
             alt='Post Image'
             className='h-full object-contain'
           />
         </div>
         <div className='flex-start w-[40%] flex-col border-2'>
-          <div className='flex-start w-full border-b-2 p-3'>
-            <img
-              src={testImage}
-              alt='User Profile Image'
-              className='mr-3 h-[48px] w-[48px] rounded-full'
-            />
-            <span className='text-md cursor-pointer font-semibold hover:font-bold'>username2319478012</span>
+          <div className='flex-center w-full border-b-2 p-3 flex-col'>
+            <div className='flex-start w-full'>
+              <img
+                src={post.image_url}
+                alt='User Profile Image'
+                className='mr-3 h-[48px] w-[48px] rounded-full'
+              />
+              <span className='text-md cursor-pointer font-semibold hover:font-bold'>{post.User.username}</span>
+            </div>
+            <p className='text-left w-full text-sm mt-2'>{post.text}</p>
           </div>
           <div className='no-scrollbar overflow-y-auto px-8 flex-1'>
             {comments.map((comment, idx) => (
@@ -57,8 +110,8 @@ function ImagePostPage() {
                 className='my-2 text-sm'
                 key={idx}
               >
-                <strong className='mr-2 cursor-pointer'>{comment.username}</strong>
-                {comment.comment}
+                <strong className='mr-2 cursor-pointer'>{comment.User.username}</strong>
+                {comment.text}
               </p>
             ))}
           </div>
@@ -69,7 +122,7 @@ function ImagePostPage() {
               className='mr-3 h-[24px] w-[24px] cursor-pointer'
               onClick={handleLike}
             />
-            <span>1232 Likes</span>
+            <span>{numOfLikes} Likes</span>
           </div>
           <form
             onSubmit={handleCommentSubmit}

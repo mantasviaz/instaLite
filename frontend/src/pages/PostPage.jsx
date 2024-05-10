@@ -22,7 +22,7 @@ function PostPage() {
     getPost();
   }, []);
 
-  return <>{post && (post.image_url ? <ImagePostPage /> : <TextPostPage post={post} />)}</>;
+  return <>{post && (post.image_url ? <ImagePostPage post={post} /> : <TextPostPage post={post} />)}</>;
 }
 
 export default PostPage;

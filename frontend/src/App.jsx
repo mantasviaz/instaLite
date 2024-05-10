@@ -35,10 +35,6 @@ function App() {
             element={<Home />}
           />
           <Route
-            path='/image-post'
-            element={<ImagePostPage />}
-          />
-          <Route
             path='/signup'
             element={<Signup />}
           />
