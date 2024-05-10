@@ -12,6 +12,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const feedRoutes = require('./routes/feedRoutes');
 const likeRoutes = require('./routes/likeRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const User = require('./models/user');
 const Post = require('./models/post');
@@ -41,6 +42,7 @@ app.use('/api/friendships', friendshipRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/likes', likeRoutes);
+app.use('/api/recommendation', recommendationRoutes);
 app.use('/api', feedRoutes);
 
 // Sync all models

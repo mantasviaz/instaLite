@@ -35,6 +35,7 @@ function Home() {
         console.log(error);
       }
     };
+
     getImageFeed();
     getFeed();
   }, []);

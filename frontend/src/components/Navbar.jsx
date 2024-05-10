@@ -18,6 +18,7 @@ import Notification from './Notification';
 
 // Test Profile Img
 import testProfileImg from '../assets/test/phuc-lai-test.jpg';
+import Recommendation from './Recommendation';
 
 function Navbar({ socket }) {
   const [searchIsOpen, setSearchIsOpen] = useState(false);
@@ -86,6 +87,9 @@ function Navbar({ socket }) {
             src={compassLogo}
             alt='Compass Logo'
             className='nav-logo'
+            onClick={() => {
+              setSidebar(sidebar === 'recommendation' ? '' : 'recommendation');
+            }}
           />
           <img
             src={peopleLogo}
@@ -128,6 +132,7 @@ function Navbar({ socket }) {
         notifications={notifications}
         setNotifications={setNotifications}
       />
+      <Recommendation isOpen={sidebar === 'recommendation'} />
     </>
   );
 }
