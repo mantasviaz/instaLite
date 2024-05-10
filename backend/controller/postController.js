@@ -108,3 +108,24 @@ exports.likePost = async (req, res) => {
     res.status(500).send({ error: 'Failed to like the post', message: error.message });
   }
 };
+
+exports.getPost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const post = await Post.findOne({
+      where: {
+        postId: postId,
+      },
+      include: [
+        {
+          model: User,
+          required: true,
+          attributes: ['username'],
+        },
+      ],
+    });
+    res.status(200).send(post);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get posts', message: error.message });
+  }
+};
