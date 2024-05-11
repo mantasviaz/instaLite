@@ -4,8 +4,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 function Profile() {
   const [formData, setFormData] = useState({
     profilePhoto: null,
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     hashtags: [],
@@ -101,6 +101,9 @@ function Profile() {
       }
     });
 
+    console.log(modifiedData)
+    console.log(JSON.stringify(modifiedData))
+
     try {
       const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
         method: "PATCH",
@@ -111,6 +114,8 @@ function Profile() {
       });
 
       if (response.ok) {
+        const jsonResponse = await response.json()
+        console.log(jsonResponse)
         console.log("Profile updated successfully");
         navigate(`/${userId}`); // Redirect to the profile page
       } else {
@@ -153,9 +158,9 @@ function Profile() {
             </label>
             <input
               type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleInputChangse}
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleInputChange}
               placeholder="First Name"
               className="input-field"
             />
@@ -166,8 +171,8 @@ function Profile() {
             </label>
             <input
               type="text"
-              name="lastName"
-              value={formData.lastName}
+              name="last_name"
+              value={formData.last_name}
               onChange={handleInputChange}
               placeholder="Last Name"
               className="input-field"

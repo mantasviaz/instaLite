@@ -49,7 +49,7 @@ exports.loginUser = async (req, res) => {
 
         console.log("Hash from database:", user.password_hash);
         console.log("Password for comparison:", password);
-        const passwordValid = bcrypt.compare(password, user.password_hash);
+        const passwordValid = await bcrypt.compare(password, user.password_hash);
         console.log("Comparison result:", passwordValid);
 
         if (passwordValid) {
@@ -84,14 +84,15 @@ exports.updateUserProfile = async (req, res) => {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         console.log("Update data:", req.body);
         // Ensure the request body has the correct properties
         const updateData = {
-            email: req.body.email, // Include email field
-            password_hash: req.body.password, // Include password field
             first_name: req.body.first_name,
             last_name: req.body.last_name,
+            email: req.body.email, // Include email field
+            password_hash: hashedPassword, // Include password field
             updated_at: new Date()  // Update the 'updated_at' field to current time
         };
 
