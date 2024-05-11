@@ -23,7 +23,7 @@ exports.registerUser = /*upload.single('profilePhoto'),*/ async (req, res) => {
             last_name: req.body.lastName,
             school: req.body.school,
             birthday: req.body.birthday,
-            profile_photo_url: req.file.location
+            //profile_photo_url: req.file.location
         });
         const result = user.toJSON();
         delete result.password_hash;
