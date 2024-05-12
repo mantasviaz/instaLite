@@ -84,6 +84,38 @@ const updateRecommendation = async (userId, userId2, strength) => {
   return userRecommendation;
 };
 
+const removeRecommendation = async () => {
+  try {
+    const recommendations = await FollowerRecommendation.findAll();
+
+    console.log([...recommendations.map((r) => r.userId)]);
+    console.log([...recommendations.map((r) => r.recommendId)]);
+
+    recommendations.forEach(async (r) => {
+      const friendship = await Friendship.findOne({
+        where: {
+          [Op.or]: [
+            { user_id_1: r.userId, user_id_2: r.recommendId },
+            { user_id_1: r.recommendId, user_id_2: r.userId },
+          ],
+        },
+      });
+      if (friendship) {
+        await FollowerRecommendation.destroy({
+          where: {
+            [Op.or]: [
+              { userId: r.userId, recommendId: r.recommendId },
+              { userId: r.recommendId, recommendId: r.userId },
+            ],
+          },
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const getHashtagBasedRecommendations = async (userId) => {
   try {
     const userHashtags = await UserHashtag.findAll({
@@ -113,6 +145,7 @@ const getHashtagBasedRecommendations = async (userId) => {
 };
 
 const getAllRecommendations = async () => {
+  await removeRecommendation();
   try {
     const allUsers = await User.findAll();
     const allUsersId = [...allUsers.map((u) => u.userId)];
