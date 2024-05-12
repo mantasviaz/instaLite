@@ -28,7 +28,14 @@ function Home() {
       >
         LOGIN
       </button>
-      <button onClick={() => dispatch({ type: 'LOGOUT' })}>LOGOUT</button>
+      <button
+        onClick={() => {
+          localStorage.removeItem('user');
+          dispatch({ type: 'LOGOUT' });
+        }}
+      >
+        LOGOUT
+      </button>
       {image_post_test.map((post, idx) => (
         <ImagePost
           username={post.username}

@@ -1,11 +1,9 @@
-const express = require('express');
-const app = express();
-const userRoutes = require('./routes/userRoutes');
+const app = require('./app');
 
-app.use(express.json());
-app.use('/api/users', userRoutes);
+// Allow requests from all origins
+// app.use(cors({ origin: '*' }));
 
-// additional routes
+// Other middleware and route handlers...
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
