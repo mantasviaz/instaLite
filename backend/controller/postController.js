@@ -3,6 +3,7 @@ const Post = require('../models/post');
 const Hashtag = require('../models/hashtag');
 const PostHashtag = require('../models/postHashtag');
 const sequelize = require('../config/dbConfig');
+const produceFederatedPost = require('../kafka/produceFederatedPost');
 
 const createHashtag = async (hashtags) => {
   const newHashtags = [];
@@ -49,6 +50,12 @@ exports.createPost = async (req, res) => {
     }
 
     // Send the created post as the response
+    const user = await User.findOne({
+      where: {
+        userId: userId,
+      },
+    });
+    await produceFederatedPost(post, user.username);
     res.status(201).send(post);
   } catch (error) {
     console.error('Create Post Error:', error); // Error log
@@ -107,31 +114,31 @@ exports.getPost = async (req, res) => {
 };
 
 exports.likePost = async (req, res) => {
-    const { postId } = req.params;
-    const userId = req.user.id; // Assuming you have some way of getting the current user's ID
+  const { postId } = req.params;
+  const userId = req.user.id; // Assuming you have some way of getting the current user's ID
 
-    try {
-        // Check if the user has already liked this post
-        const existingLike = await Like.findOne({
-            where: {
-                postId: postId,
-                userId: userId
-            }
-        });
+  try {
+    // Check if the user has already liked this post
+    const existingLike = await Like.findOne({
+      where: {
+        postId: postId,
+        userId: userId,
+      },
+    });
 
-        if (existingLike) {
-            return res.status(409).send({ error: 'You have already liked this post' });
-        }
-
-        // Create a new like
-        const newLike = await Like.create({
-            postId: postId,
-            userId: userId
-        });
-
-        res.status(201).send({ message: `Post ${postId} liked successfully`, likeId: newLike.likeId });
-    } catch (error) {
-        console.error('Error liking post:', error);
-        res.status(500).send({ error: 'Failed to like the post', message: error.message });
+    if (existingLike) {
+      return res.status(409).send({ error: 'You have already liked this post' });
     }
+
+    // Create a new like
+    const newLike = await Like.create({
+      postId: postId,
+      userId: userId,
+    });
+
+    res.status(201).send({ message: `Post ${postId} liked successfully`, likeId: newLike.likeId });
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).send({ error: 'Failed to like the post', message: error.message });
+  }
 };
