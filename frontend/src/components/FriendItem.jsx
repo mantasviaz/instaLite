@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import testImg from '../assets/test/ameer-umar-test.jpg';
 import { useUserContext } from '../hooks/useUserContext';
@@ -10,8 +10,6 @@ function FriendItem({ userId, username, status, setUserClicked, setClickedGroupC
 
   const handleRemove = async () => {
     console.log('REMOVE FRIEND');
-    // TO DO
-    // Add API to remove friend
     try {
       const response = await axios.delete(`http://localhost:3000/api/friendships/friends/${user.userId}/${userId}`);
       if (response.status === 200) {
@@ -29,19 +27,18 @@ function FriendItem({ userId, username, status, setUserClicked, setClickedGroupC
       setUserClicked(userId);
       setClickedGroupChat(null);
     }
-    console.log('CLIKCED ', userId);
   };
 
   return (
     !removed && (
       <div className='flex-start h-20 w-[95%]'>
-        <div className='relative mr-3 h-[42px] w-[42px]'>
+        <div className='relative mr-3 h-[42px] w-[42px] z-0'>
           <img
             src={testImg}
             alt="Friend's Profile Picture"
             className='h-[42px] w-[42px] rounded-full'
           />
-          <div className={`absolute right-0 top-0 h-3 w-3 rounded-full bg-${status === 'online' ? 'green' : 'stone'}-500`}></div>
+          <div className={`absolute right-0 top-0 h-3 w-3 z-10 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-stone-500'}`}></div>
         </div>
         <div className='flex-between flex-1'>
           <span
