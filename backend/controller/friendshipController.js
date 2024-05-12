@@ -8,6 +8,7 @@ exports.getFriendships = async (req, res) => {
     const friendships = await Friendship.findAll({
       where: {
         [Op.or]: [{ user_id_1: userId }, { user_id_2: userId }],
+        status: 'friends',
       },
     });
     const userIds = friendships.flatMap((friend) => {
