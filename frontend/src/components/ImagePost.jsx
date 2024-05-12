@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserContext } from '../hooks/useUserContext';
+import { useNavigate } from 'react-router-dom';
 import dateDifference from '../helper/DateDifference';
-
-import profilePic from '../assets/react.svg';
 
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
 import heartLogo from '../assets/logos/heart.svg';
@@ -13,6 +12,7 @@ function ImagePost({ post }) {
   const [likedPost, setLikedPost] = useState(false);
   const [numOfLikes, setNumOfLikes] = useState();
   const { user } = useUserContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getLike = async () => {
@@ -69,20 +69,30 @@ function ImagePost({ post }) {
             alt='Profile Picture'
             className='h-[24px] w-[24px] rounded-full'
           />
-          <h1 className='ml-2 text-xs font-bold hover:font-extrabold'>{post.User.username}</h1>
+          <h1
+            className='ml-2 text-xs font-bold hover:font-extrabold'
+            onClick={() => navigate(`/user/${post.userId}`)}
+          >
+            {post.User.username}
+          </h1>
         </div>
         <p className='text-[12px] text-neutral-500'>{dateDifference(new Date(post.created_at))}</p>
       </div>
-      <img
-        className='h-[30rem] w-[26rem] rounded border-0 border-white object-contain'
-        src={post.image_url}
-        alt='Post Image'
-      />
+      <div className='h-[30rem] w-[26rem] bg-black flex-center'>
+        <img
+          className='rounded border-0 border-white object-contain h-full'
+          src={post.image_url}
+          alt='Post Image'
+        />
+      </div>
       {/* Text Content */}
-      <p className='text-xs my-4'>
+      <div
+        className='text-xs my-4'
+        onClick={() => navigate(`/user/${post.userId}`)}
+      >
         <b className='mr-1 cursor-pointer'>{post.User.username}</b>
         {post.text}
-      </p>
+      </div>
       {/* Button divs with like button, comment, maybe share and save */}
       <div className='flex-start my-2'>
         <img

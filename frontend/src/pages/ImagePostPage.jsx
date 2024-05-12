@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useUserContext } from '../hooks/useUserContext';
+import { useNavigate } from 'react-router-dom';
 
-import testImage from '../assets/test/ameer-umar-test.jpg';
-import comments from '../test/comments';
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
 import heartLogo from '../assets/logos/heart.svg';
 
@@ -13,6 +12,7 @@ function ImagePostPage({ post }) {
   const [numOfLikes, setNumOfLikes] = useState();
   const [comments, setComments] = useState([]);
   const { user } = useUserContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(post.image_url);
@@ -100,7 +100,12 @@ function ImagePostPage({ post }) {
                 alt='User Profile Image'
                 className='mr-3 h-[48px] w-[48px] rounded-full'
               />
-              <span className='text-md cursor-pointer font-semibold hover:font-bold'>{post.User.username}</span>
+              <span
+                className='text-md cursor-pointer font-semibold hover:font-bold'
+                onClick={() => navigate(`/user/${post.userId}`)}
+              >
+                {post.User.username}
+              </span>
             </div>
             <p className='text-left w-full text-sm mt-2'>{post.text}</p>
           </div>

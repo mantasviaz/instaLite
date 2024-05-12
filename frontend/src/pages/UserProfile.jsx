@@ -10,6 +10,8 @@ import addFriendLogo from '../assets/logos/person-add.svg';
 import pendingFriendLogo from '../assets/logos/person-exclamation.svg';
 import settingsLogo from '../assets/logos/gear.svg';
 
+import dateDifference from '../helper/DateDifference';
+
 function UserProfile({ socket }) {
   const [isFriends, setIsFriends] = useState('nothing');
   const [userData, setUserData] = useState({});
@@ -142,7 +144,39 @@ function UserProfile({ socket }) {
             </div>
             <div className='min-h-96'>
               {posts.map((post, idx) => (
-                <>{post.image_url ? <div key={idx}>Image</div> : <div key={idx}>Text</div>}</>
+                <>
+                  {post.image_url ? (
+                    <div
+                      key={idx}
+                      className='p-5 hover:bg-slate-100 cursor-pointer border-b-2 '
+                      onClick={() => navigate(`/post/${post.postId}`)}
+                    >
+                      <p>{dateDifference(new Date(post.created_at))}</p>
+                      <p>
+                        {post.text} <span></span>
+                      </p>
+                      <div className='flex-center w-full'>
+                        <div className='flex-center bg-black w-[65%]'>
+                          <img
+                            src={post.image_url}
+                            alt='User Post Image'
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      key={idx}
+                      className='p-5 hover:bg-slate-100 cursor-pointer border-b-2'
+                      onClick={() => navigate(`/post/${post.postId}`)}
+                    >
+                      <p>{dateDifference(new Date(post.created_at))}</p>
+                      <p>
+                        {post.text} <span></span>
+                      </p>
+                    </div>
+                  )}
+                </>
               ))}
             </div>
           </div>

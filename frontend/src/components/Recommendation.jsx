@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserContext } from '../hooks/useUserContext';
+import { useNavigate } from 'react-router-dom';
 
 function RecommendationItem({ recommendation, socket }) {
   const { user } = useUserContext();
+  const navigate = useNavigate();
 
   const sendFriendReq = async () => {
     try {
@@ -25,7 +27,12 @@ function RecommendationItem({ recommendation, socket }) {
 
   return (
     <div className='flex-between px-4 py-2 border-2 my-4'>
-      <p className='text-lg'>{recommendation.User.username}</p>
+      <p
+        className='text-lg hover:font-semibold cursor-pointer'
+        onClick={() => navigate(`/user/${recommendation.recommendId}`)}
+      >
+        {recommendation.User.username}
+      </p>
       <button
         className='bg-blue-200 px-3 py-1 rounded-2xl text-xs hover:bg-blue-300'
         onClick={sendFriendReq}

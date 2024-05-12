@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserContext } from '../hooks/useUserContext';
+import { useNavigate } from 'react-router-dom';
 
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
 import heartLogo from '../assets/logos/heart.svg';
 import testImage from '../assets/test/ameer-umar-test.jpg';
 import twitterLogo from '../assets/logos/twitter.svg';
-
-import text_posts from '../test/text-post';
-// import comments from '../test/comments';
 
 function TextPostPage({ post }) {
   const [comment, setComment] = useState('');
@@ -16,6 +14,7 @@ function TextPostPage({ post }) {
   const [likedPost, setLikedPost] = useState(false);
   const [comments, setComments] = useState([]);
   const { user } = useUserContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getComments = async () => {
@@ -83,7 +82,6 @@ function TextPostPage({ post }) {
 
   const handleCommentSubmit = async (event) => {
     event.preventDefault();
-    // Handle Comment Submit
     try {
       const response = await axios.post(`http://localhost:3000/api/comments/posts/${post.postId}/comments`, {
         userId: user.userId,
@@ -107,15 +105,20 @@ function TextPostPage({ post }) {
     <>
       {post && (
         <div className='flex-center flex-1'>
-          <div className='flex h-full w-[40%] flex-col border-2 test-blue'>
-            <div className='h-[32%] w-full border-b-2 p-4 test-red'>
+          <div className='flex h-full w-[40%] flex-col border-2'>
+            <div className='h-[32%] w-full border-b-2 p-4'>
               <div className='flex-start mb-2'>
                 <img
                   src={post.User.username === 'Twitter' ? twitterLogo : testImage}
                   alt='User Profile Image'
                   className={`mr-5 ${post.User.username === 'Twitter' ? 'h-[48px] w-[48px]' : 'h-[64px] w-[64px]'} rounded-full`}
                 />
-                <span className='cursor-pointer text-lg font-semibold hover:font-bold'>{post.User.username}</span>
+                <span
+                  className='cursor-pointer text-lg font-semibold hover:font-bold'
+                  onClick={() => navigate(`/user/${post.userId}`)}
+                >
+                  {post.User.username}
+                </span>
               </div>
               <p className='text-sm flex-1'>{post.text}</p>
               <div className='flex-start mt-3'>
