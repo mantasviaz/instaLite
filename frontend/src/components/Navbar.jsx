@@ -131,6 +131,7 @@ function Navbar({ socket }) {
         isOpen={sidebar === 'notification'}
         notifications={notifications}
         setNotifications={setNotifications}
+        socket={socket}
       />
       <Recommendation
         isOpen={sidebar === 'recommendation'}

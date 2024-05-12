@@ -6,7 +6,7 @@ import closeLogo from '../assets/logos/x.svg';
 import dateDifference from '../helper/DateDifference';
 import { useUserContext } from '../hooks/useUserContext';
 
-function NotificationItem({ data, notifications, setNotifications }) {
+function NotificationItem({ data, notifications, setNotifications, socket }) {
   const { user } = useUserContext();
 
   const removeNotification = async () => {
@@ -28,6 +28,13 @@ function NotificationItem({ data, notifications, setNotifications }) {
         status: 'friends',
       });
       removeNotification();
+      socket.emit('send_notifications', {
+        userId: response.data.user_id_1 == user.userId ? response.data.user_id_2 : response.data.user_id_1,
+        type: 'friend_status',
+        notification: `${user.username} has accepted your friend request`,
+        timestamp: Date.now(),
+        senderId: user.userId,
+      });
       console.log(response);
     } catch (error) {
       console.log(error);
