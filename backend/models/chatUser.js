@@ -1,33 +1,41 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
-const bcrypt = require('bcryptjs')
+const User = require('./user');
+const Chat = require('./chat');
 
-class User extends Model {}
+class ChatUser extends Model {}
 
-User.init({
-  userId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  username: { type: DataTypes.STRING, allowNull: false },
-  password_hash: { type: DataTypes.STRING, allowNull: false },
-  email: { type: DataTypes.STRING, allowNull: false, unique: true },
-  first_name: { type: DataTypes.STRING },
-  last_name: { type: DataTypes.STRING },
-  birthday: { type: DataTypes.DATE },
-  profile_photo_url: { type: DataTypes.STRING },
-  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+ChatUser.init({
+  chatId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'chats', // This should match the table name of Chat
+      key: 'chatId'
+    }
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users', // This should match the table name of User
+      key: 'userId'
+    }
+  },
+  status: {
+    type: DataTypes.ENUM,
+    values: ['pending', 'joined'],
+    allowNull: false
+  }
 }, {
   sequelize,
-  modelName: 'User',
+  modelName: 'ChatUser',
   timestamps: false,
-  tableName: 'users',
-  hooks: {
-    beforeCreate: async (user) => {
-      const salt = await bcrypt.genSalt(10);
-      user.password_hash = await bcrypt.hash(user.password_hash, salt);
-    }
-  }
+  tableName: 'chat_users'
 });
 
+// can also define model associations here if necessary
+// ChatUser.belongsTo(User, {foreignKey: 'userId'});
+// ChatUser.belongsTo(Chat, {foreignKey: 'chatId'});
 
-console.log("User table created");
-module.exports = User;
+module.exports = ChatUser;

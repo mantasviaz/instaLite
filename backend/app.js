@@ -4,6 +4,7 @@ const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes'); // Import post routes
 const commentRoutes = require('./routes/commentRoutes');
 const friendshipRoutes = require('./routes/friendshipRoutes');
+const naturalSearchRoutes = require('./routes/naturalSearchRoutes');
 const User = require('./models/user'); 
 const Post = require('./models/post'); 
 const Comment = require('./models/comment'); 
@@ -19,6 +20,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/friendships', friendshipRoutes);
+app.use('/api/naturalSearch', naturalSearchRoutes);
 
 // Sync all models
 sequelize.sync().then(() => {
