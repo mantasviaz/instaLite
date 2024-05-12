@@ -1,38 +1,37 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { useEffect } from 'react';
+import io from 'socket.io-client';
 
+import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import FriendList from './pages/FriendList';
-import ImagePostPage from './pages/ImagePostPage';
-import TextPostPage from './pages/TextPostPage';
+import Chat from './pages/Chat';
+import UserProfile from './pages/UserProfile';
+import PostPage from './pages/PostPage';
+
 import { useUserContext } from './hooks/useUserContext';
+
+const socket = io.connect('http://localhost:3001');
 
 function App() {
   const { user } = useUserContext();
 
+  useEffect(() => {
+    if (user) {
+      socket.emit('join_notifications', user.userId);
+    }
+  }, [user]);
+
   return (
     <div className='relative flex h-screen w-screen'>
       <BrowserRouter>
-        {user && <Navbar />}
+        {user && <Navbar socket={socket} />}
         <Routes>
           <Route
             path='/home'
             element={<Home />}
-          />
-          <Route
-            path='/friends'
-            element={<FriendList />}
-          />
-          <Route
-            path='/image-post'
-            element={<ImagePostPage />}
-          />
-          <Route
-            path='/text-post'
-            element={<TextPostPage />}
           />
           <Route
             path='/signup'
@@ -45,6 +44,18 @@ function App() {
           <Route
             path='/:userId'
             element={<Profile />}
+          />
+          <Route
+            path='/chat'
+            element={<Chat socket={socket} />}
+          />
+          <Route
+            path='/post/:postId'
+            element={<PostPage />}
+          />
+          <Route
+            path='/user/:userId'
+            element={<UserProfile socket={socket} />}
           />
         </Routes>
       </BrowserRouter>
