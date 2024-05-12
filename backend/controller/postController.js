@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Post = require('../models/post');
 const Hashtag = require('../models/hashtag');
+const PostHashtag = require('../models/postHashtag');
 
 const sequelize = require('../config/dbConfig');
 
@@ -27,19 +28,26 @@ exports.createPost = async (req, res) => {
     // Extract relevant properties from the request body
     const { userId, image_url, video_url, text } = req.body;
 
+    let postHashtags;
+
     // Construct the object to be passed to Post.create() based on the properties present in the request body
     const postData = {};
     if (userId) postData.userId = userId;
     if (image_url) postData.image_url = image_url;
     if (video_url) postData.video_url = video_url;
     if (text) {
-      postData.text = text.split('#')[0];
+      postData.text = text;
       const hashtags = text.replace(/\s/g, '').split('#').slice(1, text.length);
-      await createHashtag(hashtags);
+      postHashtags = await createHashtag(hashtags);
     }
 
     // Create the post using the constructed object
     const post = await Post.create(postData);
+
+    for (const hashtag of postHashtags) {
+      const newPostHashtag = PostHashtag.create({ postId: post.postId, hashtagId: hashtag.hashtagId });
+      console.log(newPostHashtag);
+    }
 
     // Send the created post as the response
     res.status(201).send(post);
