@@ -132,7 +132,10 @@ function Navbar({ socket }) {
         notifications={notifications}
         setNotifications={setNotifications}
       />
-      <Recommendation isOpen={sidebar === 'recommendation'} />
+      <Recommendation
+        isOpen={sidebar === 'recommendation'}
+        socket={socket}
+      />
     </>
   );
 }
