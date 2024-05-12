@@ -116,8 +116,9 @@ function Navbar({ socket }) {
           />
           <img
             src={testProfileImg}
-            alt='Profile Picture'
-            className='nav-logo rounded-full'
+            alt="Profile Picture"
+            className="nav-logo rounded-full"
+            onClick={() => navigate("/profile")}
           />
         </div>
         <img

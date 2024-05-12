@@ -46,4 +46,5 @@ exports.getCommentsForPost = async (req, res) => {
   } catch (error) {
     res.status(500).send({ error: 'Failed to get comments', message: error.message });
   }
+
 };

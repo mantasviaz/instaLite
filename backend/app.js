@@ -24,7 +24,10 @@ const notification = require('./models/notification');
 const UserHashtag = require('./models/userHashtag');
 const followerRecommendation = require('./models/followerRecommendation');
 
+
 const app = express();
+app.use(cors());
+
 
 app.use(
   cors({
@@ -35,6 +38,8 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
