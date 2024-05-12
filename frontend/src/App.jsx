@@ -1,18 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import io from 'socket.io-client';
 
 import Navbar from './components/Navbar';
-
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import ImagePostPage from './pages/ImagePostPage';
-import TextPostPage from './pages/TextPostPage';
 import Chat from './pages/Chat';
-import { useUserContext } from './hooks/useUserContext';
-import { useEffect } from 'react';
+import UserProfile from './pages/UserProfile';
 import PostPage from './pages/PostPage';
+
+import { useUserContext } from './hooks/useUserContext';
 
 const socket = io.connect('http://localhost:3001');
 
@@ -53,6 +52,10 @@ function App() {
           <Route
             path='/post/:postId'
             element={<PostPage />}
+          />
+          <Route
+            path='/user/:userId'
+            element={<UserProfile socket={socket} />}
           />
         </Routes>
       </BrowserRouter>

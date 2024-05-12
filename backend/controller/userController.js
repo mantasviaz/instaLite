@@ -131,3 +131,17 @@ exports.updateUserStatus = async (req, res) => {
     res.status(500).send({ error: 'Failed to change user status', message: error.message });
   }
 };
+
+exports.getUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findOne({
+      where: {
+        userId: userId,
+      },
+    });
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send({ error: 'Cannot get user', message: error.message });
+  }
+};

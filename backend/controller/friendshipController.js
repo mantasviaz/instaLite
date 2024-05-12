@@ -106,3 +106,28 @@ exports.removeFriendship = async (req, res) => {
     res.status(500).send({ error: 'Failed to remove friendship', message: error.message });
   }
 };
+
+exports.getFriendship = async (req, res) => {
+  try {
+    const { userId1, userId2 } = req.params;
+    const friendship = await Friendship.findOne({
+      where: {
+        [Op.or]: [
+          { user_id_1: userId1, user_id_2: userId2 },
+          { user_id_1: userId2, user_id_2: userId1 },
+        ],
+      },
+    });
+    if (!friendship) {
+      res.status(200).send('not_friends');
+      return;
+    }
+    if (friendship.status === 'pending') {
+      res.status(200).send('pending');
+      return;
+    }
+    res.status(200).send('friends');
+  } catch (error) {
+    res.status(500).send({ error: 'Cannot get friendship', message: error.message });
+  }
+};
