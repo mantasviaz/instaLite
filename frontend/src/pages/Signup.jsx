@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../hooks/useUserContext';
 
@@ -16,7 +16,7 @@ function SignupForm() {
     });
 
     //placeholder hashtags
-    const [topHashtags, setTopHashtags] = useState(['#technology', '#travel', '#food', '#fitness', '#music', '#art', '#photography', '#fashion', '#nature', '#books']);
+    const [topHashtags, setTopHashtags] = useState([]);
 
     const { dispatch } = useUserContext();
 
@@ -24,6 +24,25 @@ function SignupForm() {
 
     const [selectedCircleIndex, setSelectedCircleIndex] = useState(0);
     const [circleElements, setCircleElements] = useState([]);
+
+    useEffect(() => {
+        // Fetch top 10 hashtags
+        const fetchTopHashtags = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/hashtags/top10');
+                if (response.ok) {
+                    const data = await response.json();
+                    setTopHashtags(data); // Update topHashtags state
+                } else {
+                    console.error('Failed to fetch top hashtags');
+                }
+            } catch (error) {
+                console.error('Error fetching top hashtags:', error);
+            }
+        };
+
+        fetchTopHashtags(); // Call the fetchTopHashtags function
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
