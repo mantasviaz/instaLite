@@ -129,6 +129,7 @@ function Navbar({ socket }) {
             localStorage.removeItem('user');
             dispatch({ type: 'LOGOUT' });
             await axios.post('http://localhost:3000/api/users/status', { userId: user.userId, status: 'offline' });
+            navigate('/');
           }}
         />
       </div>
