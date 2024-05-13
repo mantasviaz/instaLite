@@ -5,6 +5,7 @@ const UserHashtag = require('../models/userHashtag');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/dbConfig.js');
 const upload = require('../config/s3Config.js');
+const faceUtils = require('../chroma/faceUtils.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
@@ -29,6 +30,9 @@ exports.registerUser = async (req, res) => {
     console.log('Hashtags from request:', req.body.hashtags);
     let hashtags = req.body.hashtags.split(',');
     console.log('Extracted hashtags:', hashtags);
+
+        const matches = [];
+        matches = faceUtils.indexAndSearch(profilePhotoUrl);
 
     const user = await User.create({
       username: req.body.username,

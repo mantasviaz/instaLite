@@ -6,7 +6,7 @@ const tf = require('@tensorflow/tfjs-node');
 const faceapi = require('@vladmandic/face-api');
 
 
-let optionsSSDMobileNet;
+let optionsSSDMobileNet; 
 
 /**
  * Helper function, converts "descriptor" Int32Array to JavaScript array
@@ -125,10 +125,10 @@ async function compareImages(file1, file2) {
 
 ////////////////////////
 // Main
-
-const client = new ChromaClient();
-initializeFaceModels()
-.then(async () => {
+async function indexAndSearch(searchImage) {
+  const client = new ChromaClient();
+  return initializeFaceModels()
+  .then(async () => {
 
   const collection = await client.getOrCreateCollection({
     name: "face-api",
@@ -139,6 +139,7 @@ initializeFaceModels()
 
   console.info("Looking for files");
   const promises = [];
+  return new Promise((resolve, reject) => {
   // Loop through all the files in the images directory
   fs.readdir("images", function (err, files) {
     if (err) {
@@ -155,20 +156,28 @@ initializeFaceModels()
     .then(async (results) => {
       console.info("All images indexed.");
   
-      const search = '/nets2120/chroma/Picture1.png';
+      const search = searchImage;
   
       console.log('\nTop-k indexed matches to ' + search + ':');
+      const matches = [];
       for (var item of await findTopKMatches(collection, search, 5)) {
         for (var i = 0; i < item.ids[0].length; i++) {
-          console.log(item.ids[0][i] + " (Euclidean distance = " + Math.sqrt(item.distances[0][i]) + ") in " + item.documents[0][i]);
+          const match = {
+            document: item.documents[0][i]
+          };
+          matches.push(match);
         }
       }
-    
+      resolve(matches);
     })
     .catch((err) => {
       console.error("Error indexing images:", err);
     });
     });
+  });
+});  
+}
 
-});
+
+
 
