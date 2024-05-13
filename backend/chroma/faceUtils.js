@@ -4,6 +4,8 @@ const { ChromaClient } = require("chromadb");
 const fs = require('fs');
 const tf = require('@tensorflow/tfjs-node');
 const faceapi = require('@vladmandic/face-api');
+module.exports = { indexAndSearch };
+const axios = require('axios');
 
 
 let optionsSSDMobileNet; 
@@ -29,8 +31,17 @@ const getArray = (array) => {
  * @returns List of detected faces' embeddings
  */
 async function getEmbeddings(imageFile) {
-  const buffer = fs.readFileSync(imageFile);
-  const tensor = tf.node.decodeImage(buffer, 3);
+  let tensor;
+  if (imageFile == null) return;
+  if (imageFile.startsWith('http')) {
+    const response = await axios.get(imageFile, { responseType: 'arraybuffer' });
+    const buffer = Buffer.from(response.data, 'binary');
+    tensor = tf.node.decodeImage(buffer, 3);    
+  } else {
+    const buffer = fs.readFileSync(imageFile);
+    tensor = tf.node.decodeImage(buffer, 3);
+  }
+
 
   const faces = await faceapi.detectAllFaces(tensor, optionsSSDMobileNet)
     .withFaceLandmarks()
