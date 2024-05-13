@@ -105,6 +105,4 @@ const getTwitterPosts = async () => {
   await consumer.seek({ topic: config['consumer-topic'], partition: 0, offset: '0' });
 };
 
-cron.schedule('* * * * *', getTwitterPosts);
-
-// module.exports = getTwitterPosts;
+module.exports = getTwitterPosts;
