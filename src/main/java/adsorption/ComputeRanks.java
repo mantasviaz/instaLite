@@ -76,15 +76,47 @@ public class ComputeRanks implements Serializable {
         printGraph(rankedNodes);
 
         // Get top posts for each user
-        //JavaPairRDD<String, Post> userRecommendations = recommendPosts(rankedNodes, postDataRDD);
+        List<Tuple2<String, Double>> userRecommendations = recommendPosts(rankedNodes, "u1");
 
         // Save recommendations
-        //String outputFilePath = "path/to/output/file";
-        //userRecommendations.saveAsTextFile(outputFilePath);
+        try (PrintWriter writer = new PrintWriter(new File("/nets2120/project-leftovers/recommendations.csv"))) {
+            // Write CSV header
+            writer.println("Post ID,Label Weight");
+    
+            // Write each post and its label weight to the CSV file
+            for (Tuple2<String, Double> postTuple : userRecommendations) {
+                String postId = postTuple._1();
+                Double labelWeight = postTuple._2();
+                writer.println(postId + "," + labelWeight);
+            }
+    
+            System.out.println("Recommended posts saved");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         sc.close();
     }
 
+    private static List<Tuple2<String, Double>> recommendPosts(JavaPairRDD<String, Node> rankedNodes, String userId) {
+    // Filter out post nodes
+    JavaRDD<Node> postNodes = rankedNodes.filter(node -> node._2().getType() == Node.Type.POST).values();
+
+    // Map each post node to a tuple of (postId, labelWeight) for the specific user
+    JavaRDD<Tuple2<String, Double>> postLabelWeights = postNodes.map(postNode -> {
+        String postId = postNode.getId();
+        Map<String, Double> labelWeights = postNode.getLabelWeights();
+        Double labelWeight = labelWeights.getOrDefault(userId, 0.0);
+        return new Tuple2<>(postId, labelWeight);
+    });
+
+    // Sort the posts by label weight in descending order
+    List<Tuple2<String, Double>> sortedPosts = postLabelWeights.collect();
+    List<Tuple2<String, Double>> sortedPostsList = new ArrayList<>(sortedPosts);
+    sortedPostsList.sort(new SerializableComparator());
+
+    return sortedPostsList;
+    }
 
     private static JavaRDD<UserData> readUserDataLocal(JavaSparkContext sc) {
         // Read user data from storage
