@@ -10,30 +10,22 @@ const { indexAndSearch } = require('../chroma/faceUtils.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
-    console.log('trying to register user');
+    console.log("trying to register user");
     try {
         console.log(req.body);
-        console.log(req.file);
+        console.log(req.file)
         if (!req.body.username || !req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
             return res.status(500).send({ error: 'Validation Error', message: 'Required fields are missing' });
         }
-        console.log('Password being hashed:', req.body.password);
+        console.log("Password being hashed:", req.body.password);
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        console.log('Generated hash:', hashedPassword);
+        console.log("Generated hash:", hashedPassword);
 
         // Handle image upload
         let profilePhotoUrl = null;
         if (req.file) {
             profilePhotoUrl = req.file.location;
         }
-        const matches = [];
-        matches = faceUtils.indexAndSearch(profilePhotoUrl);
-
-        // Extract hashtags from the request body
-        console.log('Hashtags from request:', req.body.hashtags);
-        let hashtags = req.body.hashtags.split(',');
-        console.log('Extracted hashtags:', hashtags);
-
 
         const user = await User.create({
             username: req.body.username,
@@ -43,32 +35,41 @@ exports.registerUser = async (req, res) => {
             last_name: req.body.lastName,
             school: req.body.school,
             birthday: req.body.birthday,
-            profile_photo_url: profilePhotoUrl,
-            hashtags: hashtags,
+            profile_photo_url: profilePhotoUrl
         });
-
-        await Promise.all(
-            hashtags.map(async (tag) => {
-                try {
-                    // Find or create the hashtag in the database
-                    let [hashtag, created] = await Hashtag.findOrCreate({ where: { text: tag } });
-
-                    // Create an entry in user_hashtags table
-                    await UserHashtag.create({
-                        user_id: user.userId, // Using the userId obtained above
-                        hashtag_id: hashtag.hashtagId,
-                    });
-                } catch (error) {
-                    console.error('Error processing hashtag:', error);
-                }
-            })
-        );
 
         const result = user.toJSON();
         delete result.password_hash;
         res.status(201).send(result);
     } catch (error) {
-        console.error('Error registering user:', error);
+        console.error("Error registering user:", error);
+        res.status(500).send({ error: 'Internal Server Error', message: error.message });
+    }
+};
+
+// Get actors
+exports.getActors = async (req, res) => {
+    console.log("trying to face match");
+    try {
+        console.log("making matches");
+        // console.log(req)
+        // Get the profile photo URL from the request body
+        console.log(req)
+        const profilePhotoUrl = req.file.path;
+        console.log("photo received", profilePhotoUrl);
+        // Check if profilePhotoUrl is defined
+        if (!profilePhotoUrl) {
+            return res.status(400).send({ error: 'Bad Request', message: 'Profile photo URL is missing' });
+        }
+
+        // Call indexAndSearch function with profilePhotoUrl
+        let matches = await indexAndSearch(profilePhotoUrl);
+        console.log("matches made");
+
+        const result = matches.toJSON();
+        res.status(201).send(result);
+    } catch (error) {
+        console.error("Error face matching:", error);
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
 };

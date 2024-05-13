@@ -8,7 +8,7 @@ module.exports = { indexAndSearch };
 const axios = require('axios');
 
 
-let optionsSSDMobileNet; 
+let optionsSSDMobileNet;
 
 /**
  * Helper function, converts "descriptor" Int32Array to JavaScript array
@@ -36,7 +36,7 @@ async function getEmbeddings(imageFile) {
   if (imageFile.startsWith('http')) {
     const response = await axios.get(imageFile, { responseType: 'arraybuffer' });
     const buffer = Buffer.from(response.data, 'binary');
-    tensor = tf.node.decodeImage(buffer, 3);    
+    tensor = tf.node.decodeImage(buffer, 3);
   } else {
     const buffer = fs.readFileSync(imageFile);
     tensor = tf.node.decodeImage(buffer, 3);
@@ -83,8 +83,8 @@ async function indexAllFaces(pathName, image, collection) {
       embeddings: [
         embedding,
       ],
-      metadatas: [{ source: "imdb" } ],
-      documents: [ image ],
+      metadatas: [{ source: "imdb" }],
+      documents: [image],
     };
     var res = await collection.add(data);
 
@@ -137,44 +137,57 @@ async function compareImages(file1, file2) {
 ////////////////////////
 // Main
 async function indexAndSearch(searchImage) {
-  try {
-    const client = new ChromaClient();
-    await initializeFaceModels();
+  console.log('hey')
+  const client = new ChromaClient();
+  return initializeFaceModels()
+    .then(async () => {
 
-    const collection = await client.getOrCreateCollection({
-      name: "face-api",
-      embeddingFunction: null,
-      metadata: { "hnsw:space": "l2" },
+      const collection = await client.getOrCreateCollection({
+        name: "face-api",
+        embeddingFunction: null,
+        // L2 here is squared L2, not Euclidean distance
+        metadata: { "hnsw:space": "l2" },
+      });
+
+      console.info("Looking for files");
+      const promises = [];
+      return new Promise((resolve, reject) => {
+        // Loop through all the files in the images directory
+        fs.readdir("images", function (err, files) {
+          if (err) {
+            console.error("Could not list the directory.", err);
+            process.exit(1);
+          }
+
+          files.forEach(function (file, index) {
+            console.info("Adding task for " + file + " to index.");
+            promises.push(indexAllFaces(path.join("images", file), file, collection));
+          });
+          console.info("Done adding promises, waiting for completion.");
+          Promise.all(promises)
+            .then(async (results) => {
+              console.info("All images indexed.");
+
+              const search = searchImage;
+
+              console.log('\nTop-k indexed matches to ' + search + ':');
+              const matches = [];
+              for (var item of await findTopKMatches(collection, search, 5)) {
+                for (var i = 0; i < item.ids[0].length; i++) {
+                  const match = {
+                    document: item.documents[0][i]
+                  };
+                  matches.push(match);
+                }
+              }
+              resolve(matches);
+            })
+            .catch((err) => {
+              console.error("Error indexing images:", err);
+            });
+        });
+      });
+    }).catch(err => {
+      console.log(err);
     });
-
-    const files = fs.readdirSync("images");
-
-    const promises = files.map(async (file) => {
-      console.info("Adding task for " + file + " to index.");
-      return indexAllFaces(path.join("images", file), file, collection);
-    });
-
-    await Promise.all(promises);
-    console.info("All images indexed.");
-
-    console.log('\nTop-k indexed matches to ' + searchImage + ':');
-    const matches = [];
-    for (var item of await findTopKMatches(collection, searchImage, 5)) {
-      for (var i = 0; i < item.ids[0].length; i++) {
-        const match = {
-          document: item.documents[0][i]
-        };
-        matches.push(match);
-      }
-    }
-    return matches;
-  } catch (error) {
-    console.error("Error indexing and searching images:", error);
-    throw error;
-  }
 }
-module.exports = { indexAndSearch };
-
-
-
-
