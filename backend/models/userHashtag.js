@@ -1,5 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
+const Hashtag = require('./hashtag');
+const User = require('./user');
 
 class UserHashtag extends Model {}
 

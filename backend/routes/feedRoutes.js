@@ -38,4 +38,28 @@ router.get('/imagepost', async (req, res) => {
   }
 });
 
+router.get('/allposts', async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: {
+        [Op.or]: {
+          text: {
+            [Op.not]: null,
+          },
+          image_url: {
+            [Op.not]: null,
+          },
+        }
+      },
+      order: [['created_at', 'DESC']],
+      include: [{ model: User, required: true, attributes: ['username'] }],
+      limit: req.query?.page ? 10 : 100,
+      offset: Number(req.query.page) * 10
+    });
+    res.status(200).send(posts);
+  } catch (error) {
+    res.status(500).send({ error: 'Cannot get feed', message: error.message });
+  }
+});
+
 module.exports = router;
