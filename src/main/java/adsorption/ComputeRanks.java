@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.Serializable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
 
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -21,6 +24,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+import java.sql.PreparedStatement;
 
 import adsorption.config.Config;
 import adsorption.engine.SparkConnector;
@@ -35,12 +39,14 @@ public class ComputeRanks implements Serializable {
      * The basic logger
      */
     static Logger logger = LogManager.getLogger(ComputeRanks.class);
-    private static final int MAX_ITERATIONS = 15;
+    private static final int MAX_ITERATIONS = 1;
     private static final double HASHTAG_WEIGHT = 0.3;
     private static final double POST_WEIGHT = 0.4;
     private static final double FRIEND_WEIGHT = 0.3;
     protected static SparkSession spark;
     protected static JavaSparkContext sc;
+    private static final String RECOMMENDED_POSTS_FILE = "/nets2120/project-leftovers/recommended_posts.csv";
+
 
     /**
      * Initialize the connection to Spark
@@ -60,11 +66,15 @@ public class ComputeRanks implements Serializable {
     public static void main(String[] args) throws IOException, InterruptedException {
         initialize();
 
+        // Database connection details
+        String jdbcUrl = "jdbc:mysql://database-3.cy8iw4vwyvgm.us-east-1.rds.amazonaws.com:3306/database-3";
+        String username = "admin";
+        String password = "adminpassword";  
 
         // Read input data
-        JavaRDD<UserData> userDataRDD = readUserDataLocal(sc);
-        JavaRDD<Hashtag> hashtagDataRDD = readHashtagDataLocal(sc);
-        JavaRDD<Post> postDataRDD = readPostDataLocal(sc);
+        JavaRDD<UserData> userDataRDD = readUserData(sc);
+        JavaRDD<Hashtag> hashtagDataRDD = readHashtagData(sc);
+        JavaRDD<Post> postDataRDD = readPostData(sc);
 
         // Build the graph
         JavaPairRDD<String, Node> graph = buildGraph(userDataRDD, hashtagDataRDD, postDataRDD);
@@ -77,6 +87,35 @@ public class ComputeRanks implements Serializable {
 
         // Get top posts for each user
         List<Tuple2<String, Double>> userRecommendations = recommendPosts(rankedNodes, "u1");
+
+        // Create a connection to the database
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+            // Create the recommendations table if it doesn't exist
+            String createTableSql = "CREATE TABLE IF NOT EXISTS recommendations (" +
+                    "postId VARCHAR(255) PRIMARY KEY," +
+                    "labelWeight DOUBLE" +
+                    ")";
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(createTableSql);
+            }
+
+            // Prepare the SQL statement to insert recommendations
+            String insertSql = "INSERT INTO recommendations (postId, labelWeight) VALUES (?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                // Insert each recommended post and its label weight into the table
+                for (Tuple2<String, Double> postTuple : userRecommendations) {
+                    String postId = postTuple._1();
+                    Double labelWeight = postTuple._2();
+                    pstmt.setString(1, postId);
+                    pstmt.setDouble(2, labelWeight);
+                    pstmt.executeUpdate();
+                }
+            }
+
+            System.out.println("Recommended posts saved to the database");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }        
 
         // Save recommendations
         try (PrintWriter writer = new PrintWriter(new File("/nets2120/project-leftovers/recommendations.csv"))) {
@@ -99,23 +138,62 @@ public class ComputeRanks implements Serializable {
     }
 
     private static List<Tuple2<String, Double>> recommendPosts(JavaPairRDD<String, Node> rankedNodes, String userId) {
-    // Filter out post nodes
-    JavaRDD<Node> postNodes = rankedNodes.filter(node -> node._2().getType() == Node.Type.POST).values();
+       // Filter out post nodes
+       JavaRDD<Node> postNodes = rankedNodes.filter(node -> node._2().getType() == Node.Type.POST).values();
 
-    // Map each post node to a tuple of (postId, labelWeight) for the specific user
-    JavaRDD<Tuple2<String, Double>> postLabelWeights = postNodes.map(postNode -> {
-        String postId = postNode.getId();
-        Map<String, Double> labelWeights = postNode.getLabelWeights();
-        Double labelWeight = labelWeights.getOrDefault(userId, 0.0);
-        return new Tuple2<>(postId, labelWeight);
-    });
+       // Map each post node to a tuple of (postId, labelWeight) for the specific user
+       JavaRDD<Tuple2<String, Double>> postLabelWeights = postNodes.map(postNode -> {
+           String postId = postNode.getId();
+           Map<String, Double> labelWeights = postNode.getLabelWeights();
+           Double labelWeight = labelWeights.getOrDefault(userId, 0.0);
+           return new Tuple2<>(postId, labelWeight);
+       });
+   
+       // Sort the posts by label weight in descending order
+       List<Tuple2<String, Double>> sortedPosts = postLabelWeights.collect();
+       List<Tuple2<String, Double>> sortedPostsList = new ArrayList<>(sortedPosts);
+       sortedPostsList.sort(new SerializableComparator());
+   
+        // Read already recommended posts from the CSV file
+        Set<String> recommendedPosts = readRecommendedPostsFromCsv();
 
-    // Sort the posts by label weight in descending order
-    List<Tuple2<String, Double>> sortedPosts = postLabelWeights.collect();
-    List<Tuple2<String, Double>> sortedPostsList = new ArrayList<>(sortedPosts);
-    sortedPostsList.sort(new SerializableComparator());
+        // Filter out already recommended posts
+        List<Tuple2<String, Double>> newRecommendations = sortedPostsList.stream()
+                .filter(post -> !recommendedPosts.contains(post._1()))
+                .collect(Collectors.toList());
 
-    return sortedPostsList;
+        // Write new recommendations to the CSV file
+        writeRecommendationsToCsv(newRecommendations);
+
+        return newRecommendations;
+    }
+
+    private static Set<String> readRecommendedPostsFromCsv() {
+        Set<String> recommendedPosts = new HashSet<>();
+    
+        try (BufferedReader reader = new BufferedReader(new FileReader(RECOMMENDED_POSTS_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                recommendedPosts.add(line);
+            }
+        } catch (IOException e) {
+            // Handle the exception appropriately
+            e.printStackTrace();
+        }
+    
+        return recommendedPosts;
+    }
+
+    private static void writeRecommendationsToCsv(List<Tuple2<String, Double>> recommendations) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(RECOMMENDED_POSTS_FILE, true))) {
+            for (Tuple2<String, Double> recommendation : recommendations) {
+                writer.write(recommendation._1());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            // Handle the exception appropriately
+            e.printStackTrace();
+        }
     }
 
     private static JavaRDD<UserData> readUserDataLocal(JavaSparkContext sc) {
@@ -146,17 +224,17 @@ public class ComputeRanks implements Serializable {
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
             // Execute the SQL query to retrieve user data
-            String sql = "SELECT u.userId, " +
-                     "GROUP_CONCAT(DISTINCT h.hashtagId SEPARATOR '|') AS hashtags, " +
-                     "GROUP_CONCAT(DISTINCT p.postId SEPARATOR '|') AS liked_posts, " +
-                     "GROUP_CONCAT(DISTINCT f.user_id_2 SEPARATOR '|') AS friends " +
-                     "FROM users u " +
-                     "LEFT JOIN user_hashtags uh ON u.userId = uh.user_id " +
-                     "LEFT JOIN hashtags h ON uh.hashtag_id = h.hashtagId " +
-                     "LEFT JOIN likes l ON u.userId = l.userId " +
-                     "LEFT JOIN posts p ON l.postId = p.postId " +
-                     "LEFT JOIN friendships f ON u.userId = f.user_id_1 AND f.status = 'accepted' " +
-                     "GROUP BY u.userId";
+            String sql = "SELECT CONCAT('u', u.userId) AS userId, " +
+                    "GROUP_CONCAT(DISTINCT CONCAT('h', h.hashtagId) SEPARATOR '|') AS hashtags, " +
+                    "GROUP_CONCAT(DISTINCT CONCAT('p', p.postId) SEPARATOR '|') AS liked_posts, " +
+                    "GROUP_CONCAT(DISTINCT CONCAT('u', f.user_id_2) SEPARATOR '|') AS friends " +
+                    "FROM users u " +
+                    "LEFT JOIN user_hashtags uh ON u.userId = uh.user_id " +
+                    "LEFT JOIN hashtags h ON uh.hashtag_id = h.hashtagId " +
+                    "LEFT JOIN likes l ON u.userId = l.userId " +
+                    "LEFT JOIN posts p ON l.postId = p.postId " +
+                    "LEFT JOIN friendships f ON u.userId = f.user_id_1 AND f.status = 'accepted' " +
+                    "GROUP BY u.userId";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
     
@@ -228,9 +306,9 @@ public class ComputeRanks implements Serializable {
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
                 // Execute the SQL query to retrieve hashtag data
-                String sql = "SELECT h.hashtagId, " +
-                "GROUP_CONCAT(DISTINCT u.userId SEPARATOR '|') AS users, " +
-                "GROUP_CONCAT(DISTINCT p.postId SEPARATOR '|') AS posts " +
+                String sql = "SELECT CONCAT('h', h.hashtagId) AS hashtagId, " +
+                "GROUP_CONCAT(DISTINCT CONCAT('u', u.userId) SEPARATOR '|') AS users, " +
+                "GROUP_CONCAT(DISTINCT CONCAT('p', p.postId) SEPARATOR '|') AS posts " +
                 "FROM hashtags h " +
                 "LEFT JOIN user_hashtags uh ON h.hashtagId = uh.hashtag_Id " +
                 "LEFT JOIN users u ON uh.user_id = u.userId " +
@@ -261,7 +339,6 @@ public class ComputeRanks implements Serializable {
         rs.close();
         stmt.close();
         conn.close();
-
         // Parallelize the hashtag data and return as JavaRDD
         return sc.parallelize(hashtagData);
 
@@ -296,14 +373,14 @@ public class ComputeRanks implements Serializable {
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
             // Execute the SQL query to retrieve post data
-            String sql = "SELECT p.postId, " +
-                         "GROUP_CONCAT(DISTINCT h.hashtagId SEPARATOR '|') AS hashtags, " +
-                         "GROUP_CONCAT(DISTINCT l.userId SEPARATOR '|') AS liked_by_users " +
-                         "FROM posts p " +
-                         "LEFT JOIN post_hashtags ph ON p.postId = ph.postId " +
-                         "LEFT JOIN hashtags h ON ph.hashtagId = h.hashtagId " +
-                         "LEFT JOIN likes l ON p.postId = l.postId " +
-                         "GROUP BY p.postId";
+            String sql = "SELECT CONCAT('p', p.postId) AS postId, " +
+            "GROUP_CONCAT(DISTINCT CONCAT('h', h.hashtagId) SEPARATOR '|') AS hashtags, " +
+            "GROUP_CONCAT(DISTINCT CONCAT('u', l.userId) SEPARATOR '|') AS liked_by_users " +
+            "FROM posts p " +
+            "LEFT JOIN post_hashtags ph ON p.postId = ph.postId " +
+            "LEFT JOIN hashtags h ON ph.hashtagId = h.hashtagId " +
+            "LEFT JOIN likes l ON p.postId = l.postId " +
+            "GROUP BY p.postId";
     
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
