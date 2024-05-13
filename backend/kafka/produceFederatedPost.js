@@ -21,8 +21,8 @@ const produceFederatedPost = async (post, username) => {
   };
 
   const message = {
-    key: null, // You can specify a key if needed
-    value: JSON.stringify(federatedPost), // Convert the federatedPost object to a string
+    key: null,
+    value: JSON.stringify(federatedPost),
   };
 
   await producer.connect();
