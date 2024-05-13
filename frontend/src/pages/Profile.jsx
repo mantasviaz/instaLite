@@ -4,6 +4,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 function Profile() {
   const [formData, setFormData] = useState({
     profilePhoto: null,
+    first_name: "",
+    last_name: "",
     email: '',
     password: '',
     hashtags: [],
@@ -63,7 +65,7 @@ function Profile() {
   };
 
   const handleProfilePhotoChange = (e) => {
-    const file = e.target.files[0];
+    const imageFile = e.target.files[0];
     setFormData({
       ...formData,
       profilePhoto: imageFile,
@@ -135,6 +137,32 @@ function Profile() {
                 className='w-32 h-32 rounded-full'
               />
             )}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="firstName" className="block text-lg font-semibold mb-2">
+              Change First Name
+            </label>
+            <input
+              type="text"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleInputChange}
+              placeholder="First Name"
+              className="input-field"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="lastName" className="block text-lg font-semibold mb-2">
+              Change Last Name
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleInputChange}
+              placeholder="Last Name"
+              className="input-field"
+            />
           </div>
           <div className='mb-4'>
             <label

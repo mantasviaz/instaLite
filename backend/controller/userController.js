@@ -76,41 +76,23 @@ exports.loginUser = async (req, res) => {
 };
 
 
-
-
 //update
 exports.updateUserProfile = async (req, res) => {
     let transaction;
-
     try {
-        //console.log("Received userId for update:", req.params.userId);
+        console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
-
         const userExists = await User.findByPk(req.params.userId, { transaction });
         console.log("User exists:", !!userExists);
         if (!userExists) {
             await transaction.rollback();
             return res.status(404).send("User not found");
         }
-
-        // Handle image upload
-        let profilePhotoUrl = userExists.profile_photo_url; // Use existing profile photo by default
-        if (req.file) {
-            profilePhotoUrl = req.file.location; // Update profile photo if a new image is uploaded
-        }
-
-        // Hash the password if provided
-        let hashedPassword = userExists.password_hash;
-        if (req.body.password) {
-            hashedPassword = await bcrypt.hash(req.body.password, 10);
-        }
-        //const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+        const hashedPassword = req.body?.password && await bcrypt.hash(req.body.password, 10);
 
         console.log("Update data:", req.body);
         // Ensure the request body has the correct properties
         const updateData = {
-            profile_photo_url: profilePhotoUrl,
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             email: req.body.email, // Include email field
@@ -122,7 +104,7 @@ exports.updateUserProfile = async (req, res) => {
             where: { userId: req.params.userId },
             transaction: transaction
         });
-
+        
         if (updated) {
             const updatedUser = await User.findByPk(req.params.userId, { transaction });
             await transaction.commit();
@@ -138,93 +120,50 @@ exports.updateUserProfile = async (req, res) => {
     }
 };
 
-//update
-exports.updateUserProfile = async (req, res) => {
-  let transaction;
-
-  try {
-    //console.log("Received userId for update:", req.params.userId);
-    transaction = await sequelize.transaction();
-
-    const userExists = await User.findByPk(req.params.userId, { transaction });
-    //console.log("User exists:", !!userExists);
-    if (!userExists) {
-      await transaction.rollback();
-      return res.status(404).send('User not found');
-    }
-
-    //console.log("Update data:", req.body);
-    // Ensure the request body has the correct properties
-    const updateData = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      updated_at: new Date(), // Update the 'updated_at' field to current time
-    };
-
-    const [updated] = await User.update(updateData, {
-      where: { userId: req.params.userId },
-      transaction: transaction,
-    });
-
-    if (updated) {
-      const updatedUser = await User.findByPk(req.params.userId, { transaction });
-      await transaction.commit();
-      res.status(200).send(updatedUser);
-    } else {
-      await transaction.rollback();
-      res.status(404).send('User not found');
-    }
-  } catch (error) {
-    if (transaction) await transaction.rollback();
-    console.error('Error updating user:', error);
-    res.status(500).send({ error: 'Internal Server Error', message: error.message });
-  }
-};
-
 // Delete a user
 exports.deleteUser = async (req, res) => {
-  try {
-    const deleted = await User.destroy({
-      where: { userId: req.params.userId },
-    });
-    if (deleted) {
-      res.status(200).send('User deleted successfully');
-    } else {
-      res.status(404).send('User not found');
+    try {
+        const deleted = await User.destroy({
+            where: { userId: req.params.userId },
+        });
+        if (deleted) {
+            res.status(200).send('User deleted successfully');
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
-  } catch (error) {
-    res.status(500).send({ error: 'Internal Server Error', message: error.message });
-  }
 };
 
 exports.updateUserStatus = async (req, res) => {
-  try {
-    const { userId, status } = req.body;
-    console.log('HERE');
-    const user = await User.findOne({
-      where: {
-        userId: userId,
-      },
-    });
-    user.status = status;
-    await user.save();
-    res.status(200).send(user);
-  } catch (error) {
-    res.status(500).send({ error: 'Failed to change user status', message: error.message });
-  }
+    try {
+        const { userId, status } = req.body;
+        console.log('HERE');
+        const user = await User.findOne({
+            where: {
+                userId: userId,
+            },
+        });
+        user.status = status;
+        await user.save();
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to change user status', message: error.message });
+    }
 };
 
 exports.getUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const user = await User.findOne({
-      where: {
-        userId: userId,
-      },
-    });
-    res.status(200).send(user);
-  } catch (error) {
-    res.status(500).send({ error: 'Cannot get user', message: error.message });
-  }
+    try {
+        const { userId } = req.params;
+        const user = await User.findOne({
+            where: {
+                userId: userId,
+            },
+        });
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(500).send({ error: 'Cannot get user', message: error.message });
+    }
 };
 
