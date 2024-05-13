@@ -15,6 +15,7 @@ const feedRoutes = require('./routes/feedRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 const hashtagRoutes = require('./routes/hashtagRoutes');
+const naturalSearchRoutes = require('./routes/naturalSearchRoutes');
 
 const User = require('./models/user');
 const Post = require('./models/post');
@@ -50,6 +51,7 @@ app.use('/api/likes', likeRoutes);
 app.use('/api/recommendation', recommendationRoutes);
 app.use('/api', feedRoutes);
 app.use('/api/hashtags', hashtagRoutes)
+app.use('/api/naturalSearch', naturalSearchRoutes);
 
 // Sync all models
 sequelize
