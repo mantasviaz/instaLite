@@ -53,45 +53,45 @@ function SignupForm() {
         });
     };
 
-    const handleProfilePhotoChange = async (e, index) => {
+    const handleProfilePhotoChange = async (e) => {
+        e.preventDefault();
         const file = e.target.files[0];
         setFormData({
             ...formData,
             profilePhoto: file,
         });
-    
-        // Send the selected image to the server for face matching
+
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('searchImage', file);
+            console.log(file)
+            formDataToSend.append('profilePhoto', file); // Adjusted the field name to match backend
+
+            // Display the key/value pairs
+// for (var pair of formDataToSend.entries()) {
+//     console.log(pair[0]+ ', ' + pair[1]); 
+// }
             const response = await fetch('http://localhost:3000/api/users/actors', {
                 method: 'POST',
                 body: formDataToSend,
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
-                // Extract the five most similar actors from the response
                 const similarActors = data.matches ? data.matches.map(match => match.document) : [];
-    
-                // Update the UI to display the five most similar actors in the circles
-                const circles = Array.from({ length: 5 }, (_, i) => {
-                    const isSelected = i === index;
-                    const actor = similarActors[i] || '';
-                    return (
-                        <div
-                            key={i}
-                            className={`circle ${isSelected ? 'selected' : ''}`}
-                            onClick={() => setSelectedCircleIndex(i)}
-                        >
-                            <img
-                                src={actor} // Assuming the 'document' field contains the actor image URL
-                                alt='Actor'
-                                className='w-full h-full rounded-full'
-                            />
-                        </div>
-                    );
-                });
+
+                const circles = similarActors.map((actor, index) => (
+                    <div
+                        key={index}
+                        className={`circle ${index === selectedCircleIndex ? 'selected' : ''}`}
+                        onClick={() => setSelectedCircleIndex(index)}
+                    >
+                        <img
+                            src={actor}
+                            alt='Actor'
+                            className='w-full h-full rounded-full'
+                        />
+                    </div>
+                ));
                 setCircleElements(circles);
             } else {
                 console.error('Failed to match faces');
@@ -100,7 +100,7 @@ function SignupForm() {
             console.error('Error matching faces:', error);
         }
     };
-    
+
 
     const handleHashtagChange = (e, index) => {
         const newHashtags = [...formData.hashtags];
@@ -143,7 +143,6 @@ function SignupForm() {
             Object.entries(formData).forEach(([key, value]) => {
                 formDataToSend.append(key, value);
             });
-
             const response = await fetch('http://localhost:3000/api/users/signup', {
                 method: 'POST',
                 body: formDataToSend,
@@ -176,8 +175,8 @@ function SignupForm() {
 
     return (
         <div className='signup-page flex justify-center items-center min-h-screen w-full bg-gray-100'>
-            <div className='signup-form bg-white p-8 rounded shadow-md w-full max-w-md mt-8 mb-8'> {/* Adjusted width, padding, and margins */}
-                <h1 className='text-2xl font-semibold mb-2 text-center'>Create an Account</h1> {/* Adjusted font size and margin */}
+            <div className='signup-form bg-white p-8 rounded shadow-md w-full max-w-md mt-8 mb-8'>
+                <h1 className='text-2xl font-semibold mb-2 text-center'>Create an Account</h1>
                 <form onSubmit={handleSubmit} method='POST'>
                     <div className='flex flex-col space-y-2'>
                         {/* File Upload Section */}
