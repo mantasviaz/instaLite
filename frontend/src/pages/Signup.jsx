@@ -71,6 +71,7 @@ function SignupForm() {
 
   //review
   const handleSubmit = async (e) => {
+    console.log(process.env.REACT_APP_API_URL);
     try {
       const formDataWithPhoto = new FormData();
       formDataWithPhoto.append('profilePhoto', formData.profilePhoto);
@@ -83,7 +84,8 @@ function SignupForm() {
       formDataWithPhoto.append('birthday', formData.birthday);
       formDataWithPhoto.append('hashtags', JSON.stringify(formData.hashtags));
 
-      const response = await fetch('/api/users', {
+      
+      const response = await fetch('${process.env.REACT_APP_API_URL}/users/register', {
         method: 'POST',
         body: formDataWithPhoto,
       });
