@@ -47,10 +47,6 @@ const getRecommendations = async (userId) => {
         userRecommendations[friend.user_id_2] = (userRecommendations[friend.user_id_2] || 0) + 1;
       }
     });
-    // console.log(friendsUserId);
-    // console.log(friendsOfFriendsId);
-    // console.log(filteredFriendsOfFriends);
-    // console.log(userRecommendations);
     console.log(`Recommendations for User ${userId}:`, userRecommendations);
     const recommendationsPromises = Object.entries(userRecommendations).map(([userId2, strength]) => updateRecommendation(userId, userId2, strength));
     const recommendations = await Promise.all(recommendationsPromises);
@@ -138,6 +134,16 @@ const getHashtagBasedRecommendations = async (userId) => {
       userRecommendation[u.user_id] = (userRecommendation[u.user_id] || 0) + 1;
     });
 
+    Object.entries(userRecommendation).forEach(async ([key, value]) => {
+      const [user, created] = await FollowerRecommendation.findOrCreate({
+        where: {
+          userId: userId,
+          recommendId: key,
+        },
+      });
+      user.strength = user.strength + value;
+      await user.save();
+    });
     return userRecommendation;
   } catch (error) {
     console.log(error);
@@ -150,12 +156,12 @@ const getAllRecommendations = async () => {
     const allUsers = await User.findAll();
     const allUsersId = [...allUsers.map((u) => u.userId)];
     const recommendationsPromises = allUsersId.map((userId) => getRecommendations(userId));
+    const userHashtagPromises = allUsersId.map((userId) => getHashtagBasedRecommendations(userId));
     await Promise.all(recommendationsPromises);
-
-    // console.log(recommendations.filter((r) => r !== null));
+    await Promise.all(userHashtagPromises);
   } catch (error) {
     console.log(error);
   }
 };
 
-getAllRecommendations();
+module.exports = getAllRecommendations;

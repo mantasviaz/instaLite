@@ -23,18 +23,6 @@ const consumer = kafka.consumer({
   bootstrapServers: config.bootstrapServers,
 });
 
-// Create a post
-const createPost = async (userId, text, created_at) => {
-  console.log({ userId, text, created_at });
-  try {
-    const newPost = await Post.create({ userId: userId, text: text, created_at: created_at });
-    return newPost;
-  } catch (error) {
-    return;
-  }
-};
-
-// Create hashtags
 const createHashtag = async (hashtags) => {
   const newHashtags = [];
   try {
@@ -47,17 +35,27 @@ const createHashtag = async (hashtags) => {
         newHashtags.push(newHashtag);
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
   return newHashtags;
 };
 
-// Link the hashtags to the post
-const createPostHashtag = async (post, hashtags) => {
+// Create a post
+const createPost = async (userId, text, created_at) => {
+  console.log({ userId, text, created_at });
   try {
-    for (const hashtag of hashtags) {
-      const newPostHashtag = PostHashtag.create({ postId: post.postId, hashtagId: hashtag.hashtagId });
+    const hashtags = text.replace(/\s/g, '').split('#').slice(1, text.length);
+    const postHashtags = await createHashtag(hashtags);
+
+    const newPost = await Post.create({ userId: userId, text: text, created_at: created_at });
+
+    for (const hashtag of postHashtags) {
+      const newPostHashtag = PostHashtag.create({ postId: newPost.postId, hashtagId: hashtag.hashtagId });
       console.log(newPostHashtag);
     }
+
+    return newPost;
   } catch (error) {
     return;
   }
@@ -85,9 +83,8 @@ const getFederatedPosts = async () => {
       let federatedPost;
       if (isValidJson(message.value.toString())) {
         federatedPost = JSON.parse(message.value.toString());
-        // const [user, hashtags] = await Promise.all([User.findOne({ where: { userId: 4 } }), createHashtag(federatedPost.hashtags)]);
-        // const newPost = await createPost(user.userId, federatedPost.text, new Date(federatedPost.created_at));
-        // await createPostHashtag(newPost, hashtags);
+        const user = await User.findOne({ where: { userId: 69 } });
+        const newPost = await createPost(user.userId, federatedPost.post_text, new Date(Date.now()));
 
         console.log({
           federatedPost: federatedPost,
@@ -98,8 +95,4 @@ const getFederatedPosts = async () => {
   await consumer.seek({ topic: config['producer-topic'], partition: 0, offset: '0' });
 };
 
-getFederatedPosts();
-
-// cron.schedule('* * * * *', getFederatedPosts);
-
-// module.exports = getFederatedPosts;
+module.exports = getFederatedPosts;

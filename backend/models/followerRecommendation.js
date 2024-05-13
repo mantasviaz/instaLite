@@ -8,7 +8,7 @@ FollowerRecommendation.init(
   {
     userId: { type: DataTypes.INTEGER, allowNull: false },
     recommendId: { type: DataTypes.INTEGER, allowNull: false },
-    strength: { type: DataTypes.INTEGER, allowNull: false },
+    strength: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
   },
   {
     sequelize,
