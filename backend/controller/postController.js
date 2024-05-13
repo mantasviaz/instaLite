@@ -8,7 +8,7 @@ const produceFederatedPost = require('../kafka/produceFederatedPost');
 const createHashtag = async (hashtags) => {
   const newHashtags = [];
   try {
-    for (const hashtag of hashtags) {
+    for (const hashtag of new Set(hashtags)) {
       const existingHashtag = await Hashtag.findOne({ where: { text: hashtag } });
       if (existingHashtag) {
         newHashtags.push(existingHashtag);
@@ -38,6 +38,7 @@ exports.createPost = async (req, res) => {
     if (text) {
       postData.text = text;
       const hashtags = text.replace(/\s/g, '').split('#').slice(1, text.length);
+      console.log(hashtags)
       postHashtags = await createHashtag(hashtags);
     }
 
