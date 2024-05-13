@@ -35,7 +35,7 @@ public class ComputeRanks implements Serializable {
      * The basic logger
      */
     static Logger logger = LogManager.getLogger(ComputeRanks.class);
-    private static final int MAX_ITERATIONS = 1;
+    private static final int MAX_ITERATIONS = 15;
     private static final double HASHTAG_WEIGHT = 0.3;
     private static final double POST_WEIGHT = 0.4;
     private static final double FRIEND_WEIGHT = 0.3;
@@ -479,30 +479,45 @@ public class ComputeRanks implements Serializable {
         JavaPairRDD<String, Node> currentNodePairs = nodesPairRDD;
 
         for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
-            JavaPairRDD<String, Map> linkedWeightsNodes = currentNodePairs.mapToPair(node -> new Tuple2<>(node._1, node._2.getLabelWeights()));
+            JavaPairRDD<String, Map> currentLabelWeights = currentNodePairs.mapToPair(node -> new Tuple2<>(node._1, node._2.getLabelWeights()));
+
+            JavaPairRDD<String, Integer> inEdgesNumber = currentNodePairs.flatMapToPair(item -> {
+                Node node = item._2();
+                return node.getOutEdges().stream()
+                           .map(edge -> new Tuple2<>(edge.getDstId(), 1))
+                           .iterator();
+            });
+
+            // Reduce by key to sum all the 1's for each destination node ID, giving us the count of incoming edges
+            JavaPairRDD<String, Integer> inEdgeCounts = inEdgesNumber.reduceByKey(Integer::sum);
+
             
             // Create an RDD of all edges
             JavaPairRDD<String, Tuple2<String, Double>> edges = currentNodePairs.flatMapToPair(nodeEntry -> {
                 Node node = nodeEntry._2();
                 List<Tuple2<String, Tuple2<String, Double>>> edgeList = new ArrayList<>();
                 for (Edge edge : node.getOutEdges()) {
-                    edgeList.add(new Tuple2<>(edge.getDstId(), new Tuple2<>(node.getId(), edge.getWeight())));
+                    edgeList.add(new Tuple2<>(node.getId(), new Tuple2<>(edge.getDstId(), edge.getWeight())));
                 }
                 return edgeList.iterator();
             });
 
+            JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Map>> linkedWeightEdges = edges.join(currentLabelWeights);
+            JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Map>> linkedWeightNodesEdges = linkedWeightEdges.mapToPair(node -> new Tuple2<>(node._2._1._1,
+             new Tuple2<>(new Tuple2<>(node._1, node._2._1._2), node._2._2)));
+
             // Join edges with nodes to apply the adsorption algorithm
-            JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Node>> joined = edges.join(currentNodePairs);
+            JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Double>, Map>, Node>> joined = linkedWeightNodesEdges.join(currentNodePairs);
+            JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Double>, Map>, Node>, Integer>> joinedInEdgeCounts = joined.join(inEdgeCounts);
 
             // For each node, collect labels and weights from neighbors
-            JavaPairRDD<String, Node> updatedNodes = joined.mapToPair(nodeEntry -> {
-                Node node = nodeEntry._2._2;
+            JavaPairRDD<String, Node> updatedNodes = joinedInEdgeCounts.mapToPair(nodeEntry -> {
+                Node node = nodeEntry._2._1._2;
                 Map<String, Double> labelWeights = node.getLabelWeights();
-                String sourceId = nodeEntry._2._1._1;
-                double edgeWeight = nodeEntry._2._1._2;
+                //labelWeights.replaceAll((label, weight) -> weight / nodeEntry._2._2);///////////////////////////////////////////////////
+                double edgeWeight = nodeEntry._2._1._1._1._2;
 
-                Node sourceNode = currentNodePairs.lookup(sourceId).get(0);
-                Map<String, Double> sourceLabelWeights = sourceNode.getLabelWeights();
+                Map<String, Double> sourceLabelWeights = nodeEntry._2._1._1._2;
 
                     // Multiply the source label weights by the edge weight and add to the main node's label weights
                     for (Map.Entry<String, Double> entry : sourceLabelWeights.entrySet()) {
@@ -512,21 +527,32 @@ public class ComputeRanks implements Serializable {
                     }
                 
 
-                // Normalize collected label weights
-                double weightSum = labelWeights.values().stream().mapToDouble(Double::doubleValue).sum();
-                Map<String, Double> normalizedWeights = labelWeights.entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() / weightSum));
-
                 // Update node's label weights
-                node.setLabelWeights(normalizedWeights);
+                node.setLabelWeights(labelWeights);
 
-                return new Tuple2<>(node.getId(), node);
+                return new Tuple2<>(nodeEntry._1, node);
+                
+            }).reduceByKey((node1, node2) -> {
+                Node mergedNode = new Node(node1.getId(), node1.getType());
+                Map<String, Double> mergedLabelWeights = new HashMap<>(node1.getLabelWeights());
+                node2.getLabelWeights().forEach((label, weight) ->
+                    mergedLabelWeights.merge(label, weight, Double::sum));
+                // Normalize weights again if needed
+                double totalWeight = mergedLabelWeights.values().stream().mapToDouble(w -> w).sum();
+                mergedLabelWeights.replaceAll((label, weight) -> weight / totalWeight);
+                mergedNode.setLabelWeights(mergedLabelWeights);
+
+                // Combine out edges using a set to automatically remove duplicates
+                Set<Edge> mergedOutEdges = new HashSet<>(node1.getOutEdges());
+                mergedOutEdges.addAll(node2.getOutEdges());
+                mergedNode.setOutEdges(new ArrayList<>(mergedOutEdges)); // Convert back to list if needed
+               
+                return mergedNode;
             });
 
-            nodesPairRDD = updatedNodes;
+            currentNodePairs = updatedNodes;
         }
-
-        return nodesPairRDD;
+        return currentNodePairs;
     }
 
     private static List<Edge> getInEdges(String nodeId, JavaPairRDD<String, Node> nodesPairRDD) {
