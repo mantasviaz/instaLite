@@ -23,10 +23,6 @@ exports.registerUser = async (req, res) => {
         if (req.file) {
             profilePhotoUrl = req.file.location;
         }
-        console.log("making matches");
-        let matches = [];
-        matches = await indexAndSearch(profilePhotoUrl);
-        console.log("matches made");
 
         const user = await User.create({
             username: req.body.username,
@@ -46,6 +42,23 @@ exports.registerUser = async (req, res) => {
         console.error("Error registering user:", error);
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
+};
+
+// Get actors
+exports.getActors = async (req, res) => {
+  console.log("trying to face match");
+  try {
+      console.log("making matches");
+      let matches = [];
+      matches = await indexAndSearch(profilePhotoUrl);
+      console.log("matches made");
+
+      const result = matches.toJSON();
+      res.status(201).send(result);
+  } catch (error) {
+      console.error("Error face matching:", error);
+      res.status(500).send({ error: 'Internal Server Error', message: error.message });
+  }
 };
 
 
