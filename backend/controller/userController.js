@@ -5,8 +5,6 @@ const UserHashtag = require('../models/userHashtag');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/dbConfig.js');
 const upload = require('../config/s3Config.js');
-const faceUtils = require('../chroma/faceUtils.js');
-const { indexAndSearch } = require('../chroma/faceUtils.js');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
