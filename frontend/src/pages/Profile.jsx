@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 function Profile() {
@@ -15,8 +15,27 @@ function Profile() {
   const { userId } = useParams(); // Get userId from route parameters
   const navigate = useNavigate();
 
-  //placeholder hashtags
-  const [topHashtags, setTopHashtags] = useState(['#technology', '#travel', '#food', '#fitness', '#music', '#art', '#photography', '#fashion', '#nature', '#books']);
+  //Top10 hashtags
+  const [topHashtags, setTopHashtags] = useState([]);
+
+  useEffect(() => {
+    const fetchTopHashtags = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/hashtags/top10');
+        if (response.ok) {
+          const data = await response.json();
+          setTopHashtags(data); // Update topHashtags state
+        } else {
+          console.error('Failed to fetch top hashtags');
+        }
+      } catch (error) {
+        console.error('Error fetching top hashtags:', error);
+      }
+    };
+
+    fetchTopHashtags(); // Call the fetchTopHashtags function
+  }, []);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -227,7 +246,7 @@ function Profile() {
               Add Hashtag
             </button>
           </div>
-          {/* Display placeholder top hashtags */}
+          {/* Display top 10 hashtags */}
           <div>
             <h2 className='text-lg font-semibold mb-2'>Top 10 Hashtags:</h2>
             <ul>

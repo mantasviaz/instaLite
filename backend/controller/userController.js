@@ -22,6 +22,26 @@ exports.registerUser = async (req, res) => {
             profilePhotoUrl = req.file.location;
         }
 
+        // Extract hashtags from the request body
+        console.log("Hashtags from request:", req.body.hashtags);
+        let hashtags = Array.isArray(req.body.hashtags) ? req.body.hashtags : [req.body.hashtags];
+        console.log("Extracted hashtags:", hashtags);
+
+        await Promise.all(hashtags.map(async (tag) => {
+            try {
+                // Find or create the hashtag in the database
+                let [hashtag, created] = await Hashtag.findOrCreate({ where: { text: tag } });
+
+                // Create an entry in user_hashtags table
+                await UserHashtag.create({
+                    user_id: req.user.userId, // Assuming user ID is available in req.user
+                    hashtag_id: hashtag.hashtagId,
+                });
+            } catch (error) {
+                console.error("Error processing hashtag:", error);
+            }
+        }));
+
         const user = await User.create({
             username: req.body.username,
             email: req.body.email,
@@ -30,7 +50,8 @@ exports.registerUser = async (req, res) => {
             last_name: req.body.lastName,
             school: req.body.school,
             birthday: req.body.birthday,
-            profile_photo_url: profilePhotoUrl
+            profile_photo_url: profilePhotoUrl,
+            //hashtags: hashtags
         });
 
         const result = user.toJSON();
@@ -82,7 +103,10 @@ exports.updateUserProfile = async (req, res) => {
     try {
         console.log("Received userId for update:", req.params.userId);
         transaction = await sequelize.transaction();
-        const userExists = await User.findByPk(req.params.userId, { transaction });
+        const userExists = await User.findByPk(req.params.userId, {
+            include: Hashtag, // Include associated hashtags
+            transaction
+        });
         console.log("User exists:", !!userExists);
         if (!userExists) {
             await transaction.rollback();
@@ -104,8 +128,9 @@ exports.updateUserProfile = async (req, res) => {
             where: { userId: req.params.userId },
             transaction: transaction
         });
-        
+
         if (updated) {
+            // Fetch updated user data again
             const updatedUser = await User.findByPk(req.params.userId, { transaction });
             await transaction.commit();
             res.status(200).send(updatedUser);

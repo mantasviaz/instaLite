@@ -15,8 +15,9 @@ function SignupForm() {
         hashtags: [],
     });
 
-    //placeholder hashtags
+    //top10 hashtags
     const [topHashtags, setTopHashtags] = useState([]);
+    const [selectedHashtags, setSelectedHashtags] = useState([]);
 
     const { dispatch } = useUserContext();
 
@@ -109,30 +110,12 @@ function SignupForm() {
             ...formData,
             hashtags: [...formData.hashtags, hashtag],
         });
+        setSelectedHashtags([...selectedHashtags, hashtag]);
     };
 
     //review
     const handleSubmit = async (e) => {
         e.preventDefault();
-        /*const requestBody = {
-            profilePhoto: formData.profilePhoto,
-            username: formData.username,
-            password: formData.password,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            school: formData.school,
-            birthday: formData.birthday,
-            hashtags: formData.hashtags,
-          };  
- 
-      const response = await fetch('http://localhost:3000/api/users/signup', {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json",
-          },
-        body: JSON.stringify(requestBody),
-      });*/
         try {
             const formDataToSend = new FormData();
             Object.entries(formData).forEach(([key, value]) => {
@@ -152,7 +135,7 @@ function SignupForm() {
                 dispatch({ type: 'LOGIN', payload: jsonResponse });
                 console.log('User registered successfully');
 
-                navigate('/home'); // Use navigate for redirection
+                navigate('/home'); // Use navigate for redirections
             } else {
                 console.error('Failed to register user');
             }
@@ -300,7 +283,7 @@ function SignupForm() {
                                 Add Hashtag
                             </button>
                         </div>
-                        {/* Display placeholder top hashtags */}
+                        {/* Display top 10 hashtags */}
                         <div>
                             <h2 className='text-lg font-semibold mb-2'>Top 10 Hashtags:</h2>
                             <ul>
