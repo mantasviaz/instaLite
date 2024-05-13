@@ -44,6 +44,7 @@ function LoginForm() {
         localStorage.setItem('user', JSON.stringify(jsonResponse));
         // update the user context
         dispatch({ type: 'LOGIN', payload: jsonResponse });
+        const response = await axios.post('http://localhost:3000/api/users/status', { userId: jsonResponse.userId, status: 'online' });
 
         navigate('/home');
       } else {
