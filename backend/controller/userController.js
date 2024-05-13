@@ -50,7 +50,7 @@ exports.getActors = async (req, res) => {
   try {
       console.log("making matches");
       let matches = [];
-      matches = await indexAndSearch(profilePhotoUrl);
+      matches = await indexAndSearch(req.file.location);
       console.log("matches made");
 
       const result = matches.toJSON();
