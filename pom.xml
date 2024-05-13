@@ -225,12 +225,12 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
-                        <id>local</id>
+                        <id>livy2</id>
                         <goals>
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>adsorption.ComputeRanks</mainClass>
+                            <mainClass>adsorption.ComputeRanksLivy</mainClass>
                             <arguments>
                             </arguments>
                         </configuration>

@@ -86,7 +86,7 @@ public class ComputeRanks implements Serializable {
         printGraph(rankedNodes);
 
         // Get top posts for each user
-        List<Tuple2<String, Double>> userRecommendations = recommendPosts(rankedNodes, "u1");
+        List<Tuple2<String, Double>> userRecommendations = recommendPosts(rankedNodes, "u4");
 
         // Create a connection to the database
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
