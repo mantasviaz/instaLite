@@ -55,7 +55,7 @@ const createHashtag = async (hashtags) => {
 const createPostHashtag = async (post, hashtags) => {
   try {
     for (const hashtag of hashtags) {
-      const newPostHashtag = PostHashtag.create({ postId: post.postId, hashtagId: hashtag.hashtagId });
+      const newPostHashtag = await PostHashtag.create({ postId: post.postId, hashtagId: hashtag.hashtagId });
       console.log(newPostHashtag);
     }
   } catch (error) {
@@ -85,9 +85,16 @@ const getTwitterPosts = async () => {
       let twitterPost;
       if (isValidJson(message.value.toString())) {
         twitterPost = JSON.parse(message.value.toString());
-        const [user, hashtags] = await Promise.all([User.findOne({ where: { userId: 4 } }), createHashtag(twitterPost.hashtags)]);
-        const newPost = await createPost(user.userId, twitterPost.text, new Date(twitterPost.created_at));
-        await createPostHashtag(newPost, hashtags);
+        const existingPost = await Post.findOne({
+          where: {
+            text: twitterPost.text,
+          },
+        });
+        if (!existingPost) {
+          const [user, hashtags] = await Promise.all([User.findOne({ where: { userId: 4 } }), createHashtag(twitterPost.hashtags)]);
+          const newPost = await createPost(user.userId, twitterPost.text, new Date(twitterPost.created_at));
+          await createPostHashtag(newPost, hashtags);
+        }
 
         console.log({
           twitterPost: twitterPost,
