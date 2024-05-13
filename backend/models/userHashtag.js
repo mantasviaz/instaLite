@@ -31,8 +31,6 @@ UserHashtag.init(
     tableName: 'user_hashtags',
   }
 );
-User.belongsToMany(Hashtag, { through: UserHashtag });
-Hashtag.belongsToMany(User, { through: UserHashtag });
 
 console.log('UserHashtag table created');
 module.exports = UserHashtag;
