@@ -19,10 +19,16 @@ const produceFederatedPost = async (post, username) => {
     post_text: post.text,
     content_type: 'text/html',
   };
+
+  const message = {
+    key: null, // You can specify a key if needed
+    value: JSON.stringify(federatedPost), // Convert the federatedPost object to a string
+  };
+
   await producer.connect();
   await producer.send({
     topic: config['producer-topic'],
-    messages: federatedPost,
+    messages: [message],
   });
 
   await producer.disconnect();
