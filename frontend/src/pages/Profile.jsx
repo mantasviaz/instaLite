@@ -128,7 +128,7 @@ function Profile() {
 
   return (
     <div className='profile-page flex justify-center items-center min-h-screen w-full bg-gray-100 overflow-y-auto'>
-      <div className='profile-form bg-white p-8 rounded shadow-md w-full max-w-md'>
+      <div className='profile-form bg-white p-4 rounded shadow-md w-full max-w-sm'> {/* Adjusted width and padding */}
         <h1 className='text-3xl font-semibold mb-4 text-center'>Profile</h1>
         <form
           onSubmit={handleSubmit}

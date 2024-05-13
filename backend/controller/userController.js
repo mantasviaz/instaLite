@@ -27,21 +27,6 @@ exports.registerUser = async (req, res) => {
         let hashtags = Array.isArray(req.body.hashtags) ? req.body.hashtags : [req.body.hashtags];
         console.log("Extracted hashtags:", hashtags);
 
-        await Promise.all(hashtags.map(async (tag) => {
-            try {
-                // Find or create the hashtag in the database
-                let [hashtag, created] = await Hashtag.findOrCreate({ where: { text: tag } });
-
-                // Create an entry in user_hashtags table
-                await UserHashtag.create({
-                    user_id: req.user.userId, // Assuming user ID is available in req.user
-                    hashtag_id: hashtag.hashtagId,
-                });
-            } catch (error) {
-                console.error("Error processing hashtag:", error);
-            }
-        }));
-
         const user = await User.create({
             username: req.body.username,
             email: req.body.email,
@@ -53,6 +38,23 @@ exports.registerUser = async (req, res) => {
             profile_photo_url: profilePhotoUrl,
             //hashtags: hashtags
         });
+
+        const userId = user.userId;
+
+        await Promise.all(hashtags.map(async (tag) => {
+            try {
+                // Find or create the hashtag in the database
+                let [hashtag, created] = await Hashtag.findOrCreate({ where: { text: tag } });
+
+                // Create an entry in user_hashtags table
+                await UserHashtag.create({
+                    user_id: userId, // Using the userId obtained above
+                    hashtag_id: hashtag.hashtagId,
+                });
+            } catch (error) {
+                console.error("Error processing hashtag:", error);
+            }
+        }));
 
         const result = user.toJSON();
         delete result.password_hash;
