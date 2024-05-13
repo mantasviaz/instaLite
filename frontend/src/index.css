@@ -50,3 +50,6 @@
     border-color: blue; /* Change border color to blue */
   }
 
+.user-profile-logo {
+    @apply h-10 w-10 cursor-pointer;
+}

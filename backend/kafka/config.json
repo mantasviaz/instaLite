@@ -1,0 +1,7 @@
+{
+  "groupId": "nets-2120-group-g43",
+  "bootstrapServers": ["localhost:9092"],
+  "consumer-topic": "Twitter-Kafka",
+  "producer-topic": "FederatedPosts",
+  "port": 4567
+}

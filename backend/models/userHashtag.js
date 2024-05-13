@@ -1,31 +1,34 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
 
-class UserHashtags extends Model {}
+class UserHashtag extends Model {}
 
-UserHashtags.init({
-  user_id: { 
-    type: DataTypes.INTEGER, 
-    allowNull: false,
-    references: {
-      model: 'users', // name of Target model
-      key: 'userId',
-    }
+UserHashtag.init(
+  {
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users', // name of Target model
+        key: 'userId',
+      },
+    },
+    hashtag_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'hashtags', // name of Target model
+        key: 'hashtagId',
+      },
+    },
   },
-  hashtag_id: { 
-    type: DataTypes.INTEGER, 
-    allowNull: false,
-    references: {
-      model: 'hashtags', // name of Target model
-      key: 'hashtag_id',
-    }
+  {
+    sequelize,
+    modelName: 'UserHashtag',
+    timestamps: false,
+    tableName: 'user_hashtags',
   }
-}, {
-  sequelize,
-  modelName: 'UserHashtags',
-  timestamps: false,
-  tableName: 'user_hashtags'
-});
+);
 
-console.log("UserHashtags table created");
-module.exports = UserHashtags;
+console.log('UserHashtag table created');
+module.exports = UserHashtag;

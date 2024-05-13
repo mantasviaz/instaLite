@@ -1,46 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserContext } from '../hooks/useUserContext';
-
-import profilePic from '../assets/react.svg';
+import { useNavigate } from 'react-router-dom';
+import dateDifference from '../helper/DateDifference';
 
 import heartFilledLogo from '../assets/logos/heart-fill.svg';
 import heartLogo from '../assets/logos/heart.svg';
 import commentLogo from '../assets/logos/chat-left.svg';
 
-function ImagePost({ username, text, img_link, created_date, profile_pic }) {
-  const [comment, setComment] = useState('');
+function ImagePost({ post }) {
   const [likedPost, setLikedPost] = useState(false);
+  const [numOfLikes, setNumOfLikes] = useState();
   const { user } = useUserContext();
+  const navigate = useNavigate();
 
-  const handleChange = (event) => {
-    setComment(event.target.value);
-  };
+  useEffect(() => {
+    const getLike = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}/${user.userId}`);
+        setLikedPost(response.data === 'liked' ? true : false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  const handleInput = (event) => {
-    event.target.style.height = 'auto';
-    event.target.style.height = event.target.scrollHeight + 'px';
-  };
+    const getNumOfLikes = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/likes/${post.postId}`);
+        setNumOfLikes(response.data.num_of_likes);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getLike();
+    getNumOfLikes();
+  }, []);
 
-  const handleCommentSubmit = async (event) => {
-    event.preventDefault();
-    // Handle Comment Submit
-    setComment('');
+  const handleLike = async () => {
+    try {
+      const response = await axios.post(`http://localhost:3000/api/likes/${post.postId}`, {
+        userId: user.userId,
+        isLike: likedPost,
+      });
 
-    /* const response = await axios.post(`http://localhost:3000/api/posts/${postId}/comments`, {
-      userId : user.userId,
-      text: comment
-    }); */
-  };
+      let updatedNumOfLikes = numOfLikes;
+      if (!likedPost) {
+        updatedNumOfLikes++;
+      } else {
+        updatedNumOfLikes--;
+      }
 
-  const handleEnterSubmit = (event) => {
-    if (event.keyCode === 13 && !event.shiftKey) {
-      event.preventDefault();
+      setNumOfLikes(updatedNumOfLikes);
+      setLikedPost(!likedPost);
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
     }
-  };
-
-  const handleLike = () => {
-    setLikedPost(!likedPost);
   };
 
   return (
@@ -49,19 +65,34 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
       <div className='flex-between mb-2'>
         <div className='flex-center cursor-pointer'>
           <img
-            src={img_link}
+            src={post.image_url}
             alt='Profile Picture'
             className='h-[24px] w-[24px] rounded-full'
           />
-          <h1 className='ml-2 text-xs font-bold hover:font-extrabold'>{username}</h1>
+          <h1
+            className='ml-2 text-xs font-bold hover:font-extrabold'
+            onClick={() => navigate(`/user/${post.userId}`)}
+          >
+            {post.User.username}
+          </h1>
         </div>
-        <p className='text-[12px] text-neutral-500'>{created_date}</p>
+        <p className='text-[12px] text-neutral-500'>{dateDifference(new Date(post.created_at))}</p>
       </div>
-      <img
-        className='h-[30rem] w-[26rem] rounded border-0 border-white object-contain'
-        src={img_link}
-        alt='Post Image'
-      />
+      <div className='h-[30rem] w-[26rem] bg-black flex-center'>
+        <img
+          className='rounded border-0 border-white object-contain h-full'
+          src={post.image_url}
+          alt='Post Image'
+        />
+      </div>
+      {/* Text Content */}
+      <div
+        className='text-xs my-4'
+        onClick={() => navigate(`/user/${post.userId}`)}
+      >
+        <b className='mr-1 cursor-pointer'>{post.User.username}</b>
+        {post.text}
+      </div>
       {/* Button divs with like button, comment, maybe share and save */}
       <div className='flex-start my-2'>
         <img
@@ -76,28 +107,6 @@ function ImagePost({ username, text, img_link, created_date, profile_pic }) {
           className='ml-2 h-[24px] w-[24px] origin-top cursor-pointer'
         />
       </div>
-      {/* Text Content */}
-      <p className='text-xs'>
-        <b className='mr-1 cursor-pointer'>{username}</b>
-        {text}
-      </p>
-      {/* Comment Section */}
-      <form
-        onSubmit={handleCommentSubmit}
-        className='flex-center mt-2'
-      >
-        <textarea
-          placeholder='Add a comment...'
-          className='no-scrollbar max-h-[100px] flex-1 resize-none overflow-visible text-xs outline-none'
-          onChange={handleChange}
-          onInput={handleInput}
-          onKeyDown={handleEnterSubmit}
-          maxLength={500}
-          rows={1}
-          value={comment}
-        />
-        {comment.length > 0 && <button className='ml-2 h-5 text-[13px] font-semibold text-blue-400'>Post</button>}
-      </form>
     </div>
   );
 }
