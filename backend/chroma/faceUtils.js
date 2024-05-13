@@ -6,7 +6,7 @@ const tf = require('@tensorflow/tfjs-node');
 const faceapi = require('@vladmandic/face-api');
 
 
-let optionsSSDMobileNet;
+let optionsSSDMobileNet; 
 
 /**
  * Helper function, converts "descriptor" Int32Array to JavaScript array
@@ -155,7 +155,7 @@ initializeFaceModels()
     .then(async (results) => {
       console.info("All images indexed.");
   
-      const search = '/nets2120/chroma/Picture1.png';
+      const search = 'query.jpg';
   
       console.log('\nTop-k indexed matches to ' + search + ':');
       for (var item of await findTopKMatches(collection, search, 5)) {
