@@ -95,7 +95,7 @@ function LoginForm() {
         <div className='text-center mt-4'>
           Don't have an account yet?{' '}
           <Link
-            to='/signup'
+            to='/'
             className='text-blue-500'
           >
             Sign up
