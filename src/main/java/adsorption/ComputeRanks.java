@@ -142,21 +142,21 @@ public class ComputeRanks implements Serializable {
         // Create a connection to the database
         Connection conn = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
             // Execute the SQL query to retrieve user data
-            String sql = "SELECT u.user_id, " +
-                     "GROUP_CONCAT(DISTINCT h.hashtag_id SEPARATOR '|') AS hashtags, " +
-                     "GROUP_CONCAT(DISTINCT p.post_id SEPARATOR '|') AS liked_posts, " +
+            String sql = "SELECT u.userId, " +
+                     "GROUP_CONCAT(DISTINCT h.hashtagId SEPARATOR '|') AS hashtags, " +
+                     "GROUP_CONCAT(DISTINCT p.postId SEPARATOR '|') AS liked_posts, " +
                      "GROUP_CONCAT(DISTINCT f.user_id_2 SEPARATOR '|') AS friends " +
                      "FROM users u " +
-                     "LEFT JOIN userHashtags uh ON u.user_id = uh.user_id " +
-                     "LEFT JOIN hashtags h ON uh.hashtag_id = h.hashtag_id " +
-                     "LEFT JOIN likes l ON u.user_id = l.user_id " +
-                     "LEFT JOIN posts p ON l.post_id = p.post_id " +
-                     "LEFT JOIN friendships f ON u.user_id = f.user_id_1 AND f.status = 'accepted' " +
-                     "GROUP BY u.user_id";
+                     "LEFT JOIN user_hashtags uh ON u.userId = uh.user_id " +
+                     "LEFT JOIN hashtags h ON uh.hashtag_id = h.hashtagId " +
+                     "LEFT JOIN likes l ON u.userId = l.userId " +
+                     "LEFT JOIN posts p ON l.postId = p.postId " +
+                     "LEFT JOIN friendships f ON u.userId = f.user_id_1 AND f.status = 'accepted' " +
+                     "GROUP BY u.userId";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
     
@@ -165,14 +165,25 @@ public class ComputeRanks implements Serializable {
     
             // Iterate over the result set and create UserData objects
             while (rs.next()) {
-                String userId = rs.getString("user_id");
+                String userId = rs.getString("userId");
                 String hashtags = rs.getString("hashtags");
                 String likedPosts = rs.getString("liked_posts");
                 String friends = rs.getString("friends");
     
-                List<String> hashtagList = Arrays.asList(hashtags.split("\\|"));
-                List<String> likedPostList = Arrays.asList(likedPosts.split("\\|"));
-                List<String> friendList = Arrays.asList(friends.split("\\|"));
+                List<String> hashtagList = new ArrayList<>();
+                if (hashtags != null && !hashtags.isEmpty()) {
+                    hashtagList = Arrays.asList(hashtags.split("\\|"));
+                }
+
+                List<String> likedPostList = new ArrayList<>();
+                if (likedPosts != null && !likedPosts.isEmpty()) {
+                    likedPostList = Arrays.asList(likedPosts.split("\\|"));
+                }
+                
+                List<String> friendList = new ArrayList<>();
+                if (friends != null && !friends.isEmpty()) {
+                    friendList = Arrays.asList(friends.split("\\|"));
+                }                
     
                 UserData user = new UserData(userId, hashtagList, likedPostList, friendList);
                 userData.add(user);
@@ -213,19 +224,19 @@ public class ComputeRanks implements Serializable {
         // Create a connection to the database
         Connection conn = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
                 // Execute the SQL query to retrieve hashtag data
-                String sql = "SELECT h.hashtag_id, " +
-                "GROUP_CONCAT(DISTINCT u.user_id SEPARATOR '|') AS users, " +
-                "GROUP_CONCAT(DISTINCT p.post_id SEPARATOR '|') AS posts " +
+                String sql = "SELECT h.hashtagId, " +
+                "GROUP_CONCAT(DISTINCT u.userId SEPARATOR '|') AS users, " +
+                "GROUP_CONCAT(DISTINCT p.postId SEPARATOR '|') AS posts " +
                 "FROM hashtags h " +
-                "LEFT JOIN userHashtags uh ON h.hashtag_id = uh.hashtag_id " +
-                "LEFT JOIN users u ON uh.user_id = u.user_id " +
-                "LEFT JOIN postHashtags ph ON h.hashtag_id = ph.hashtag_id " +
-                "LEFT JOIN posts p ON ph.post_id = p.post_id " +
-                "GROUP BY h.hashtag_id";
+                "LEFT JOIN user_hashtags uh ON h.hashtagId = uh.hashtag_Id " +
+                "LEFT JOIN users u ON uh.user_id = u.userId " +
+                "LEFT JOIN post_hashtags ph ON h.hashtagId = ph.hashtagId " +
+                "LEFT JOIN posts p ON ph.postId = p.postId " +
+                "GROUP BY h.hashtagId";
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -235,7 +246,7 @@ public class ComputeRanks implements Serializable {
 
         // Iterate over the result set and create Hashtag objects
         while (rs.next()) {
-            String hashtagId = rs.getString("hashtag_id");
+            String hashtagId = rs.getString("hashtagId");
             String users = rs.getString("users");
             String posts = rs.getString("posts");
 
@@ -285,14 +296,14 @@ public class ComputeRanks implements Serializable {
             conn = DriverManager.getConnection(jdbcUrl, username, password);
     
             // Execute the SQL query to retrieve post data
-            String sql = "SELECT p.post_id, " +
-                         "GROUP_CONCAT(DISTINCT h.hashtag_id SEPARATOR '|') AS hashtags, " +
-                         "GROUP_CONCAT(DISTINCT l.user_id SEPARATOR '|') AS liked_by_users " +
+            String sql = "SELECT p.postId, " +
+                         "GROUP_CONCAT(DISTINCT h.hashtagId SEPARATOR '|') AS hashtags, " +
+                         "GROUP_CONCAT(DISTINCT l.userId SEPARATOR '|') AS liked_by_users " +
                          "FROM posts p " +
-                         "LEFT JOIN postHashtags ph ON p.post_id = ph.post_id " +
-                         "LEFT JOIN hashtags h ON ph.hashtag_id = h.hashtag_id " +
-                         "LEFT JOIN likes l ON p.post_id = l.post_id " +
-                         "GROUP BY p.post_id";
+                         "LEFT JOIN post_hashtags ph ON p.postId = ph.postId " +
+                         "LEFT JOIN hashtags h ON ph.hashtagId = h.hashtagId " +
+                         "LEFT JOIN likes l ON p.postId = l.postId " +
+                         "GROUP BY p.postId";
     
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -302,7 +313,7 @@ public class ComputeRanks implements Serializable {
     
             // Iterate over the result set and create Post objects
             while (rs.next()) {
-                String postId = rs.getString("post_id");
+                String postId = rs.getString("postId");
                 String hashtags = rs.getString("hashtags");
                 String likedByUsers = rs.getString("liked_by_users");
     
