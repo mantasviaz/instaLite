@@ -126,57 +126,43 @@ async function compareImages(file1, file2) {
 ////////////////////////
 // Main
 async function indexAndSearch(searchImage) {
-  const client = new ChromaClient();
-  return initializeFaceModels()
-  .then(async () => {
+  try {
+    const client = new ChromaClient();
+    await initializeFaceModels();
 
-  const collection = await client.getOrCreateCollection({
-    name: "face-api",
-    embeddingFunction: null,
-    // L2 here is squared L2, not Euclidean distance
-    metadata: { "hnsw:space": "l2" },
-  });
+    const collection = await client.getOrCreateCollection({
+      name: "face-api",
+      embeddingFunction: null,
+      metadata: { "hnsw:space": "l2" },
+    });
 
-  console.info("Looking for files");
-  const promises = [];
-  return new Promise((resolve, reject) => {
-  // Loop through all the files in the images directory
-  fs.readdir("images", function (err, files) {
-    if (err) {
-      console.error("Could not list the directory.", err);
-      process.exit(1);
-    }
+    const files = fs.readdirSync("images");
 
-    files.forEach(function (file, index) {
+    const promises = files.map(async (file) => {
       console.info("Adding task for " + file + " to index.");
-      promises.push(indexAllFaces(path.join("images", file), file, collection));
+      return indexAllFaces(path.join("images", file), file, collection);
     });
-    console.info("Done adding promises, waiting for completion.");
-    Promise.all(promises)
-    .then(async (results) => {
-      console.info("All images indexed.");
-  
-      const search = searchImage;
-  
-      console.log('\nTop-k indexed matches to ' + search + ':');
-      const matches = [];
-      for (var item of await findTopKMatches(collection, search, 5)) {
-        for (var i = 0; i < item.ids[0].length; i++) {
-          const match = {
-            document: item.documents[0][i]
-          };
-          matches.push(match);
-        }
+
+    await Promise.all(promises);
+    console.info("All images indexed.");
+
+    console.log('\nTop-k indexed matches to ' + searchImage + ':');
+    const matches = [];
+    for (var item of await findTopKMatches(collection, searchImage, 5)) {
+      for (var i = 0; i < item.ids[0].length; i++) {
+        const match = {
+          document: item.documents[0][i]
+        };
+        matches.push(match);
       }
-      resolve(matches);
-    })
-    .catch((err) => {
-      console.error("Error indexing images:", err);
-    });
-    });
-  });
-});  
+    }
+    return matches;
+  } catch (error) {
+    console.error("Error indexing and searching images:", error);
+    throw error;
+  }
 }
+module.exports = { indexAndSearch };
 
 
 
