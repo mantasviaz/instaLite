@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 function Profile() {
@@ -29,15 +29,33 @@ function Profile() {
     "#books",
   ]);
 
+  // Fetch user data including profile photo URL
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/users/${userId}`);
+        if (response.ok) {
+          const userData = await response.json();
+          setFormData(userData);
+        } else {
+          console.error("Failed to fetch user data:", await response.text());
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     // Only update the form data if the input field is not empty
-    if (value.trim() !== "") {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    //if (value.trim() !== "") {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
 
     if (!modifiedFields.includes(name)) {
       setModifiedFields([...modifiedFields, name]);
@@ -77,10 +95,10 @@ function Profile() {
   };
 
   const handleProfilePhotoChange = (e) => {
-    const imageFile = e.target.files[0];
+    const file = e.target.files[0];
     setFormData({
       ...formData,
-      profilePhoto: imageFile,
+      profilePhoto: file,
     });
     if (!modifiedFields.includes("profilePhoto")) {
       setModifiedFields([...modifiedFields, "profilePhoto"]);
@@ -94,23 +112,25 @@ function Profile() {
       return; // Exit the function without submitting the form
     }
     // Construct JSON object with updated fields
-    const modifiedData = {};
-    modifiedFields.forEach((field) => {
-      if (field !== "password" || formData[field].trim() !== "") {
-        modifiedData[field] = formData[field];
-      }
-    });
-
-    console.log(modifiedData)
-    console.log(JSON.stringify(modifiedData))
+    //const modifiedData = {};
+    //modifiedFields.forEach((field) => {
+    //if (field !== "password" || formData[field].trim() !== "") {
+    //modifiedData[field] = formData[field];
+    //}
+    //});
 
     try {
+      const formDataToSend = new FormData();
+      modifiedFields.forEach((field) => {
+        // Check if the field is not password or if it's not empty
+        if (field !== "password" || formData[field].trim() !== "") {
+          // Append the field and its value to the FormData object
+          formDataToSend.append(field, formData[field]);
+        }
+      });
       const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json" // Specify JSON content type
-        },
-        body: JSON.stringify(modifiedData) // Convert JSON object to string
+        body: formDataToSend,
       });
 
       if (response.ok) {
@@ -146,7 +166,7 @@ function Profile() {
             />
             {formData.profilePhoto && (
               <img
-                src={URL.createObjectURL(formData.profilePhoto)}
+                src={formData.profilePhoto}
                 alt="Profile"
                 className="w-32 h-32 rounded-full"
               />
