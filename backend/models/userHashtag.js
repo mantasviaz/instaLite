@@ -32,5 +32,7 @@ UserHashtag.init(
   }
 );
 
+UserHashtag.belongsTo(Hashtag, { foreignKey: 'hashtag_id' });
+
 console.log('UserHashtag table created');
 module.exports = UserHashtag;
