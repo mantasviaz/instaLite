@@ -16,6 +16,7 @@ function UserProfile({ socket }) {
   const [isFriends, setIsFriends] = useState('nothing');
   const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
+  const [hashtags, setHashtags] = useState([]);
   const { userId } = useParams();
   const { user } = useUserContext();
   const navigate = useNavigate();
@@ -58,12 +59,23 @@ function UserProfile({ socket }) {
         console.log(error);
       }
     };
+    const getHashtags = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/hashtags/${userId}`);
+        console.log(response);
+        setHashtags(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     if (user) {
       if (userId != user.userId) {
         getFriendshipStatus();
       }
       getUserData();
       getPosts();
+      getHashtags();
     }
   }, [user]);
 
@@ -142,42 +154,56 @@ function UserProfile({ socket }) {
                 )}
               </div>
             </div>
+            <div className='border-b-2 px-4 '>
+              <h1 className='text-2xl font-semibold my-5'>Hashtags Followed</h1>
+              <div className='grid grid-cols-4 mb-4'>
+                {hashtags.map((hashtag, idx) => (
+                  <p className='text-xl'>{`#${hashtag.Hashtag.text}`}</p>
+                ))}
+              </div>
+            </div>
             <div className='min-h-96'>
-              {posts.map((post, idx) => (
-                <>
-                  {post.image_url ? (
-                    <div
-                      key={idx}
-                      className='p-5 hover:bg-slate-100 cursor-pointer border-b-2 '
-                      onClick={() => navigate(`/post/${post.postId}`)}
-                    >
-                      <p>{dateDifference(new Date(post.created_at))}</p>
-                      <p>
-                        {post.text} <span></span>
-                      </p>
-                      <div className='flex-center w-full'>
-                        <div className='flex-center bg-black w-[65%]'>
-                          <img
-                            src={post.image_url}
-                            alt='User Post Image'
-                          />
+              {posts.length === 0 ? (
+                <div className='w-full h-96 flex-center'>
+                  <p className='text-5xl font-semibold'>No Posts Yet</p>
+                </div>
+              ) : (
+                posts.map((post, idx) => (
+                  <>
+                    {post.image_url ? (
+                      <div
+                        key={idx}
+                        className='p-5 hover:bg-slate-100 cursor-pointer border-b-2 '
+                        onClick={() => navigate(`/post/${post.postId}`)}
+                      >
+                        <p>{dateDifference(new Date(post.created_at))}</p>
+                        <p>
+                          {post.text} <span></span>
+                        </p>
+                        <div className='flex-center w-full'>
+                          <div className='flex-center bg-black w-[65%]'>
+                            <img
+                              src={post.image_url}
+                              alt='User Post Image'
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div
-                      key={idx}
-                      className='p-5 hover:bg-slate-100 cursor-pointer border-b-2'
-                      onClick={() => navigate(`/post/${post.postId}`)}
-                    >
-                      <p>{dateDifference(new Date(post.created_at))}</p>
-                      <p>
-                        {post.text} <span></span>
-                      </p>
-                    </div>
-                  )}
-                </>
-              ))}
+                    ) : (
+                      <div
+                        key={idx}
+                        className='p-5 hover:bg-slate-100 cursor-pointer border-b-2'
+                        onClick={() => navigate(`/post/${post.postId}`)}
+                      >
+                        <p>{dateDifference(new Date(post.created_at))}</p>
+                        <p>
+                          {post.text} <span></span>
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ))
+              )}
             </div>
           </div>
         </div>

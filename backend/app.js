@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+const cron = require('node-cron');
 const { Server } = require('socket.io');
 
 const sequelize = require('./config/dbConfig');
@@ -14,6 +15,7 @@ const feedRoutes = require('./routes/feedRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 const hashtagRoutes = require('./routes/hashtagRoutes');
+const naturalSearchRoutes = require('./routes/naturalSearchRoutes');
 
 const User = require('./models/user');
 const Post = require('./models/post');
@@ -25,10 +27,8 @@ const notification = require('./models/notification');
 const UserHashtag = require('./models/userHashtag');
 const followerRecommendation = require('./models/followerRecommendation');
 
-
 const app = express();
 app.use(cors());
-
 
 app.use(
   cors({
@@ -51,6 +51,7 @@ app.use('/api/likes', likeRoutes);
 app.use('/api/recommendation', recommendationRoutes);
 app.use('/api', feedRoutes);
 app.use('/api/hashtags', hashtagRoutes)
+app.use('/api/naturalSearch', naturalSearchRoutes);
 
 // Sync all models
 sequelize
@@ -124,4 +125,14 @@ io.on('connection', (socket) => {
 server.listen(3001, () => {
   console.log('IO SERVER');
 });
+
+// Schedule
+const getAllRecommendations = require('./followerRecommendation');
+const getTwitterPosts = require('./kafka/getTwitterPosts');
+const getFederatedPosts = require('./kafka/getFederatedPosts');
+
+cron.schedule('0 0 * * *', getAllRecommendations);
+cron.schedule('0 0 * * *', getTwitterPosts);
+cron.schedule('0 0 * * *', getFederatedPosts);
+
 module.exports = app;

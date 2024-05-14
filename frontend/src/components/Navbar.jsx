@@ -11,7 +11,7 @@ import compassLogo from '../assets/logos/compass.svg';
 import notifcationsLogo from '../assets/logos/heart.svg';
 import addLogo from '../assets/logos/plus-square.svg';
 import peopleLogo from '../assets/logos/people.svg';
-import listLogo from '../assets/logos/list.svg';
+import listLogo from '../assets/logos/box-arrow-left.svg';
 
 import Search from './Search';
 import Notification from './Notification';
@@ -116,15 +116,21 @@ function Navbar({ socket }) {
           />
           <img
             src={testProfileImg}
-            alt="Profile Picture"
-            className="nav-logo rounded-full"
-            onClick={() => navigate("/profile")}
+            alt='Profile Picture'
+            className='nav-logo rounded-full'
+            onClick={() => navigate('/profile')}
           />
         </div>
         <img
           src={listLogo}
           alt='List Logo'
           className='nav-logo mb-8'
+          onClick={async () => {
+            localStorage.removeItem('user');
+            dispatch({ type: 'LOGOUT' });
+            await axios.post('http://localhost:3000/api/users/status', { userId: user.userId, status: 'offline' });
+            navigate('/');
+          }}
         />
       </div>
       <Search isOpen={sidebar === 'search'} />
