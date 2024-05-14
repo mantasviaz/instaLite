@@ -17,7 +17,7 @@ function Home() {
   const [imageFeed, setImageFeed] = useState([]);
   const { user, dispatch } = useUserContext();
 
-  const [irene, setIrene] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
@@ -31,7 +31,7 @@ function Home() {
     try {
       const response = await axios.get(`http://localhost:3000/api/allposts?page=${page}`)
 
-      setIrene(old => [...old, ...response.data]);
+      setPosts(old => [...old, ...response.data]);
       setPage(old => old + 1);
 
       console.log(page, response)
@@ -68,8 +68,6 @@ function Home() {
       }
     };
 
-    // getImageFeed();
-    // getFeed();
     fetchFeed();
   }, []);
 
@@ -129,14 +127,14 @@ function Home() {
 
 
       <InfiniteScroll
-        dataLength={irene.length}
+        dataLength={posts.length}
         next={() => {console.log('try'); fetchFeed();}}
         loader={<p>LOADING EL OH EL</p>}
         hasMore={hasMore}
         endMessage={<p>THATS ALL HEHEHAHA</p>}
         scrollableTarget='scrollableDiv'
       >
-        {irene.map((post, idx) => (
+        {posts.map((post, idx) => (
         post.image_url ? (
           <ImagePost
             post={post}
@@ -151,21 +149,6 @@ function Home() {
         )
         )}
       </InfiniteScroll>
-      
-      {/* {imageFeed.length > 0 &&
-        imageFeed.map((post, idx) => (
-          <ImagePost
-            post={post}
-            key={idx}
-          />
-        ))}
-      {feed.length > 0 &&
-        feed.map((post, idx) => (
-          <TextPost
-            post={post}
-            key={idx}
-          />
-        ))} */}
 
     </div>
   );
