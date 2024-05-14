@@ -22,29 +22,27 @@ function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
 
-
   const fetchFeed = async () => {
     setLoading(true);
 
-    console.log('calling!!')
+    console.log('calling!!');
 
     try {
-      const response = await axios.get(`http://localhost:3000/api/allposts?page=${page}`)
+      const response = await axios.get(`http://localhost:3000/api/allposts?page=${page}`);
 
       setPosts(old => [...old, ...response.data]);
       setPage(old => old + 1);
 
-      console.log(page, response)
+      console.log(page, response);
 
-      console.log("HAS", hasMore)
+      console.log('HAS', hasMore);
 
-      setHasMore(response.data?.length > 0)
+      setHasMore(response.data?.length > 0);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-
   };
 
   useEffect(() => {
@@ -72,10 +70,13 @@ function Home() {
   }, []);
 
   return (
-    <div id='scrollableDiv' className='flex-start max-h-full flex-1 flex-col overflow-y-auto'>
+    <div
+      id='scrollableDiv'
+      className='flex-start max-h-full flex-1 flex-col overflow-y-auto'
+    >
       <CreatePost />
       {/* These buttons are to test the context */}
-      <button
+      {/* <button
         onClick={async () => {
           const jsonResponse = { username: 'Twitter', userId: 4 };
           localStorage.setItem('user', JSON.stringify(jsonResponse));
@@ -123,8 +124,7 @@ function Home() {
         }}
       >
         LOGOUT
-      </button>
-
+      </button> */}
 
       <InfiniteScroll
         dataLength={posts.length}
@@ -150,6 +150,20 @@ function Home() {
         )}
       </InfiniteScroll>
 
+      {/* {imageFeed.length > 0 &&
+        imageFeed.map((post, idx) => (
+          <ImagePost
+            post={post}
+            key={idx}
+          />
+        ))}
+      {feed.length > 0 &&
+        feed.map((post, idx) => (
+          <TextPost
+            post={post}
+            key={idx}
+          />
+        ))} */}
     </div>
   );
 }
