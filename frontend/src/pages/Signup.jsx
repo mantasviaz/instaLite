@@ -3,55 +3,55 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../hooks/useUserContext';
 
 function SignupForm() {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        school: '',
-        birthday: '',
-        profilePhoto: null, // To store the selected profile photo
-        hashtags: [],
-    });
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    school: '',
+    birthday: '',
+    profilePhoto: null, // To store the selected profile photo
+    hashtags: [],
+  });
 
-    //top10 hashtags
-    const [topHashtags, setTopHashtags] = useState([]);
-    const [selectedHashtags, setSelectedHashtags] = useState([]);
+  //top10 hashtags
+  const [topHashtags, setTopHashtags] = useState([]);
+  const [selectedHashtags, setSelectedHashtags] = useState([]);
 
-    const { dispatch } = useUserContext();
+  const { dispatch } = useUserContext();
 
-    const navigate = useNavigate(); // Access the history object
+  const navigate = useNavigate(); // Access the history object
 
-    const [selectedCircleIndex, setSelectedCircleIndex] = useState(0);
-    const [circleElements, setCircleElements] = useState([]);
+  const [selectedCircleIndex, setSelectedCircleIndex] = useState(0);
+  const [circleElements, setCircleElements] = useState([]);
 
-    useEffect(() => {
-        // Fetch top 10 hashtags
-        const fetchTopHashtags = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/hashtags/top10');
-                if (response.ok) {
-                    const data = await response.json();
-                    setTopHashtags(data); // Update topHashtags state
-                } else {
-                    console.error('Failed to fetch top hashtags');
-                }
-            } catch (error) {
-                console.error('Error fetching top hashtags:', error);
-            }
-        };
-
-        fetchTopHashtags(); // Call the fetchTopHashtags function
-    }, []);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+  useEffect(() => {
+    // Fetch top 10 hashtags
+    const fetchTopHashtags = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/hashtags/top10');
+        if (response.ok) {
+          const data = await response.json();
+          setTopHashtags(data); // Update topHashtags state
+        } else {
+          console.error('Failed to fetch top hashtags');
+        }
+      } catch (error) {
+        console.error('Error fetching top hashtags:', error);
+      }
     };
+
+    fetchTopHashtags(); // Call the fetchTopHashtags function
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
     const handleProfilePhotoChange = async (e) => {
         e.preventDefault();
@@ -102,38 +102,38 @@ function SignupForm() {
     };
 
 
-    const handleHashtagChange = (e, index) => {
-        const newHashtags = [...formData.hashtags];
-        newHashtags[index] = e.target.value;
-        setFormData({
-            ...formData,
-            hashtags: newHashtags,
-        });
-    };
+  const handleHashtagChange = (e, index) => {
+    const newHashtags = [...formData.hashtags];
+    newHashtags[index] = e.target.value;
+    setFormData({
+      ...formData,
+      hashtags: newHashtags,
+    });
+  };
 
-    const handleAddHashtag = () => {
-        setFormData({
-            ...formData,
-            hashtags: [...formData.hashtags, ''],
-        });
-    };
+  const handleAddHashtag = () => {
+    setFormData({
+      ...formData,
+      hashtags: [...formData.hashtags, ''],
+    });
+  };
 
-    const handleRemoveHashtag = (index) => {
-        const newHashtags = [...formData.hashtags];
-        newHashtags.splice(index, 1);
-        setFormData({
-            ...formData,
-            hashtags: newHashtags,
-        });
-    };
+  const handleRemoveHashtag = (index) => {
+    const newHashtags = [...formData.hashtags];
+    newHashtags.splice(index, 1);
+    setFormData({
+      ...formData,
+      hashtags: newHashtags,
+    });
+  };
 
-    const handleHashtagClick = (hashtag) => {
-        setFormData({
-            ...formData,
-            hashtags: [...formData.hashtags, hashtag],
-        });
-        setSelectedHashtags([...selectedHashtags, hashtag]);
-    };
+  const handleHashtagClick = (hashtag) => {
+    setFormData({
+      ...formData,
+      hashtags: [...formData.hashtags, hashtag],
+    });
+    setSelectedHashtags([...selectedHashtags, hashtag]);
+  };
 
     //review
     const handleSubmit = async (e) => {
@@ -148,30 +148,31 @@ function SignupForm() {
                 body: formDataToSend,
             });
 
-            if (response.ok) {
-                // convert response to JSON and save the user into local storage
-                const jsonResponse = await response.json();
-                localStorage.setItem('user', JSON.stringify(jsonResponse));
-                // update the user context
-                dispatch({ type: 'LOGIN', payload: jsonResponse });
-                console.log('User registered successfully');
+      if (response.ok) {
+        // convert response to JSON and save the user into local storage
+        const jsonResponse = await response.json();
+        localStorage.setItem('user', JSON.stringify(jsonResponse));
+        // update the user context
+        dispatch({ type: 'LOGIN', payload: jsonResponse });
+        const response = await axios.post('http://localhost:3000/api/users/status', { userId: jsonResponse.userId, status: 'online' });
+        console.log('User registered successfully');
 
-                navigate('/home'); // Use navigate for redirections
-            } else {
-                console.error('Failed to register user');
-            }
-        } catch (error) {
-            console.error('Error registering user:', error);
-        }
+        navigate('/home'); // Use navigate for redirections
+      } else {
+        console.error('Failed to register user');
+      }
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
 
-        /*try {
+    /*try {
           console.log('User registered successfully');
           navigate('/home');
           
         } catch (error) {
           console.error('Error registering user:', error);
         }*/
-    };
+  };
 
     return (
         <div className='signup-page flex justify-center items-center min-h-screen w-full bg-gray-100'>
