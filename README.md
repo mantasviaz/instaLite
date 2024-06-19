@@ -33,9 +33,7 @@ The system is a social media platform that allows users to register, login, mana
 - **Search:** ChromaDB is used to generate and manage embeddings. These embeddings are created from textual content (user details, post contents) to capture their semantic meanings. The system generates embeddings leveraging OpenAI’s embedding API. These embeddings are stored and managed within ChromaDB, allowing for quick semantic searches and similarity checks. The search functionality is exposed through a RESTful API, enabling the frontend to perform search queries and display results to users.
 
 
-
-
-## Extra Credit
+## Extra Features
 - Infinite Scrolling
 - Web sockets using Socket.io
 - Friend requests
