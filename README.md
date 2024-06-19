@@ -1,14 +1,5 @@
 # InstaLite
 
-## Team Information
-- **Team Name:** leftovers
-- **Team Number:** 43
-- **Group Members:**
-  - Irene Kim, kirene@sas.upenn.edu
-  - John Majernik, johnmaj@seas.upenn.edu
-  - Name, Email
-
-
 ## Overview of the system
 The system is a social media platform that allows users to register, login, manage their profiles, interact with friends, post content, engage with hashtags, participate in chats, and more. It incorporates features like user registration, login authentication, profile management, hashtag management, infinite scrolling for posts, friend requests, real-time chat using WebSockets, Kafka streaming for Twitter and federated posts, Apache Spark for post and user ranking, S3 storage for large object storage, image search using face-matching algorithms, and semantic search using ChromaDB.
 
