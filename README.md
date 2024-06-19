@@ -1,4 +1,4 @@
-# Project README
+# InstaLite
 
 ## Team Information
 - **Team Name:** leftovers
