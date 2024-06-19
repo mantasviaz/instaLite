@@ -130,10 +130,6 @@ The system is a social media platform that allows users to register, login, mana
 - `frontend/vite.config.js`
 
 
-
-## Declaration of Academic Integrity
-- We pledge that our team's work fully complies with the university's academic integrity guidelines.
-
 ## Instructions for Running Project
 1. **Set up the environment**:
    - Install necessary dependencies with `npm install`.
